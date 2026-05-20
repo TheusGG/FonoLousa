@@ -1,0 +1,15 @@
+.gradle/
+build/
+app/build/
+
+local.properties
+
+tools/gradle-*/
+tools/*.zip
+
+output/
+
+*.iml
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,282 @@
+FonoLousa
+
+ESPECIFICAÇÃO TÉCNICA — App FonoLousa
+
+Plataforma de Apoio Fonoaudiológico para Crianças
+
+19 de maio de 2026
+
+---
+
+# ESPECIFICAÇÃO TÉCNICA — App FonoLousa
+
+## 1. VISÃO GERAL
+
+Aplicativo mobile Android para tablet, 100% offline, voltado para fonoaudiólogos utilizarem durante sessões presenciais com crianças que têm dificuldade de fala. O app funciona como uma "lousa escolar digital" que exibe imagens + som + texto escrito para estimulação da fala infantil.
+
+## 2. PÚBLICO-ALVO
+
+Usuário operador: Fonoaudiólogo (conduz a sessão)
+Público final: Crianças com dificuldade de fala (interagem tocando na tela junto com o fono)
+Faixa etária sugerida: 2 a 8 anos
+
+## 3. PLATAFORMA E REQUISITOS TÉCNICOS
+
+Plataforma: Android (tablet)
+Alvo de API: Android 8.0 (API 26) ou superior
+Conectividade: 100% offline — todas as imagens e sons embutidos no APK
+Armazenamento interno: imagens e sons empacotados como assets do app
+Linguagem: Kotlin (nativo) ou Flutter (cross-platform)
+Arquitetura sugerida: MVVM com injeção de dependência simples
+
+## 4. ESTRUTURA DE DADOS
+
+### 4.1 Categorias (8 no total)
+
+Cada categoria possui as propriedades: id, nome, iconeAssetPath, corTema, itens.
+
+As categorias são:
+
+1. **Animais** (cor tema: verde) — vaca, cachorro, gato, cavalo, galinha, pato, leão, elefante, macaco, peixe, pássaro, tartaruga, coelho, ovelha, sapo
+2. **Alimentos** (cor tema: vermelho) — maçã, banana, pão, leite, suco, arroz, feijão, ovo, bolo, sorvete, pizza, macarrão, frango, sopa, cenoura
+3. **Casa e Objetos** (cor tema: azul) — mesa, cadeira, cama, porta, janela, sofá, fogão, geladeira, televisão, telefone, relógio, lâmpada, chave, livro, lápis
+4. **Veículos** (cor tema: laranja) — carro, moto, bicicleta, avião, barco, trem, ônibus, caminhão, trator, helicóptero, navio, foguete, patinete, ambulância
+5. **Corpo e Roupas** (cor tema: rosa) — olho, boca, nariz, mão, pé, cabelo, cabeça, braço, perna, sapato, camisa, calça, vestido, chapéu, meia
+6. **Natureza** (cor tema: amarelo) — sol, lua, estrela, árvore, flor, água, fogo, chuva, vento, nuvem, montanha, mar, rio, pedra, arco-íris
+7. **Brinquedos** (cor tema: roxo) — bola, boneca, pipa, carrinho, dominó, quebra-cabeça, ursinho, bloco, peteca, corda, pião, fantoche, tambor, apito
+8. **Família e Pessoas** (cor tema: marrom) — mãe, pai, bebê, vovó, vovô, tio, tia, irmão, amigo, médico, professor, bombeiro, policial, pintor, carteiro
+
+### 4.2 Níveis de Dificuldade (4 níveis)
+
+Cada item de cada categoria será classificado em um dos 4 níveis com base na COMPLEXIDADE SILÁBICA:
+
+
+
+
+Nível
+Descrição
+Exemplos
+
+
+
+
+Nível 1
+Palavras de 2 sílabas (simples, consoante+vogal)
+ga-to, va-ca, pa-to, bo-la, so-fá, ca-sa
+
+
+Nível 2
+Palavras de 3 sílabas
+ga-li-nha, bo-ne-ca, ca-dei-ra, cha-péu
+
+
+Nível 3
+Palavras com 4+ sílabas ou encontros consonantais
+bor-bo-le-ta, e-le-fan-te, cro-co-di-lo, par-afu-so
+
+
+Nível 4
+Frases curtas com artigo + substantivo
+"o gato", "a vaca", "o elefante grande", "a bola azul"
+
+
+
+
+Regra: Cada nível deve ter entre 10 e 15 itens por categoria. Portanto, cada categoria precisa ter entre 40 e 60 itens no total (distribuídos nos 4 níveis). Se a categoria não tiver palavras suficientes em algum nível, pode-se repetir palavras em frases no nível 4 ou incluir variações (ex: "cachorro" nível 2, "cachorro grande" nível 4).
+
+### 4.3 Modelo de Dados (JSON)
+
+```json
+{
+  "categorias": [
+    {
+      "id": "animais",
+      "nome": "Animais",
+      "cor": "#4CAF50",
+      "icone": "ic_animais.png",
+      "niveis": [
+        {
+          "nivel": 1,
+          "itens": [
+            {
+              "id": "vaca",
+              "palavra": "Vaca",
+              "silabas": 2,
+              "imagem": "animais/n1_vaca.png",
+              "som": "animais/n1_vaca.mp3",
+              "frase": "a vaca"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## 5. FLUXO DE NAVEGAÇÃO (TELAS)
+
+### Tela 1 — Tela Inicial (Home)
+
+Estilo visual: Lousa escolar (fundo verde escuro #2E7D32 ou preto #1A1A1A)
+Elementos: bordas simulando quadro negro, textura de giz
+Título: "FonoLousa" em letra cursiva branca/colorida (estilo giz)
+Subtítulo: "Toque em uma categoria para começar"
+Grade de 8 botões grandes (2 colunas x 4 linhas) com:
+- Ícone grande representando a categoria
+- Nome da categoria abaixo
+- Cada botão com a cor tema da categoria
+- Bordas arredondadas simulando desenho infantil
+
+Ao tocar em uma categoria: navega para Tela 2.
+
+### Tela 2 — Seleção de Nível
+
+Mantém o fundo de lousa escolar
+Topo: Botão de voltar (<) + Nome da categoria selecionada
+Título: "Escolha o nível"
+4 cards grandes (um abaixo do outro) representando cada nível:
+- Card 1: "Nível 1 — Fácil" com estrela dourada e descrição "Palavras de 2 sílabas"
+- Card 2: "Nível 2 — Médio" com 2 estrelas e descrição "Palavras de 3 sílabas"
+- Card 3: "Nível 3 — Difícil" com 3 estrelas e descrição "Palavras maiores"
+- Card 4: "Nível 4 — Frases" com troféu e descrição "Frases curtas"
+
+Cada card: borda de giz colorida, fundo semi-transparente
+Ao tocar em um nível: navega para Tela 3.
+
+### Tela 3 — Grade de Itens
+
+Mantém o fundo de lousa escolar
+Topo: Botão de voltar + Nome da categoria + Nível selecionado
+Grade de 10 a 15 imagens (3 colunas, scroll vertical):
+- Cada item: imagem quadrada + nome da palavra abaixo
+- Imagens com borda branca simulando desenho no quadro
+- Efeito de "giz" no texto
+
+Indicador de progresso: "Item X de Y" no canto
+Ao tocar em um item: navega para Tela 4.
+
+### Tela 4 — Visualização do Item (Tela Principal de Estimulação)
+
+Fundo: Lousa escolar (ocupa a tela inteira)
+Imagem GRANDE no centro (ocupando ~60% da tela)
+Abaixo da imagem: Nome da palavra em letra grande (estilo quadro escolar)
+Botão de som (ícone de alto-falante) — ao tocar, reproduz o áudio da palavra
+Automático: Ao entrar na tela, o som da palavra é reproduzido automaticamente
+Abaixo: 2 botões grandes:
+- Botão "Anterior" (seta para esquerda)
+- Botão "Próximo" (seta para direita)
+
+Navegação: Anterior/Próximo navega entre os itens do mesmo nível
+Canto inferior: Número do item (ex: "3/12")
+Botão de voltar para voltar à grade.
+
+## 6. GERAÇÃO DE CONTEÚDO POR IA
+
+### 6.1 Imagens
+
+Estilo: Ilustrações infantis coloridas, fundo branco ou transparente, traços simples e amigáveis
+Formato: PNG, resolução 512x512px
+Prompt para IA de geração de imagens: "Ilustração infantil colorida em estilo cartoon, traços simples e amigáveis, de [ITEM], fundo branco, sem texto, sem pessoas, estilo livro infantil"
+
+### 6.2 Sons (Áudio)
+
+Formato: MP3, qualidade padrão (128kbps), duração de 1 a 2 segundos por palavra
+Conteúdo: Locução infantil ou feminina clara, pronunciando a palavra pausadamente
+O som deve conter APENAS a palavra, sem música de fundo
+Para o Nível 4 (frases): locução da frase completa (ex: "o gato")
+
+## 7. INTERAÇÕES E ANIMAÇÕES
+
+Transição entre telas: Animação suave (fade ou slide)
+Ao tocar em um item da grade: zoom leve na imagem + som
+Ao reproduzir som: imagem pode ter uma leve animação (pular ou balançar)
+Feedback tátil: vibração suave ao tocar nos botões (opcional)
+Confirmação visual: botão muda de cor brevemente ao ser tocado
+
+## 8. CONSIDERAÇÕES DE UX/UI
+
+Botões grandes (mínimo 60dp de altura) — fáceis de tocar
+Fontes grandes e legíveis — crianças podem ver de longe
+Contraste alto — imagens e texto claros contra fundo escuro
+Sem anúncios, sem pop-ups, sem distrações
+Zero permissões desnecessárias — não precisa de câmera, GPS, contatos
+Toda interação tem feedback imediato (visual ou sonoro)
+
+## 9. TECNOLOGIA SUGERIDA
+
+Opção A (Recomendada): Kotlin + Jetpack Compose
+- Navegação: Jetpack Navigation
+- Áudio: MediaPlayer (com SoundPool para sons curtos)
+- Assets: Embutidos em res/raw (sons) e res/drawable (imagens)
+- Armazenamento: SharedPreferences ou Room (para progresso/salvos)
+
+Opção B (Alternativa): Flutter
+- Navegação: Navigator 2.0 ou GoRouter
+- Áudio: audioplayers package
+- Assets: assets/ folder no pubspec.yaml
+- Roda em Android e futuro iOS com mesma base
+
+## 10. PADRÃO DE PASTA DE ASSETS
+
+```
+app/
+├── assets/
+│   ├── imagens/
+│   │   ├── animais/
+│   │   │   ├── n1_vaca.png
+│   │   │   ├── n1_gato.png
+│   │   │   ├── n2_galinha.png
+│   │   │   └── ...
+│   │   ├── alimentos/
+│   │   │   ├── n1_maca.png
+│   │   │   └── ...
+│   │   └── ...
+│   ├── sons/
+│   │   ├── animais/
+│   │   │   ├── n1_vaca.mp3
+│   │   │   ├── n1_gato.mp3
+│   │   │   └── ...
+│   │   └── ...
+│   └── icones/
+│       ├── ic_animais.png
+│       ├── ic_alimentos.png
+│       └── ...
+└── ...
+```
+
+## 11. EXEMPLO DE DISTRIBUIÇÃO DE ITENS (Categoria: Animais)
+
+**Nível 1 (2 sílabas) — 12 itens:**
+vaca, gato, pato, sapo, boi, rato, peixe, cobra, pinto, foca, urso, bode
+
+**Nível 2 (3 sílabas) — 12 itens:**
+cavalo, galinha, macaco, coelho, ovelha, tartaruga, cachorro, porco, pintinho, abelha, girafa, camelo
+
+**Nível 3 (4+ sílabas) — 10 itens:**
+elefante, borboleta, crocodilo, passarinho, tucano, joaninha, caranguejo, hipopótamo, lagartixa, dinossauro
+
+**Nível 4 (frases) — 10 itens:**
+"o gato", "a vaca", "o cavalo", "a galinha", "o elefante", "o pato amarelo", "o sapo verde", "a borboleta azul", "o cachorro grande", "o passarinho pequeno"
+
+## 12. ORDEM DE DESENVOLVIMENTO (Roadmap incremental)
+
+1. **MVP (Mínimo Produto Viável):** Estrutura básica do app com 2 categorias (Animais, Alimentos) e 1 nível funcional — Home → Categoria → Nível → Grade → Visualização com imagem + som
+2. **Expansão de conteúdo:** Adicionar as 6 categorias restantes e todos os 4 níveis
+3. **Refinamento visual:** Tema de lousa escolar completo, animações, transições
+4. **Recursos extras:** Modo favoritos, indicador de progresso, relatório simples da sessão
+5. **Testes com fonoaudiólogos:** Coletar feedback e ajustar
+6. **Lançamento:** Publicação na Google Play Store
+
+---
+
+INSTRUÇÕES FINAIS PARA QUEM FOR IMPLEMENTAR:
+
+1. O conteúdo de TODAS as categorias (lista completa de itens com classificação por nível) DEVE ser definido em um arquivo de configuração JSON ou estrutura de dados antes de começar a codificar.
+2. As imagens e sons podem ser gerados por IA generativa de imagem (DALL-E, Stable Diffusion, etc.) e TTS (text-to-speech) como Google Cloud TTS ou ElevenLabs.
+3. Para a geração em massa de imagens e sons, crie um script separado que processa o JSON de configuração e gera todos os assets de uma vez.
+4. O app deve funcionar COMPLETAMENTE offline — nenhum recurso deve depender de internet após a instalação.
+5. Testar em tablet de 7 a 10 polegadas como tela principal.
+6. Priorizar performance e leveza — app deve abrir em menos de 2 segundos.
+
+Documento elaborado em 19 de maio de 2026.
