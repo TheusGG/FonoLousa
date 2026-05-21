@@ -77,6 +77,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.fonolousa.app.audio.AudioPlayer
+import com.fonolousa.app.BuildConfig
 import com.fonolousa.app.data.Categoria
 import com.fonolousa.app.data.DataRepository
 import com.fonolousa.app.data.ItemFono
@@ -202,9 +203,18 @@ private fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             ChalkText(
+                text = "Versao ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                fontSize = 18,
+                color = ChalkWhite.copy(alpha = 0.82f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp)
+            )
+            ChalkText(
                 text = "Toque em uma categoria",
                 fontSize = 24,
-                modifier = Modifier.padding(top = 4.dp, bottom = 22.dp)
+                modifier = Modifier.padding(top = 6.dp, bottom = 22.dp)
             )
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -535,7 +545,7 @@ private fun ItemCell(
             IconButton(
                 onClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    audioPlayer.play(item.arquivoSom)
+                    audioPlayer.play(item.arquivoSom, item.audioText(level))
                 },
                 modifier = Modifier
                     .size(50.dp)
@@ -573,7 +583,7 @@ private fun ItemViewerScreen(
     )
 
     LaunchedEffect(item.id) {
-        audioPlayer.play(item.arquivoSom)
+        audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
         pulse = true
     }
 
@@ -615,7 +625,7 @@ private fun ItemViewerScreen(
                 )
                 IconButton(
                     onClick = {
-                        audioPlayer.play(item.arquivoSom)
+                        audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
                         pulse = true
                     },
                     modifier = Modifier
@@ -849,4 +859,8 @@ private fun ItemFono.displayText(level: Int): String {
     } else {
         palavra
     }
+}
+
+private fun ItemFono.audioText(level: Int): String {
+    return if (level == 4) frase else palavra
 }

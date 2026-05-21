@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  2,
-    "versionName":  "1.0.1",
+    "versionCode":  3,
+    "versionName":  "1.0.2",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-debug.apk",
-    "notes":  "Correcao da grade de imagens: imagem inteira, palavra e botao de som separado."
+    "notes":  "Versao visivel, teste direto via ADB, audio por TTS e placeholders de imagem sem texto."
 }

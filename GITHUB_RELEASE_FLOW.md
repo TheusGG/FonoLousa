@@ -30,6 +30,22 @@ Execute:
 powershell -ExecutionPolicy Bypass -File build-github-release.ps1
 ```
 
+## Testar sem baixar APK manualmente
+
+Com o emulador ou tablet conectado no ADB:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File test-dev.ps1
+```
+
+Para LDPlayer, se ele nao aparecer em `adb devices`, tente:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File test-dev.ps1 -Connect 127.0.0.1:5555
+```
+
+Esse fluxo compila, instala por cima e abre o app direto no emulador/tablet.
+
 Isso gera:
 
 ```text

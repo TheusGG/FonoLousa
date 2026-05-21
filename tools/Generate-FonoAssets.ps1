@@ -186,6 +186,89 @@ $json = $database | ConvertTo-Json -Depth 10
 
 Add-Type -AssemblyName System.Drawing
 
+function Draw-PlaceholderIcon($graphics, [string]$categoryId, [Drawing.Color]$categoryColor) {
+    $pen = [Drawing.Pen]::new($categoryColor, 16)
+    $thinPen = [Drawing.Pen]::new($categoryColor, 9)
+    $brush = [Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(48, $categoryColor))
+    $solidBrush = [Drawing.SolidBrush]::new($categoryColor)
+    try {
+        switch ($categoryId) {
+            "animais" {
+                $graphics.FillEllipse($brush, 142, 138, 228, 190)
+                $graphics.DrawEllipse($pen, 142, 138, 228, 190)
+                $graphics.DrawEllipse($thinPen, 104, 106, 88, 94)
+                $graphics.DrawEllipse($thinPen, 320, 106, 88, 94)
+                $graphics.FillEllipse($solidBrush, 214, 210, 26, 26)
+                $graphics.FillEllipse($solidBrush, 272, 210, 26, 26)
+                $graphics.DrawArc($thinPen, 212, 240, 88, 48, 15, 150)
+            }
+            "alimentos" {
+                $graphics.DrawEllipse($pen, 116, 136, 280, 220)
+                $graphics.DrawEllipse($thinPen, 166, 184, 180, 124)
+                $graphics.FillEllipse($solidBrush, 230, 106, 58, 58)
+                $graphics.DrawLine($thinPen, 288, 120, 324, 86)
+            }
+            "casa-objetos" {
+                $points = [Drawing.Point[]]@(
+                    [Drawing.Point]::new(120, 234),
+                    [Drawing.Point]::new(256, 126),
+                    [Drawing.Point]::new(392, 234)
+                )
+                $graphics.DrawPolygon($pen, $points)
+                $graphics.DrawRectangle($pen, 154, 234, 204, 150)
+                $graphics.DrawRectangle($thinPen, 232, 288, 48, 96)
+            }
+            "veiculos" {
+                $graphics.FillRectangle($brush, 112, 228, 288, 94)
+                $graphics.DrawRectangle($pen, 112, 228, 288, 94)
+                $graphics.DrawRectangle($thinPen, 196, 168, 140, 62)
+                $graphics.DrawEllipse($pen, 142, 300, 64, 64)
+                $graphics.DrawEllipse($pen, 306, 300, 64, 64)
+            }
+            "corpo-roupas" {
+                $points = [Drawing.Point[]]@(
+                    [Drawing.Point]::new(190, 132),
+                    [Drawing.Point]::new(322, 132),
+                    [Drawing.Point]::new(382, 222),
+                    [Drawing.Point]::new(330, 258),
+                    [Drawing.Point]::new(330, 382),
+                    [Drawing.Point]::new(182, 382),
+                    [Drawing.Point]::new(182, 258),
+                    [Drawing.Point]::new(130, 222)
+                )
+                $graphics.FillPolygon($brush, $points)
+                $graphics.DrawPolygon($pen, $points)
+            }
+            "natureza" {
+                $graphics.FillEllipse($brush, 154, 88, 112, 112)
+                $graphics.DrawEllipse($pen, 154, 88, 112, 112)
+                $graphics.FillEllipse($brush, 206, 210, 120, 120)
+                $graphics.DrawEllipse($pen, 206, 210, 120, 120)
+                $graphics.DrawLine($pen, 256, 320, 256, 402)
+                $graphics.DrawArc($thinPen, 130, 346, 252, 92, 180, 180)
+            }
+            "brinquedos" {
+                $graphics.FillEllipse($brush, 132, 132, 248, 248)
+                $graphics.DrawEllipse($pen, 132, 132, 248, 248)
+                $graphics.DrawArc($thinPen, 150, 150, 212, 212, 18, 120)
+                $graphics.DrawArc($thinPen, 150, 150, 212, 212, 198, 120)
+                $graphics.DrawLine($thinPen, 160, 256, 352, 256)
+            }
+            default {
+                $graphics.FillEllipse($brush, 156, 96, 200, 200)
+                $graphics.DrawEllipse($pen, 156, 96, 200, 200)
+                $graphics.DrawLine($pen, 256, 296, 256, 402)
+                $graphics.DrawLine($thinPen, 176, 344, 336, 344)
+            }
+        }
+    } finally {
+        $pen.Dispose()
+        $thinPen.Dispose()
+        $brush.Dispose()
+        $solidBrush.Dispose()
+    }
+}
+
 foreach ($category in $database.categorias) {
     $categoryColor = [Drawing.ColorTranslator]::FromHtml($category.cor)
     foreach ($level in $category.niveis) {
@@ -203,19 +286,7 @@ foreach ($category in $database.categorias) {
             $lightBrush = [Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(28, $categoryColor))
             $pen = [Drawing.Pen]::new($categoryColor, 12)
             $graphics.FillEllipse($lightBrush, 36, 36, 440, 440)
-            $graphics.DrawEllipse($pen, 42, 42, 428, 428)
-
-            $fontSize = if ($item.palavra.Length -gt 12) { 42 } elseif ($item.palavra.Length -gt 8) { 50 } else { 62 }
-            $font = [Drawing.Font]::new("Arial", $fontSize, [Drawing.FontStyle]::Bold, [Drawing.GraphicsUnit]::Pixel)
-            $format = [Drawing.StringFormat]::new()
-            $format.Alignment = [Drawing.StringAlignment]::Center
-            $format.LineAlignment = [Drawing.StringAlignment]::Center
-            $format.Trimming = [Drawing.StringTrimming]::EllipsisWord
-            $rect = [Drawing.RectangleF]::new(54, 126, 404, 220)
-            $graphics.DrawString($item.palavra, $font, $brush, $rect, $format)
-
-            $smallFont = [Drawing.Font]::new("Arial", 30, [Drawing.FontStyle]::Bold, [Drawing.GraphicsUnit]::Pixel)
-            $graphics.DrawString("Nivel $($level.nivel)", $smallFont, $brush, [Drawing.RectangleF]::new(54, 360, 404, 60), $format)
+            Draw-PlaceholderIcon $graphics $category.id $categoryColor
 
             $bitmap.Save($fullImagePath, [Drawing.Imaging.ImageFormat]::Png)
             $graphics.Dispose()
@@ -223,9 +294,6 @@ foreach ($category in $database.categorias) {
             $brush.Dispose()
             $lightBrush.Dispose()
             $pen.Dispose()
-            $font.Dispose()
-            $smallFont.Dispose()
-            $format.Dispose()
         }
     }
 }
