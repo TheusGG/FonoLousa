@@ -480,50 +480,65 @@ private fun ItemCell(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .height(176.dp)
+            .height(214.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(3.dp, borderColor, RoundedCornerShape(8.dp))
-            .background(Color.White.copy(alpha = 0.96f))
-            .clickable {
-                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                onClick()
-            }
-            .padding(8.dp)
+            .background(Color.White)
+            .padding(10.dp),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        AssetImage(
-            repository = repository,
-            path = item.arquivoImagem,
-            contentDescription = item.displayText(level),
+        Box(
             modifier = Modifier
-                .size(96.dp)
+                .fillMaxWidth()
+                .weight(1f)
                 .clip(RoundedCornerShape(8.dp))
                 .border(2.dp, borderColor.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
                 .background(Color.White)
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
+                .clickable {
+                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onClick()
+                }
+                .padding(6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            AssetImage(
+                repository = repository,
+                path = item.arquivoImagem,
+                contentDescription = item.displayText(level),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Text(
+            text = item.displayText(level).uppercase(),
+            color = Color(0xFF2A2A2A),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Black,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .fillMaxWidth()
+                .height(46.dp)
+                .clickable {
+                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onClick()
+                }
                 .padding(top = 6.dp)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = item.displayText(level).uppercase(),
-                color = Color(0xFF2A2A2A),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Black,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
             IconButton(
                 onClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     audioPlayer.play(item.arquivoSom)
                 },
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(50.dp)
                     .clip(CircleShape)
                     .background(borderColor)
             ) {
@@ -531,7 +546,7 @@ private fun ItemCell(
                     imageVector = Icons.Filled.VolumeUp,
                     contentDescription = "Tocar som",
                     tint = ChalkWhite,
-                    modifier = Modifier.size(26.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             }
         }
