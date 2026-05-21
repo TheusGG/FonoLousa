@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
 $assetsRoot = Join-Path $root "app/src/main/assets"
@@ -186,6 +186,63 @@ $json = $database | ConvertTo-Json -Depth 10
 
 Add-Type -AssemblyName System.Drawing
 
+$visualGlyphs = [ordered]@{
+    "vaca" = "🐮"; "boi" = "🐂"; "gato" = "🐱"; "pato" = "🦆"; "sapo" = "🐸"; "rato" = "🐭"; "peixe" = "🐟"; "cobra" = "🐍"; "pinto" = "🐥"; "pintinho" = "🐥"; "foca" = "🦭"; "urso" = "🐻"; "bode" = "🐐"
+    "cavalo" = "🐴"; "galinha" = "🐔"; "macaco" = "🐵"; "coelho" = "🐰"; "ovelha" = "🐑"; "tartaruga" = "🐢"; "cachorro" = "🐶"; "porco" = "🐷"; "abelha" = "🐝"; "girafa" = "🦒"; "camelo" = "🐫"
+    "elefante" = "🐘"; "borboleta" = "🦋"; "crocodilo" = "🐊"; "passarinho" = "🐦"; "tucano" = "🐦"; "joaninha" = "🐞"; "caranguejo" = "🦀"; "hipopotamo" = "🦛"; "lagartixa" = "🦎"; "dinossauro" = "🦖"
+    "leite" = "🥛"; "arroz" = "🍚"; "ovo" = "🥚"; "bolo" = "🍰"; "sopa" = "🍲"; "suco" = "🧃"; "cafe" = "☕"; "uva" = "🍇"; "bife" = "🥩"; "queijo" = "🧀"; "pera" = "🍐"; "doce" = "🍬"
+    "banana" = "🍌"; "frango" = "🍗"; "sorvete" = "🍦"; "cenoura" = "🥕"; "pipoca" = "🍿"; "biscoito" = "🍪"; "iogurte" = "🥛"; "presunto" = "🥓"; "lasanha" = "🍝"; "panqueca" = "🥞"; "farofa" = "🍚"; "sanduiche" = "🥪"
+    "chocolate" = "🍫"; "macarrao" = "🍝"; "gelatina" = "🍮"; "torresmo" = "🥓"; "brigadeiro" = "🍫"; "cocada" = "🥥"; "canjica" = "🥣"; "pamonha" = "🌽"; "pudim" = "🍮"; "goiabada" = "🍬"; "fruta" = "🍎"
+    "cama" = "🛏"; "mesa" = "▭"; "porta" = "🚪"; "sofa" = "🛋"; "livro" = "📖"; "lapis" = "✏"; "chave" = "🔑"; "copo" = "🥛"; "prato" = "🍽"; "sino" = "🔔"; "jarro" = "🏺"; "vela" = "🕯"
+    "cadeira" = "🪑"; "janela" = "▣"; "fogao" = "🔥"; "relogio" = "🕒"; "lampada" = "💡"; "telefone" = "☎"; "tesoura" = "✂"; "cobertor" = "▰"; "panela" = "🍳"; "colher" = "🥄"; "lencol" = "▰"; "travesseiro" = "▭"
+    "geladeira" = "▯"; "televisao" = "📺"; "chuveiro" = "🚿"; "computador" = "💻"; "ventilador" = "✳"; "aspirador" = "↯"; "liquidificador" = "🥤"; "cafeteira" = "☕"; "espremedor" = "🍊"; "micro-ondas" = "▭"
+    "carro" = "🚗"; "moto" = "🏍"; "trem" = "🚂"; "barco" = "⛵"; "van" = "🚐"; "taxi" = "🚕"; "jato" = "✈"; "nave" = "🚀"; "metro" = "🚇"; "trator" = "🚜"; "bonde" = "🚋"; "fusca" = "🚗"
+    "bicicleta" = "🚲"; "patinete" = "🛴"; "caminhao" = "🚚"; "furgao" = "🚚"; "skate" = "🛹"; "velotrol" = "🚲"; "charrete" = "🐴"; "jangada" = "⛵"; "canoa" = "🛶"; "teleferico" = "🚠"; "jetski" = "🛥"; "kart" = "🏎"
+    "helicoptero" = "🚁"; "ambulancia" = "🚑"; "escavadeira" = "🚜"; "guindaste" = "🏗"; "carreta" = "🚛"; "caminhonete" = "🛻"; "motocicleta" = "🏍"; "submarino" = "⚓"; "aeronave" = "✈"; "foguete" = "🚀"
+    "olho" = "👁"; "boca" = "👄"; "nariz" = "👃"; "mao" = "✋"; "pe" = "🦶"; "dedo" = "☝"; "braco" = "💪"; "unha" = "✋"; "calca" = "👖"; "saia" = "▱"; "meia" = "🧦"; "dente" = "🦷"
+    "cabelo" = "💇"; "cabeca" = "🙂"; "sapato" = "👞"; "camisa" = "👕"; "vestido" = "👗"; "chapeu" = "👒"; "ombro" = "🙂"; "cotovelo" = "💪"; "joelho" = "🦵"; "gravata" = "👔"; "blusa" = "👚"; "bermuda" = "🩳"
+    "oculos" = "👓"; "pijama" = "👕"; "macacao" = "👕"; "jardineira" = "👖"; "sobretudo" = "🧥"; "moletom" = "👕"; "agasalho" = "🧥"; "uniforme" = "👕"; "sandalias" = "🩴"; "chinelo" = "🩴"
+    "sol" = "☀"; "lua" = "🌙"; "mar" = "🌊"; "rio" = "🌊"; "flor" = "🌸"; "chuva" = "🌧"; "vento" = "🍃"; "fogo" = "🔥"; "agua" = "💧"; "pedra" = "🪨"; "ceu" = "☁"; "monte" = "⛰"
+    "arvore" = "🌳"; "estrela" = "⭐"; "nuvem" = "☁"; "montanha" = "⛰"; "jardim" = "🌼"; "floresta" = "🌲"; "vulcao" = "🌋"; "semente" = "🌱"; "galho" = "🌿"; "espinho" = "🌵"; "cascata" = "🌊"; "nascente" = "💧"
+    "arco-iris" = "🌈"; "cachoeira" = "🌊"; "tempestade" = "⛈"; "deserto" = "🏜"; "por-do-sol" = "🌅"; "vegetacao" = "🌿"; "planicie" = "🌾"; "penhasco" = "⛰"; "oceano" = "🌊"; "lagoa" = "💧"
+    "bola" = "⚽"; "piao" = "⏺"; "dado" = "🎲"; "peteca" = "🏸"; "pipa" = "🪁"; "corda" = "➰"; "bloco" = "🧱"; "patins" = "🛼"; "balao" = "🎈"; "ioio" = "🪀"; "apito" = "📣"
+    "boneca" = "🧸"; "carrinho" = "🚗"; "fantoche" = "🧸"; "ursinho" = "🧸"; "domino" = "⬚"; "tambor" = "🥁"; "balanco" = "▱"; "gangorra" = "▱"; "cavalinho" = "🐴"; "escorrega" = "▱"; "gira-gira" = "◉"; "quebra-cabeca" = "🧩"
+    "escorregador" = "▱"; "velocipede" = "🚲"; "videogame" = "🎮"; "aeromodelo" = "✈"; "trenzinho" = "🚂"; "bonecao" = "🧸"; "pula-pula" = "🎪"; "bolinha-de-gude" = "🔵"; "barco-controle" = "⛵"
+    "mae" = "👩"; "pai" = "👨"; "vo" = "🧓"; "avo" = "🧓"; "tia" = "👩"; "tio" = "👨"; "bebe" = "👶"; "primo" = "🧒"; "filho" = "🧒"; "neto" = "🧒"
+    "irmao" = "🧑"; "irma" = "👧"; "amigo" = "🙂"; "vizinho" = "🙂"; "medico" = "🩺"; "bombeiro" = "🚒"; "pintor" = "🎨"; "carteiro" = "✉"; "dentista" = "🦷"; "pedreiro" = "🧱"; "motorista" = "🚗"; "professor" = "👩‍🏫"; "professora" = "👩‍🏫"
+    "veterinario" = "🩺"; "cabeleireiro" = "💇"; "advogado" = "⚖"; "engenheiro" = "⚙"; "arquiteto" = "📐"; "fisioterapeuta" = "💪"; "nutricionista" = "🍎"; "farmaceutico" = "💊"; "jornalista" = "📰"; "astronauta" = "👨‍🚀"
+}
+
+function Get-VisualGlyph($item) {
+    $source = (Remove-Accent "$($item.id) $($item.palavra) $($item.frase)").ToLowerInvariant()
+    foreach ($entry in $visualGlyphs.GetEnumerator()) {
+        $key = [Regex]::Escape($entry.Key)
+        if ($source -match "(^|[\s-])$key($|[\s-])") {
+            return $entry.Value
+        }
+    }
+    return $null
+}
+
+function Draw-VisualGlyph($graphics, [string]$glyph, [Drawing.Color]$categoryColor) {
+    $font = [Drawing.Font]::new("Segoe UI Emoji", 210, [Drawing.FontStyle]::Regular, [Drawing.GraphicsUnit]::Pixel)
+    $fallbackFont = [Drawing.Font]::new("Segoe UI Symbol", 210, [Drawing.FontStyle]::Regular, [Drawing.GraphicsUnit]::Pixel)
+    $format = [Drawing.StringFormat]::new()
+    $format.Alignment = [Drawing.StringAlignment]::Center
+    $format.LineAlignment = [Drawing.StringAlignment]::Center
+    $brush = [Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(245, 40, 40, 40))
+    try {
+        $graphics.DrawString($glyph, $font, $brush, [Drawing.RectangleF]::new(38, 34, 436, 436), $format)
+    } catch {
+        $graphics.DrawString($glyph, $fallbackFont, $brush, [Drawing.RectangleF]::new(38, 34, 436, 436), $format)
+    } finally {
+        $font.Dispose()
+        $fallbackFont.Dispose()
+        $format.Dispose()
+        $brush.Dispose()
+    }
+}
+
 function Draw-PlaceholderIcon($graphics, [string]$categoryId, [Drawing.Color]$categoryColor) {
     $pen = [Drawing.Pen]::new($categoryColor, 16)
     $thinPen = [Drawing.Pen]::new($categoryColor, 9)
@@ -276,6 +333,10 @@ foreach ($category in $database.categorias) {
             $relativeImagePath = $item.arquivoImagem.Remove(0, "assets/".Length)
             $fullImagePath = Join-Path $assetsRoot $relativeImagePath
             New-Dir (Split-Path -Parent $fullImagePath)
+            $existingImage = Get-Item $fullImagePath -ErrorAction SilentlyContinue
+            if ($existingImage -and $existingImage.Length -gt 120000) {
+                continue
+            }
 
             $bitmap = [Drawing.Bitmap]::new(512, 512)
             $graphics = [Drawing.Graphics]::FromImage($bitmap)
@@ -286,7 +347,12 @@ foreach ($category in $database.categorias) {
             $lightBrush = [Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(28, $categoryColor))
             $pen = [Drawing.Pen]::new($categoryColor, 12)
             $graphics.FillEllipse($lightBrush, 36, 36, 440, 440)
-            Draw-PlaceholderIcon $graphics $category.id $categoryColor
+            $glyph = Get-VisualGlyph $item
+            if ($glyph) {
+                Draw-VisualGlyph $graphics $glyph $categoryColor
+            } else {
+                Draw-PlaceholderIcon $graphics $category.id $categoryColor
+            }
 
             $bitmap.Save($fullImagePath, [Drawing.Imaging.ImageFormat]::Png)
             $graphics.Dispose()
@@ -300,3 +366,4 @@ foreach ($category in $database.categorias) {
 
 $itemCount = ($database.categorias | ForEach-Object { $_.niveis } | ForEach-Object { $_.itens } | Measure-Object).Count
 Write-Host "Generated database.json and $itemCount placeholder PNG files."
+

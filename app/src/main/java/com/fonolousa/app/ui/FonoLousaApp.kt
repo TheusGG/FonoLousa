@@ -862,5 +862,33 @@ private fun ItemFono.displayText(level: Int): String {
 }
 
 private fun ItemFono.audioText(level: Int): String {
+    animalSoundText()?.let { return it }
     return if (level == 4) frase else palavra
+}
+
+private fun ItemFono.animalSoundText(): String? {
+    val tokens = " ${id.substringBefore("-")} ${palavra.lowercase()} ${frase.lowercase()} "
+    fun has(value: String) = tokens.contains(" $value ")
+
+    return when {
+        has("vaca") || has("boi") -> "muuu"
+        has("gato") -> "miau"
+        has("pato") -> "quack quack"
+        has("sapo") -> "coax coax"
+        has("rato") -> "iii iii"
+        has("cobra") -> "ssss"
+        has("pinto") || has("pintinho") || has("passarinho") -> "piu piu"
+        has("foca") -> "arf arf"
+        has("urso") || has("dinossauro") -> "grrr"
+        has("bode") -> "bééé"
+        has("macaco") -> "u u a a"
+        has("cachorro") -> "au au"
+        has("porco") -> "oinc oinc"
+        has("ovelha") -> "mééé"
+        has("cavalo") -> "iirrr"
+        has("galinha") -> "cocoricó"
+        has("abelha") -> "zzzz"
+        has("elefante") -> "pruuu"
+        else -> null
+    }
 }
