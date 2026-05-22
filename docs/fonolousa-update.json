@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  6,
-    "versionName":  "1.0.5",
+    "versionCode":  7,
+    "versionName":  "1.0.6",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-debug.apk",
-    "notes":  "Correcao dos sons: removidos audios duvidosos e mantidos apenas MP3s reais/confiaveis; demais itens usam TTS."
+    "notes":  "Categoria Animais reconstruida a partir dos MP3s reais do Mixkit; cada item agora nasce do audio correto."
 }

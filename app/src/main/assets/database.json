@@ -9,377 +9,193 @@
                            "niveis":  [
                                           {
                                               "nivel":  1,
-                                              "descricao":  "Palavras curtas",
+                                              "descricao":  "Sons mais usados",
                                               "itens":  [
                                                             {
-                                                                "id":  "vaca",
+                                                                "id":  "vaca-mugindo",
                                                                 "palavra":  "Vaca",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_vaca.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_vaca.mp3",
+                                                                "arquivoImagem":  "assets/imagens/animais/n1_vaca-mugindo.png",
+                                                                "arquivoSom":  "assets/sons/animais/n1_vaca-mugindo.mp3",
                                                                 "frase":  "a vaca",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Vaca, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil simples de Vaca, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "gato",
+                                                                "id":  "gato-miando",
                                                                 "palavra":  "Gato",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_gato.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_gato.mp3",
+                                                                "arquivoImagem":  "assets/imagens/animais/n1_gato-miando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n1_gato-miando.mp3",
                                                                 "frase":  "o gato",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Gato, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil simples de Gato, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "pato",
-                                                                "palavra":  "Pato",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_pato.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_pato.mp3",
-                                                                "frase":  "o pato",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pato, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "cachorro-latindo",
+                                                                "palavra":  "Cachorro",
+                                                                "arquivoImagem":  "assets/imagens/animais/n1_cachorro-latindo.png",
+                                                                "arquivoSom":  "assets/sons/animais/n1_cachorro-latindo.mp3",
+                                                                "frase":  "o cachorro",
+                                                                "promptImagem":  "Imagem infantil simples de Cachorro, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "sapo",
-                                                                "palavra":  "Sapo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_sapo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_sapo.mp3",
-                                                                "frase":  "o sapo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Sapo, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "cavalo-relinchando",
+                                                                "palavra":  "Cavalo",
+                                                                "arquivoImagem":  "assets/imagens/animais/n1_cavalo-relinchando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n1_cavalo-relinchando.mp3",
+                                                                "frase":  "o cavalo",
+                                                                "promptImagem":  "Imagem infantil simples de Cavalo, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "boi",
-                                                                "palavra":  "Boi",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_boi.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_boi.mp3",
-                                                                "frase":  "o boi",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Boi, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "macaco-gritando",
+                                                                "palavra":  "Macaco",
+                                                                "arquivoImagem":  "assets/imagens/animais/n1_macaco-gritando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n1_macaco-gritando.mp3",
+                                                                "frase":  "o macaco",
+                                                                "promptImagem":  "Imagem infantil simples de Macaco, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "rato",
-                                                                "palavra":  "Rato",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_rato.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_rato.mp3",
-                                                                "frase":  "o rato",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Rato, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "peixe",
-                                                                "palavra":  "Peixe",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_peixe.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_peixe.mp3",
-                                                                "frase":  "o peixe",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Peixe, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "cobra",
-                                                                "palavra":  "Cobra",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_cobra.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_cobra.mp3",
-                                                                "frase":  "a cobra",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Cobra, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "pinto",
-                                                                "palavra":  "Pinto",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_pinto.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_pinto.mp3",
-                                                                "frase":  "o pinto",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pinto, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "foca",
-                                                                "palavra":  "Foca",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_foca.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_foca.mp3",
-                                                                "frase":  "a foca",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Foca, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "urso",
-                                                                "palavra":  "Urso",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_urso.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_urso.mp3",
-                                                                "frase":  "o urso",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Urso, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "bode",
-                                                                "palavra":  "Bode",
-                                                                "arquivoImagem":  "assets/imagens/animais/n1_bode.png",
-                                                                "arquivoSom":  "assets/sons/animais/n1_bode.mp3",
-                                                                "frase":  "o bode",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Bode, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "passarinho-piando",
+                                                                "palavra":  "Passarinho",
+                                                                "arquivoImagem":  "assets/imagens/animais/n1_passarinho-piando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n1_passarinho-piando.mp3",
+                                                                "frase":  "o passarinho",
+                                                                "promptImagem":  "Imagem infantil simples de Passarinho, sem texto, fundo branco"
                                                             }
                                                         ]
                                           },
                                           {
                                               "nivel":  2,
-                                              "descricao":  "Palavras medias",
+                                              "descricao":  "Animais da fazenda",
                                               "itens":  [
                                                             {
-                                                                "id":  "cavalo",
-                                                                "palavra":  "Cavalo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_cavalo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_cavalo.mp3",
-                                                                "frase":  "o cavalo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Cavalo, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "vaca-no-estabulo",
+                                                                "palavra":  "Vaca",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_vaca-no-estabulo.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_vaca-no-estabulo.mp3",
+                                                                "frase":  "a vaca",
+                                                                "promptImagem":  "Imagem infantil simples de Vaca, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "galinha",
-                                                                "palavra":  "Galinha",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_galinha.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_galinha.mp3",
-                                                                "frase":  "a galinha",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Galinha, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "galo-cantando",
+                                                                "palavra":  "Galo",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_galo-cantando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_galo-cantando.mp3",
+                                                                "frase":  "o galo",
+                                                                "promptImagem":  "Imagem infantil simples de Galo, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "macaco",
-                                                                "palavra":  "Macaco",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_macaco.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_macaco.mp3",
-                                                                "frase":  "o macaco",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Macaco, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "burro-zurrando",
+                                                                "palavra":  "Burro",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_burro-zurrando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_burro-zurrando.mp3",
+                                                                "frase":  "o burro",
+                                                                "promptImagem":  "Imagem infantil simples de Burro, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "coelho",
-                                                                "palavra":  "Coelho",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_coelho.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_coelho.mp3",
-                                                                "frase":  "o coelho",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Coelho, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "gansos-gritando",
+                                                                "palavra":  "Gansos",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_gansos-gritando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_gansos-gritando.mp3",
+                                                                "frase":  "os gansos",
+                                                                "promptImagem":  "Imagem infantil simples de Gansos, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "ovelha",
-                                                                "palavra":  "Ovelha",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_ovelha.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_ovelha.mp3",
-                                                                "frase":  "a ovelha",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Ovelha, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "gato-pequeno",
+                                                                "palavra":  "Gato pequeno",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_gato-pequeno.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_gato-pequeno.mp3",
+                                                                "frase":  "o gato pequeno",
+                                                                "promptImagem":  "Imagem infantil simples de Gato pequeno, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "tartaruga",
-                                                                "palavra":  "Tartaruga",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_tartaruga.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_tartaruga.mp3",
-                                                                "frase":  "a tartaruga",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Tartaruga, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "cachorro",
-                                                                "palavra":  "Cachorro",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_cachorro.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_cachorro.mp3",
-                                                                "frase":  "o cachorro",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Cachorro, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "porco",
-                                                                "palavra":  "Porco",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_porco.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_porco.mp3",
-                                                                "frase":  "o porco",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Porco, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "pintinho",
-                                                                "palavra":  "Pintinho",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_pintinho.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_pintinho.mp3",
-                                                                "frase":  "o pintinho",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pintinho, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "abelha",
-                                                                "palavra":  "Abelha",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_abelha.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_abelha.mp3",
-                                                                "frase":  "a abelha",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Abelha, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "girafa",
-                                                                "palavra":  "Girafa",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_girafa.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_girafa.mp3",
-                                                                "frase":  "a girafa",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Girafa, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "camelo",
-                                                                "palavra":  "Camelo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_camelo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_camelo.mp3",
-                                                                "frase":  "o camelo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Camelo, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "cachorro-bravo",
+                                                                "palavra":  "Cachorro bravo",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_cachorro-bravo.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_cachorro-bravo.mp3",
+                                                                "frase":  "o cachorro bravo",
+                                                                "promptImagem":  "Imagem infantil simples de Cachorro bravo, sem texto, fundo branco"
                                                             }
                                                         ]
                                           },
                                           {
                                               "nivel":  3,
-                                              "descricao":  "Palavras longas",
+                                              "descricao":  "Animais selvagens",
                                               "itens":  [
                                                             {
-                                                                "id":  "elefante",
-                                                                "palavra":  "Elefante",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_elefante.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_elefante.mp3",
-                                                                "frase":  "o elefante",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Elefante, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "leao-rugindo",
+                                                                "palavra":  "Leão",
+                                                                "arquivoImagem":  "assets/imagens/animais/n3_leao-rugindo.png",
+                                                                "arquivoSom":  "assets/sons/animais/n3_leao-rugindo.mp3",
+                                                                "frase":  "o leão",
+                                                                "promptImagem":  "Imagem infantil simples de Leão, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "borboleta",
-                                                                "palavra":  "Borboleta",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_borboleta.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_borboleta.mp3",
-                                                                "frase":  "a borboleta",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Borboleta, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "lobo-uivando",
+                                                                "palavra":  "Lobo",
+                                                                "arquivoImagem":  "assets/imagens/animais/n3_lobo-uivando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n3_lobo-uivando.mp3",
+                                                                "frase":  "o lobo",
+                                                                "promptImagem":  "Imagem infantil simples de Lobo, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "crocodilo",
-                                                                "palavra":  "Crocodilo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_crocodilo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_crocodilo.mp3",
-                                                                "frase":  "o crocodilo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Crocodilo, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "lobos-uivando",
+                                                                "palavra":  "Lobos",
+                                                                "arquivoImagem":  "assets/imagens/animais/n3_lobos-uivando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n3_lobos-uivando.mp3",
+                                                                "frase":  "os lobos",
+                                                                "promptImagem":  "Imagem infantil simples de Lobos, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "passarinho",
-                                                                "palavra":  "Passarinho",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_passarinho.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_passarinho.mp3",
-                                                                "frase":  "o passarinho",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Passarinho, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "cachorro-rosnando",
+                                                                "palavra":  "Cachorro rosnando",
+                                                                "arquivoImagem":  "assets/imagens/animais/n3_cachorro-rosnando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n3_cachorro-rosnando.mp3",
+                                                                "frase":  "o cachorro rosnando",
+                                                                "promptImagem":  "Imagem infantil simples de Cachorro rosnando, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "tucano",
-                                                                "palavra":  "Tucano",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_tucano.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_tucano.mp3",
-                                                                "frase":  "o tucano",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Tucano, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "joaninha",
-                                                                "palavra":  "Joaninha",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_joaninha.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_joaninha.mp3",
-                                                                "frase":  "a joaninha",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Joaninha, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "caranguejo",
-                                                                "palavra":  "Caranguejo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_caranguejo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_caranguejo.mp3",
-                                                                "frase":  "o caranguejo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Caranguejo, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "hipopotamo",
-                                                                "palavra":  "Hipopotamo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_hipopotamo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_hipopotamo.mp3",
-                                                                "frase":  "o hipopotamo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Hipopotamo, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "lagartixa",
-                                                                "palavra":  "Lagartixa",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_lagartixa.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_lagartixa.mp3",
-                                                                "frase":  "a lagartixa",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Lagartixa, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "dinossauro",
-                                                                "palavra":  "Dinossauro",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_dinossauro.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_dinossauro.mp3",
-                                                                "frase":  "o dinossauro",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Dinossauro, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "grilo-cantando",
+                                                                "palavra":  "Grilo",
+                                                                "arquivoImagem":  "assets/imagens/animais/n3_grilo-cantando.png",
+                                                                "arquivoSom":  "assets/sons/animais/n3_grilo-cantando.mp3",
+                                                                "frase":  "o grilo",
+                                                                "promptImagem":  "Imagem infantil simples de Grilo, sem texto, fundo branco"
                                                             }
                                                         ]
                                           },
                                           {
                                               "nivel":  4,
-                                              "descricao":  "Frases",
+                                              "descricao":  "Sons extras",
                                               "itens":  [
                                                             {
-                                                                "id":  "gato",
-                                                                "palavra":  "Gato",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_gato.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_gato.mp3",
-                                                                "frase":  "o gato",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Gato, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "gato-pedindo",
+                                                                "palavra":  "Gato pedindo",
+                                                                "arquivoImagem":  "assets/imagens/animais/n4_gato-pedindo.png",
+                                                                "arquivoSom":  "assets/sons/animais/n4_gato-pedindo.mp3",
+                                                                "frase":  "o gato pedindo",
+                                                                "promptImagem":  "Imagem infantil simples de Gato pedindo, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "vaca",
-                                                                "palavra":  "Vaca",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_vaca.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_vaca.mp3",
-                                                                "frase":  "a vaca",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Vaca, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "gato-com-dor",
+                                                                "palavra":  "Gato miando",
+                                                                "arquivoImagem":  "assets/imagens/animais/n4_gato-com-dor.png",
+                                                                "arquivoSom":  "assets/sons/animais/n4_gato-com-dor.mp3",
+                                                                "frase":  "o gato miando",
+                                                                "promptImagem":  "Imagem infantil simples de Gato miando, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "cavalo",
-                                                                "palavra":  "Cavalo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_cavalo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_cavalo.mp3",
-                                                                "frase":  "o cavalo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Cavalo, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "cavalo-forte",
+                                                                "palavra":  "Cavalo forte",
+                                                                "arquivoImagem":  "assets/imagens/animais/n4_cavalo-forte.png",
+                                                                "arquivoSom":  "assets/sons/animais/n4_cavalo-forte.mp3",
+                                                                "frase":  "o cavalo forte",
+                                                                "promptImagem":  "Imagem infantil simples de Cavalo forte, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "galinha",
-                                                                "palavra":  "Galinha",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_galinha.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_galinha.mp3",
-                                                                "frase":  "a galinha",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Galinha, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "elefante",
-                                                                "palavra":  "Elefante",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_elefante.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_elefante.mp3",
-                                                                "frase":  "o elefante",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Elefante, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "amarelo",
-                                                                "palavra":  "Amarelo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_amarelo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_amarelo.mp3",
-                                                                "frase":  "o pato amarelo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Amarelo, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "verde",
-                                                                "palavra":  "Verde",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_verde.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_verde.mp3",
-                                                                "frase":  "o sapo verde",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Verde, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "azul",
-                                                                "palavra":  "Azul",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_azul.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_azul.mp3",
-                                                                "frase":  "a borboleta azul",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Azul, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "grande",
-                                                                "palavra":  "Grande",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_grande.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_grande.mp3",
-                                                                "frase":  "o cachorro grande",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Grande, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "pequeno",
-                                                                "palavra":  "Pequeno",
-                                                                "arquivoImagem":  "assets/imagens/animais/n4_pequeno.png",
-                                                                "arquivoSom":  "assets/sons/animais/n4_pequeno.mp3",
-                                                                "frase":  "o passarinho pequeno",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pequeno, fundo branco, sem texto, estilo livro infantil"
+                                                                "id":  "cachorros-latindo",
+                                                                "palavra":  "Cachorros",
+                                                                "arquivoImagem":  "assets/imagens/animais/n4_cachorros-latindo.png",
+                                                                "arquivoSom":  "assets/sons/animais/n4_cachorros-latindo.mp3",
+                                                                "frase":  "os cachorros",
+                                                                "promptImagem":  "Imagem infantil simples de Cachorros, sem texto, fundo branco"
                                                             }
                                                         ]
                                           }
