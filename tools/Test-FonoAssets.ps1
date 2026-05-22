@@ -8,35 +8,9 @@ $reportPath = Join-Path $outputDir "asset-audit.csv"
 
 New-Item -ItemType Directory -Force $outputDir | Out-Null
 
-$animalSounds = [ordered]@{
-    "vaca|boi" = "muuu"
-    "gato" = "miau"
-    "pato" = "quack quack"
-    "sapo" = "coax coax"
-    "rato" = "iii iii"
-    "cobra" = "ssss"
-    "pinto|pintinho|passarinho" = "piu piu"
-    "foca" = "arf arf"
-    "urso|dinossauro" = "grrr"
-    "bode" = "beee"
-    "macaco" = "u u a a"
-    "cachorro" = "au au"
-    "porco" = "oinc oinc"
-    "ovelha" = "meee"
-    "cavalo" = "iirrr"
-    "galinha" = "cocorico"
-    "abelha" = "zzzz"
-    "elefante" = "pruuu"
-}
-
-function Get-AudioFallback($item, $level) {
-    $source = " $($item.id -split "-" | Select-Object -First 1) $($item.palavra.ToLowerInvariant()) $($item.frase.ToLowerInvariant()) "
-    foreach ($entry in $animalSounds.GetEnumerator()) {
-        foreach ($token in $entry.Key.Split("|")) {
-            if ($source.Contains(" $token ")) {
-                return "animal:$($entry.Value)"
-            }
-        }
+function Get-AudioFallback($item, $level, $sound) {
+    if ($sound) {
+        return "mp3:$($item.arquivoSom)"
     }
     if ($level.nivel -eq 4) {
         return "tts:$($item.frase)"
@@ -54,7 +28,7 @@ foreach ($category in $db.categorias) {
             $soundPath = Join-Path (Join-Path $root "app/src/main") $item.arquivoSom
             $image = Get-Item $imagePath -ErrorAction SilentlyContinue
             $sound = Get-Item $soundPath -ErrorAction SilentlyContinue
-            $audioFallback = Get-AudioFallback $item $level
+            $audioFallback = Get-AudioFallback $item $level $sound
 
             $rows += [pscustomobject]@{
                 categoria = $category.id
@@ -79,7 +53,7 @@ $realImages = ($rows | Where-Object { $_.imagemTipo -eq "real/custom" }).Count
 $placeholders = ($rows | Where-Object { $_.imagemTipo -eq "placeholder" }).Count
 $missingImages = ($rows | Where-Object { $_.imagemTipo -eq "missing" }).Count
 $realSounds = ($rows | Where-Object { $_.somExiste }).Count
-$animalFallbacks = ($rows | Where-Object { $_.audioFallback -like "animal:*" }).Count
+$ttsFallbacks = ($rows | Where-Object { $_.audioFallback -like "tts:*" }).Count
 
 Write-Host "FonoLousa asset audit"
 Write-Host "Total itens:          $total"
@@ -87,5 +61,5 @@ Write-Host "Imagens reais/custom: $realImages"
 Write-Host "Imagens placeholder:  $placeholders"
 Write-Host "Imagens ausentes:     $missingImages"
 Write-Host "Sons MP3 reais:       $realSounds"
-Write-Host "Fallback animal/TTS:  $animalFallbacks animal, $($total - $animalFallbacks) TTS"
+Write-Host "Fallback TTS:         $ttsFallbacks"
 Write-Host "Relatorio:            $reportPath"

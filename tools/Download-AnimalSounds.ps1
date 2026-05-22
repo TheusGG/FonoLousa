@@ -45,18 +45,6 @@ $sources = [ordered]@{
         Provider = "DailySounds"
         License = "Royalty-free for apps and commercial/personal projects; attribution appreciated but not required."
     }
-    "pinto" = @{
-        Url = "https://dailysounds.org/api/play/478"
-        Title = "Rooster Crow"
-        Provider = "DailySounds"
-        License = "Royalty-free for apps and commercial/personal projects; attribution appreciated but not required."
-    }
-    "pintinho" = @{
-        Url = "https://dailysounds.org/api/play/478"
-        Title = "Rooster Crow"
-        Provider = "DailySounds"
-        License = "Royalty-free for apps and commercial/personal projects; attribution appreciated but not required."
-    }
     "bode" = @{
         Url = "https://dailysounds.org/api/play/501"
         Title = "Goat Bleat"
@@ -66,12 +54,6 @@ $sources = [ordered]@{
     "cavalo" = @{
         Url = "https://dailysounds.org/api/play/341"
         Title = "Horse Whinny"
-        Provider = "DailySounds"
-        License = "Royalty-free for apps and commercial/personal projects; attribution appreciated but not required."
-    }
-    "galinha" = @{
-        Url = "https://dailysounds.org/api/play/39"
-        Title = "Rooster Crow"
         Provider = "DailySounds"
         License = "Royalty-free for apps and commercial/personal projects; attribution appreciated but not required."
     }
@@ -114,12 +96,6 @@ $sources = [ordered]@{
     "passarinho" = @{
         Url = "https://assets.mixkit.co/active_storage/sfx/23/23-preview.mp3"
         Title = "Little bird calling chirp"
-        Provider = "Mixkit"
-        License = "Free Mixkit sound effect for commercial and non-commercial projects under the Mixkit License."
-    }
-    "dinossauro" = @{
-        Url = "https://assets.mixkit.co/active_storage/sfx/309/309-preview.mp3"
-        Title = "Angry dragon growl"
         Provider = "Mixkit"
         License = "Free Mixkit sound effect for commercial and non-commercial projects under the Mixkit License."
     }
