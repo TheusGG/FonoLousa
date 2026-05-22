@@ -47,10 +47,10 @@ try {
     }
     $manifest = [ordered]@{
         app = "FonoLousa"
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 5
+        versionName = "1.0.4"
         apkUrl = $resolvedApkUrl
-        notes = "Auditoria dos 352 itens, imagem real da vaca e sons animais/TTS por item."
+        notes = "Sons reais de animais adicionados aos itens disponiveis, com fallback TTS para o restante."
     } | ConvertTo-Json -Depth 4
     [IO.File]::WriteAllText((Join-Path $root "output\fonolousa-update.json"), $manifest, [Text.UTF8Encoding]::new($false))
 
@@ -71,7 +71,7 @@ try {
 <body>
   <main>
     <h1>FonoLousa</h1>
-    <p>Versao 1.0.3 de teste para instalacao em tablet Android.</p>
+    <p>Versao 1.0.4 de teste para instalacao em tablet Android.</p>
     <a href="FonoLousa-debug.apk">Baixar APK</a>
     <p>Manifesto de atualizacao: <code>fonolousa-update.json</code></p>
   </main>

@@ -1,7 +1,7 @@
 param(
     [string]$Owner = "TheusGG",
     [string]$Repo = "FonoLousa",
-    [string]$VersionName = "1.0.3",
+    [string]$VersionName = "1.0.4",
     [switch]$UsePagesApk
 )
 

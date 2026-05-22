@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  4,
-    "versionName":  "1.0.3",
+    "versionCode":  5,
+    "versionName":  "1.0.4",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-debug.apk",
-    "notes":  "Auditoria dos 352 itens, imagem real da vaca e sons animais/TTS por item."
+    "notes":  "Sons reais de animais adicionados aos itens disponiveis, com fallback TTS para o restante."
 }
