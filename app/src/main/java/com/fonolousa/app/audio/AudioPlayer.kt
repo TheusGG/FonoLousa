@@ -63,6 +63,10 @@ class AudioPlayer(context: Context) {
         }
     }
 
+    fun playVictory() {
+        speak("Muito bem!")
+    }
+
     private fun speak(text: String) {
         if (text.isBlank()) return
         if (!ttsReady) {

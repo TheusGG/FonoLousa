@@ -7,6 +7,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import com.fonolousa.app.audio.AudioPlayer
 import com.fonolousa.app.data.DataRepository
+import com.fonolousa.app.data.SessionRepository
 import com.fonolousa.app.ui.FonoLousaApp
 import com.fonolousa.app.ui.theme.FonoLousaTheme
 
@@ -16,6 +17,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val repository = remember { DataRepository(this) }
+            val sessionRepository = remember { SessionRepository(this) }
             val audioPlayer = remember { AudioPlayer(this) }
 
             DisposableEffect(Unit) {
@@ -25,6 +27,7 @@ class MainActivity : ComponentActivity() {
             FonoLousaTheme {
                 FonoLousaApp(
                     repository = repository,
+                    sessionRepository = sessionRepository,
                     audioPlayer = audioPlayer
                 )
             }

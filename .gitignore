@@ -8,6 +8,7 @@ tools/gradle-*/
 tools/*.zip
 
 output/
+keystores/
 
 *.iml
 .idea/

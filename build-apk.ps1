@@ -36,6 +36,9 @@ try {
     }
 
     gradle @gradleArgs
+    if ($LASTEXITCODE -ne 0) {
+        throw "Gradle falhou com codigo $LASTEXITCODE. APK nao foi atualizado."
+    }
     New-Item -ItemType Directory -Force output | Out-Null
     Copy-Item -LiteralPath app\build\outputs\apk\debug\app-debug.apk -Destination output\FonoLousa-debug.apk -Force
     $resolvedApkUrl = if (-not [string]::IsNullOrWhiteSpace($ApkUrl)) {
@@ -47,10 +50,10 @@ try {
     }
     $manifest = [ordered]@{
         app = "FonoLousa"
-        versionCode = 7
-        versionName = "1.0.6"
+        versionCode = 8
+        versionName = "1.0.7"
         apkUrl = $resolvedApkUrl
-        notes = "Categoria Animais reconstruida a partir dos MP3s reais do Mixkit; cada item agora nasce do audio correto."
+        notes = "Canal de atualizacao interno configurado no app."
     } | ConvertTo-Json -Depth 4
     [IO.File]::WriteAllText((Join-Path $root "output\fonolousa-update.json"), $manifest, [Text.UTF8Encoding]::new($false))
 

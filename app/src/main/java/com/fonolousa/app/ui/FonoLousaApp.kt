@@ -3,8 +3,14 @@
 import android.graphics.BitmapFactory
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,6 +43,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Assessment
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Button
@@ -46,6 +55,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,6 +92,10 @@ import com.fonolousa.app.data.Categoria
 import com.fonolousa.app.data.DataRepository
 import com.fonolousa.app.data.ItemFono
 import com.fonolousa.app.data.Nivel
+import com.fonolousa.app.data.SessionRepository
+import com.fonolousa.app.data.local.ClinicalResultEntity
+import com.fonolousa.app.data.local.ItemProgressEntity
+import com.fonolousa.app.data.local.SessionEventEntity
 import com.fonolousa.app.ui.theme.ChalkGreen
 import com.fonolousa.app.ui.theme.ChalkGreenAlt
 import com.fonolousa.app.ui.theme.ChalkShadow
@@ -89,24 +103,54 @@ import com.fonolousa.app.ui.theme.ChalkWhite
 import com.fonolousa.app.update.UpdateChecker
 import com.fonolousa.app.update.UpdateState
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun FonoLousaApp(
     repository: DataRepository,
+    sessionRepository: SessionRepository,
     audioPlayer: AudioPlayer
 ) {
     val navController = rememberNavController()
+    val progress by sessionRepository.progress.collectAsState(initial = emptyList())
+    val favorites by sessionRepository.favorites.collectAsState(initial = emptyList())
+    val recentEvents by sessionRepository.recentEvents.collectAsState(initial = emptyList())
+    val clinicalResults by sessionRepository.clinicalResults.collectAsState(initial = emptyList())
 
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
             HomeScreen(
                 categorias = repository.categorias(),
                 onCategoryClick = { navController.navigate("levels/${it.id}") },
-                onUpdateClick = { navController.navigate("update") }
+                onUpdateClick = { navController.navigate("update") },
+                onReportClick = { navController.navigate("report") },
+                onClinicalClick = { navController.navigate("clinical") }
             )
         }
         composable("update") {
             UpdateScreen(onBack = { navController.popBackStack() })
+        }
+        composable("report") {
+            SessionReportScreen(
+                progress = progress,
+                favorites = favorites,
+                events = recentEvents,
+                clinicalResults = clinicalResults,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("clinical") {
+            ClinicalAssessmentScreen(
+                repository = repository,
+                sessionRepository = sessionRepository,
+                audioPlayer = audioPlayer,
+                categorias = repository.categorias(),
+                results = clinicalResults,
+                onBack = { navController.popBackStack() }
+            )
         }
         composable(
             route = "levels/{categoryId}",
@@ -132,9 +176,11 @@ fun FonoLousaApp(
             val nivel = repository.nivel(categoryId, level)
             ItemsGridScreen(
                 repository = repository,
+                sessionRepository = sessionRepository,
                 audioPlayer = audioPlayer,
                 categoria = category,
                 nivel = nivel,
+                progress = progress,
                 onBack = { navController.popBackStack() },
                 onItemClick = { index -> navController.navigate("viewer/$categoryId/$level/$index") }
             )
@@ -154,10 +200,12 @@ fun FonoLousaApp(
             val nivel = repository.nivel(categoryId, level)
             ItemViewerScreen(
                 repository = repository,
+                sessionRepository = sessionRepository,
                 audioPlayer = audioPlayer,
                 categoria = category,
                 nivel = nivel,
                 initialIndex = index,
+                progress = progress,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -168,7 +216,9 @@ fun FonoLousaApp(
 private fun HomeScreen(
     categorias: List<Categoria>,
     onCategoryClick: (Categoria) -> Unit,
-    onUpdateClick: () -> Unit
+    onUpdateClick: () -> Unit,
+    onReportClick: () -> Unit,
+    onClinicalClick: () -> Unit
 ) {
     BlackboardScreen {
         Column(
@@ -181,6 +231,34 @@ private fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
+                IconButton(
+                    onClick = onClinicalClick,
+                    modifier = Modifier
+                        .size(58.dp)
+                        .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Assessment,
+                        contentDescription = "Avaliacao clinica",
+                        tint = Color(0xFFFFC107),
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+                Spacer(Modifier.width(10.dp))
+                IconButton(
+                    onClick = onReportClick,
+                    modifier = Modifier
+                        .size(58.dp)
+                        .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Assessment,
+                        contentDescription = "Relatorio da sessao",
+                        tint = ChalkWhite,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+                Spacer(Modifier.width(10.dp))
                 IconButton(
                     onClick = onUpdateClick,
                     modifier = Modifier
@@ -314,6 +392,429 @@ private fun UpdateScreen(onBack: () -> Unit) {
 }
 
 @Composable
+private fun SessionReportScreen(
+    progress: List<ItemProgressEntity>,
+    favorites: List<ItemProgressEntity>,
+    events: List<SessionEventEntity>,
+    clinicalResults: List<ClinicalResultEntity>,
+    onBack: () -> Unit
+) {
+    val totalViews = progress.sumOf { it.views }
+    val totalPlays = progress.sumOf { it.plays }
+    val practiced = progress.count { it.views > 0 || it.plays > 0 }
+    val formatter = remember { SimpleDateFormat("dd/MM HH:mm", Locale("pt", "BR")) }
+
+    BlackboardScreen {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+        ) {
+            TopBar(title = "Relatorio da sessao", onBack = onBack)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 18.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                ReportMetric("Itens", practiced.toString(), Modifier.weight(1f))
+                ReportMetric("Toques", totalViews.toString(), Modifier.weight(1f))
+                ReportMetric("Sons", totalPlays.toString(), Modifier.weight(1f))
+                ReportMetric("Favoritos", favorites.size.toString(), Modifier.weight(1f))
+            }
+            ClinicalChartSection(
+                results = clinicalResults,
+                modifier = Modifier.padding(top = 22.dp)
+            )
+            ChalkText(
+                text = "Ultimas interacoes",
+                fontSize = 28,
+                fontWeight = FontWeight.Black,
+                modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                if (events.isEmpty()) {
+                    ChalkText(
+                        text = "Nenhuma interacao registrada ainda.",
+                        fontSize = 22,
+                        color = ChalkWhite.copy(alpha = 0.82f)
+                    )
+                } else {
+                    events.take(40).forEach { event ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White.copy(alpha = 0.10f))
+                                .border(1.dp, ChalkWhite.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                ChalkText(
+                                    text = event.word.replaceFirstChar { it.uppercase() },
+                                    fontSize = 21,
+                                    maxLines = 1
+                                )
+                                ChalkText(
+                                    text = "${event.categoryId} - nivel ${event.level}",
+                                    fontSize = 16,
+                                    color = ChalkWhite.copy(alpha = 0.74f),
+                                    maxLines = 1
+                                )
+                            }
+                            ChalkText(
+                                text = "${event.eventType.label()}  ${formatter.format(Date(event.createdAt))}",
+                                fontSize = 16,
+                                textAlign = TextAlign.End,
+                                color = ChalkWhite.copy(alpha = 0.84f),
+                                modifier = Modifier.width(138.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReportMetric(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .height(104.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, ChalkWhite.copy(alpha = 0.55f), RoundedCornerShape(8.dp))
+            .background(Color.White.copy(alpha = 0.11f))
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ChalkText(text = value, fontSize = 28, fontWeight = FontWeight.Black, textAlign = TextAlign.Center)
+        ChalkText(
+            text = label,
+            fontSize = 16,
+            color = ChalkWhite.copy(alpha = 0.78f),
+            textAlign = TextAlign.Center,
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun ClinicalAssessmentScreen(
+    repository: DataRepository,
+    sessionRepository: SessionRepository,
+    audioPlayer: AudioPlayer,
+    categorias: List<Categoria>,
+    results: List<ClinicalResultEntity>,
+    onBack: () -> Unit
+) {
+    val activities = listOf("nomeacao", "repeticao", "discriminacao")
+    var activity by remember { mutableStateOf(activities.first()) }
+    var categoryIndex by remember { mutableStateOf(0) }
+    var levelIndex by remember { mutableStateOf(0) }
+    var itemIndex by remember { mutableStateOf(0) }
+    var showFeedback by remember { mutableStateOf<String?>(null) }
+    var pulse by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val haptics = LocalHapticFeedback.current
+    val categoria = categorias[categoryIndex.coerceIn(0, categorias.lastIndex)]
+    val nivel = categoria.niveis[levelIndex.coerceIn(0, categoria.niveis.lastIndex)]
+    val item = nivel.itens[itemIndex.coerceIn(0, nivel.itens.lastIndex)]
+    val comparison = nivel.itens.getOrNull((itemIndex + 1) % nivel.itens.size) ?: item
+    val imageScale by animateFloatAsState(
+        targetValue = if (pulse) 1.03f else 1f,
+        animationSpec = tween(160),
+        finishedListener = { pulse = false },
+        label = "clinicalPulse"
+    )
+
+    fun nextItem() {
+        itemIndex = if (itemIndex >= nivel.itens.lastIndex) 0 else itemIndex + 1
+    }
+
+    LaunchedEffect(activity, item.id) {
+        if (activity == "repeticao") {
+            audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
+            pulse = true
+        }
+    }
+
+    BlackboardScreen {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(22.dp)
+        ) {
+            TopBar(title = "Avaliacao clinica", onBack = onBack)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                activities.forEach { option ->
+                    Button(
+                        onClick = {
+                            activity = option
+                            showFeedback = null
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (activity == option) Color(0xFFFFC107) else Color.White.copy(alpha = 0.16f),
+                            contentColor = if (activity == option) Color(0xFF1A1A1A) else ChalkWhite
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(58.dp)
+                    ) {
+                        Text(activity.label(), fontSize = 16.sp, fontWeight = FontWeight.Black, maxLines = 1)
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                NavButton(
+                    text = categoria.nome,
+                    enabled = categorias.size > 1,
+                    iconLeft = true,
+                    onClick = {
+                        categoryIndex = if (categoryIndex == 0) categorias.lastIndex else categoryIndex - 1
+                        levelIndex = 0
+                        itemIndex = 0
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                NavButton(
+                    text = "Nivel ${nivel.nivel}",
+                    enabled = categoria.niveis.size > 1,
+                    iconLeft = false,
+                    onClick = {
+                        levelIndex = if (levelIndex >= categoria.niveis.lastIndex) 0 else levelIndex + 1
+                        itemIndex = 0
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(top = 14.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                ChalkText(
+                    text = activity.prompt(),
+                    fontSize = 24,
+                    textAlign = TextAlign.Center,
+                    color = ChalkWhite.copy(alpha = 0.9f),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                AssetImage(
+                    repository = repository,
+                    path = item.arquivoImagem,
+                    contentDescription = item.displayText(nivel.nivel),
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxWidth(0.48f)
+                        .aspectRatio(1f)
+                        .padding(top = 14.dp)
+                        .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(4.dp, parseColor(categoria.cor), RoundedCornerShape(8.dp))
+                        .background(Color.White)
+                )
+                ChalkText(
+                    text = if (activity == "nomeacao") "Figura ${itemIndex + 1}/${nivel.itens.size}" else item.displayText(nivel.nivel),
+                    fontSize = 34,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(top = 10.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
+                            pulse = true
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.height(58.dp)
+                    ) {
+                        Icon(Icons.Filled.VolumeUp, contentDescription = null)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Som", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    }
+                    if (activity == "discriminacao") {
+                        Button(
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
+                                audioPlayer.play(comparison.arquivoSom, comparison.audioText(nivel.nivel))
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(58.dp)
+                        ) {
+                            Text("Tocar par", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+                if (showFeedback != null) {
+                    ChalkText(
+                        text = showFeedback.orEmpty(),
+                        fontSize = 22,
+                        color = Color(0xFFFFC107),
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Button(
+                    onClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        scope.launch {
+                            sessionRepository.recordClinicalResult(activity, categoria.id, nivel.nivel, item, false)
+                        }
+                        showFeedback = "Erro registrado"
+                        nextItem()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935), contentColor = Color.White),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(70.dp)
+                ) {
+                    Text("Erro", fontSize = 24.sp, fontWeight = FontWeight.Black)
+                }
+                Button(
+                    onClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        scope.launch {
+                            sessionRepository.recordClinicalResult(activity, categoria.id, nivel.nivel, item, true)
+                        }
+                        showFeedback = "Acerto registrado"
+                        audioPlayer.playVictory()
+                        nextItem()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047), contentColor = Color.White),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(70.dp)
+                ) {
+                    Text("Acerto", fontSize = 24.sp, fontWeight = FontWeight.Black)
+                }
+            }
+            ClinicalChartSection(
+                results = results,
+                modifier = Modifier.padding(top = 14.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ClinicalChartSection(
+    results: List<ClinicalResultEntity>,
+    modifier: Modifier = Modifier
+) {
+    val summaries = listOf("nomeacao", "repeticao", "discriminacao").map { activity ->
+        val items = results.filter { it.activity == activity }
+        val percent = if (items.isEmpty()) 0 else (items.count { it.isCorrect } * 100f / items.size).roundToInt()
+        ClinicalBar(activity.label(), percent, items.size)
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(154.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
+            .background(Color.White.copy(alpha = 0.10f))
+            .padding(12.dp)
+    ) {
+        ChalkText(
+            text = "Desempenho clinico",
+            fontSize = 20,
+            fontWeight = FontWeight.Black,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            summaries.forEach { summary ->
+                ClinicalBarView(summary = summary, modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClinicalBarView(summary: ClinicalBar, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        ChalkText(
+            text = "${summary.percent}%",
+            fontSize = 18,
+            fontWeight = FontWeight.Black,
+            textAlign = TextAlign.Center
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(54.dp)
+                .padding(horizontal = 6.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(((summary.percent.coerceIn(0, 100) / 100f) * 54).dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFFFFC107))
+            )
+        }
+        ChalkText(
+            text = "${summary.label} (${summary.total})",
+            fontSize = 13,
+            color = ChalkWhite.copy(alpha = 0.82f),
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+private data class ClinicalBar(
+    val label: String,
+    val percent: Int,
+    val total: Int
+)
+
+@Composable
 private fun CategoryButton(categoria: Categoria, onClick: () -> Unit) {
     val haptics = LocalHapticFeedback.current
     val interaction = remember { MutableInteractionSource() }
@@ -441,9 +942,11 @@ private fun LevelCard(nivel: Nivel, color: Color, onClick: () -> Unit) {
 @Composable
 private fun ItemsGridScreen(
     repository: DataRepository,
+    sessionRepository: SessionRepository,
     audioPlayer: AudioPlayer,
     categoria: Categoria,
     nivel: Nivel,
+    progress: List<ItemProgressEntity>,
     onBack: () -> Unit,
     onItemClick: (Int) -> Unit
 ) {
@@ -464,9 +967,14 @@ private fun ItemsGridScreen(
                 itemsIndexed(nivel.itens, key = { _, item -> item.id }) { index, item ->
                     ItemCell(
                         repository = repository,
+                        sessionRepository = sessionRepository,
                         audioPlayer = audioPlayer,
                         item = item,
+                        categoria = categoria,
                         level = nivel.nivel,
+                        progress = progress.firstOrNull {
+                            it.itemKey == SessionRepository.itemKey(categoria.id, nivel.nivel, item.id)
+                        },
                         borderColor = parseColor(categoria.cor),
                         onClick = { onItemClick(index) }
                     )
@@ -479,13 +987,17 @@ private fun ItemsGridScreen(
 @Composable
 private fun ItemCell(
     repository: DataRepository,
+    sessionRepository: SessionRepository,
     audioPlayer: AudioPlayer,
     item: ItemFono,
+    categoria: Categoria,
     level: Int,
+    progress: ItemProgressEntity?,
     borderColor: Color,
     onClick: () -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -506,6 +1018,7 @@ private fun ItemCell(
                 .background(Color.White)
                 .clickable {
                     haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    scope.launch { sessionRepository.recordView(categoria.id, level, item) }
                     onClick()
                 }
                 .padding(6.dp),
@@ -532,6 +1045,7 @@ private fun ItemCell(
                 .height(46.dp)
                 .clickable {
                     haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    scope.launch { sessionRepository.recordView(categoria.id, level, item) }
                     onClick()
                 }
                 .padding(top = 6.dp)
@@ -546,6 +1060,7 @@ private fun ItemCell(
                 onClick = {
                     haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     audioPlayer.play(item.arquivoSom, item.audioText(level))
+                    scope.launch { sessionRepository.recordPlay(categoria.id, level, item) }
                 },
                 modifier = Modifier
                     .size(50.dp)
@@ -560,21 +1075,37 @@ private fun ItemCell(
                 )
             }
         }
+        AnimatedVisibility(visible = progress?.isFavorite == true || (progress?.plays ?: 0) > 0) {
+            Text(
+                text = "${if (progress?.isFavorite == true) "Favorito" else ""}${if ((progress?.plays ?: 0) > 0) "  ${progress?.plays}x" else ""}".trim(),
+                color = borderColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Black,
+                maxLines = 1
+            )
+        }
     }
 }
 
 @Composable
 private fun ItemViewerScreen(
     repository: DataRepository,
+    sessionRepository: SessionRepository,
     audioPlayer: AudioPlayer,
     categoria: Categoria,
     nivel: Nivel,
     initialIndex: Int,
+    progress: List<ItemProgressEntity>,
     onBack: () -> Unit
 ) {
     var currentIndex by remember { mutableStateOf(initialIndex.coerceIn(0, nivel.itens.lastIndex)) }
     var pulse by remember { mutableStateOf(false) }
+    var showConfetti by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val item = nivel.itens[currentIndex]
+    val currentProgress = progress.firstOrNull {
+        it.itemKey == SessionRepository.itemKey(categoria.id, nivel.nivel, item.id)
+    }
     val imageScale by animateFloatAsState(
         targetValue = if (pulse) 1.03f else 1f,
         animationSpec = tween(160),
@@ -584,89 +1115,124 @@ private fun ItemViewerScreen(
 
     LaunchedEffect(item.id) {
         audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
+        sessionRepository.recordView(categoria.id, nivel.nivel, item)
+        sessionRepository.recordPlay(categoria.id, nivel.nivel, item)
         pulse = true
+        showConfetti = currentIndex == nivel.itens.lastIndex
+        if (showConfetti) audioPlayer.playVictory()
     }
 
     BlackboardScreen {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(22.dp)
-        ) {
-            TopBar(title = "${categoria.nome} - N\u00edvel ${nivel.nivel}", onBack = onBack)
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .fillMaxSize()
+                    .padding(22.dp)
             ) {
-                AssetImage(
-                    repository = repository,
-                    path = item.arquivoImagem,
-                    contentDescription = item.displayText(nivel.nivel),
-                    contentScale = ContentScale.Fit,
+                TopBar(title = "${categoria.nome} - N\u00edvel ${nivel.nivel}", onBack = onBack)
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(0.6f)
-                        .aspectRatio(1f)
-                        .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(4.dp, ChalkWhite, RoundedCornerShape(8.dp))
-                        .background(Color.White)
-                )
-                ChalkText(
-                    text = item.displayText(nivel.nivel),
-                    fontSize = 46,
-                    fontWeight = FontWeight.Black,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 22.dp)
-                )
-                IconButton(
-                    onClick = {
-                        audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
-                        pulse = true
-                    },
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .size(72.dp)
-                        .border(2.dp, ChalkWhite, CircleShape)
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.VolumeUp,
-                        contentDescription = "Repetir som",
-                        tint = ChalkWhite,
-                        modifier = Modifier.size(42.dp)
+                    AssetImage(
+                        repository = repository,
+                        path = item.arquivoImagem,
+                        contentDescription = item.displayText(nivel.nivel),
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxWidth(0.6f)
+                            .aspectRatio(1f)
+                            .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(4.dp, ChalkWhite, RoundedCornerShape(8.dp))
+                            .background(Color.White)
+                    )
+                    ChalkText(
+                        text = item.displayText(nivel.nivel),
+                        fontSize = 46,
+                        fontWeight = FontWeight.Black,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 22.dp)
+                    )
+                    Row(
+                        modifier = Modifier.padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = {
+                                audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
+                                scope.launch { sessionRepository.recordPlay(categoria.id, nivel.nivel, item) }
+                                pulse = true
+                            },
+                            modifier = Modifier
+                                .size(72.dp)
+                                .border(2.dp, ChalkWhite, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.VolumeUp,
+                                contentDescription = "Repetir som",
+                                tint = ChalkWhite,
+                                modifier = Modifier.size(42.dp)
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    sessionRepository.setFavorite(
+                                        categoria.id,
+                                        nivel.nivel,
+                                        item,
+                                        currentProgress?.isFavorite != true
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .size(72.dp)
+                                .border(2.dp, ChalkWhite, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = if (currentProgress?.isFavorite == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = if (currentProgress?.isFavorite == true) Color(0xFFFFC107) else ChalkWhite,
+                                modifier = Modifier.size(42.dp)
+                            )
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    NavButton(
+                        text = "Anterior",
+                        enabled = currentIndex > 0,
+                        iconLeft = true,
+                        onClick = { currentIndex = (currentIndex - 1).coerceAtLeast(0) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    ChalkText(
+                        text = "${currentIndex + 1}/${nivel.itens.size}",
+                        fontSize = 22,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.width(90.dp)
+                    )
+                    NavButton(
+                        text = "Pr\u00f3ximo",
+                        enabled = currentIndex < nivel.itens.lastIndex,
+                        iconLeft = false,
+                        onClick = { currentIndex = (currentIndex + 1).coerceAtMost(nivel.itens.lastIndex) },
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                NavButton(
-                    text = "Anterior",
-                    enabled = currentIndex > 0,
-                    iconLeft = true,
-                    onClick = { currentIndex = (currentIndex - 1).coerceAtLeast(0) },
-                    modifier = Modifier.weight(1f)
-                )
-                ChalkText(
-                    text = "${currentIndex + 1}/${nivel.itens.size}",
-                    fontSize = 22,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.width(90.dp)
-                )
-                NavButton(
-                    text = "Pr\u00f3ximo",
-                    enabled = currentIndex < nivel.itens.lastIndex,
-                    iconLeft = false,
-                    onClick = { currentIndex = (currentIndex + 1).coerceAtMost(nivel.itens.lastIndex) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            if (showConfetti) ConfettiBurst()
         }
     }
 }
@@ -733,6 +1299,45 @@ private fun TopBar(title: String, onBack: () -> Unit) {
                 .weight(1f)
                 .padding(start = 18.dp)
         )
+    }
+}
+
+@Composable
+private fun ConfettiBurst() {
+    val transition = rememberInfiniteTransition(label = "confetti")
+    val progress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "confettiProgress"
+    )
+    val colors = listOf(
+        Color(0xFFFFC107),
+        Color(0xFFFF5C8A),
+        Color(0xFF64DD17),
+        Color(0xFF40C4FF),
+        Color(0xFFFFAB40)
+    )
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val count = 34
+        repeat(count) { index ->
+            val lane = (index * 37 % 100) / 100f
+            val delay = (index % 7) / 7f
+            val t = ((progress + delay) % 1f)
+            val x = size.width * lane + kotlin.math.sin((t * 6.28f) + index) * 42f
+            val y = size.height * t
+            val side = 10f + (index % 4) * 4f
+            drawRect(
+                color = colors[index % colors.size],
+                topLeft = Offset(x, y),
+                size = androidx.compose.ui.geometry.Size(side, side * 0.58f),
+                alpha = (1f - t * 0.35f).coerceIn(0.35f, 1f)
+            )
+        }
     }
 }
 
@@ -863,4 +1468,28 @@ private fun ItemFono.displayText(level: Int): String {
 
 private fun ItemFono.audioText(level: Int): String {
     return if (level == 4) frase else palavra
+}
+
+private fun String.label(): String {
+    return when (this) {
+        "view" -> "viu"
+        "play" -> "som"
+        "favorite" -> "favoritou"
+        "unfavorite" -> "removeu"
+        "clinical_correct" -> "acertou"
+        "clinical_error" -> "errou"
+        "nomeacao" -> "Nomeacao"
+        "repeticao" -> "Repeticao"
+        "discriminacao" -> "Discriminacao"
+        else -> this
+    }
+}
+
+private fun String.prompt(): String {
+    return when (this) {
+        "nomeacao" -> "Mostre a figura e marque a resposta da crianca."
+        "repeticao" -> "Toque o som e marque se a crianca repetiu corretamente."
+        "discriminacao" -> "Toque os sons e marque se a crianca discriminou corretamente."
+        else -> "Marque o desempenho da crianca."
+    }
 }

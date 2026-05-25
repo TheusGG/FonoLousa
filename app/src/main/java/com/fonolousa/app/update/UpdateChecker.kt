@@ -25,7 +25,9 @@ sealed interface UpdateState {
 }
 
 class UpdateChecker(
-    private val manifestUrl: String = BuildConfig.UPDATE_MANIFEST_URL
+    private val manifestUrl: String = BuildConfig.UPDATE_MANIFEST_URL.ifBlank {
+        "https://github.com/TheusGG/FonoLousa/raw/main/docs/fonolousa-update.json"
+    }
 ) {
     private val gson = Gson()
 

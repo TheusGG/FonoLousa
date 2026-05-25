@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  7,
-    "versionName":  "1.0.6",
+    "versionCode":  8,
+    "versionName":  "1.0.7",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Versao release assinada para instalacao em tablet Android."
+    "notes":  "Canal de atualizacao interno configurado no app."
 }
