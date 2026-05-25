@@ -50,10 +50,10 @@ try {
     }
     $manifest = [ordered]@{
         app = "FonoLousa"
-        versionCode = 8
-        versionName = "1.0.7"
+        versionCode = 9
+        versionName = "1.0.8"
         apkUrl = $resolvedApkUrl
-        notes = "Canal de atualizacao interno configurado no app."
+        notes = "Canal seguro: app abre a pagina oficial de download sem baixar arquivo em segundo plano."
     } | ConvertTo-Json -Depth 4
     [IO.File]::WriteAllText((Join-Path $root "output\fonolousa-update.json"), $manifest, [Text.UTF8Encoding]::new($false))
 

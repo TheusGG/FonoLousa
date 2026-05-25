@@ -26,12 +26,12 @@ android {
         applicationId = "com.fonolousa.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.0.7"
+        versionCode = 9
+        versionName = "1.0.8"
         buildConfigField(
             "String",
             "UPDATE_MANIFEST_URL",
-            "\"${providers.gradleProperty("fonolousa.updateManifestUrl").getOrElse("https://github.com/TheusGG/FonoLousa/raw/main/docs/fonolousa-update.json")}\""
+            "\"${providers.gradleProperty("fonolousa.updateManifestUrl").getOrElse("https://github.com/TheusGG/FonoLousa/tree/main/docs")}\""
         )
     }
 

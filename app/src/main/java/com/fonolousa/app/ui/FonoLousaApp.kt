@@ -380,7 +380,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
                         Icon(Icons.Filled.SystemUpdate, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            text = "Baixar nova versao",
+                            text = "Abrir pagina de download",
                             fontSize = 21.sp,
                             fontWeight = FontWeight.Black
                         )
@@ -1449,9 +1449,7 @@ private fun updateMessage(state: UpdateState): String {
     return when (state) {
         UpdateState.Idle -> "Toque no botao para verificar se existe uma nova versao publicada."
         UpdateState.Checking -> "Verificando nova versao..."
-        is UpdateState.Available -> {
-            "Nova versao disponivel: ${state.manifest.versionName}\n${state.manifest.notes}"
-        }
+        is UpdateState.Available -> "Canal oficial disponivel.\n${state.manifest.notes}"
         is UpdateState.UpToDate -> "Este tablet ja esta com a versao ${state.currentVersionName}."
         is UpdateState.NotConfigured -> state.message
         is UpdateState.Error -> "Falha ao verificar: ${state.message}"

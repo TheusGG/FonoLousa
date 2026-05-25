@@ -1,11 +1,6 @@
 package com.fonolousa.app.update
 
 import com.fonolousa.app.BuildConfig
-import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
-import java.net.URL
 
 data class UpdateManifest(
     val app: String,
@@ -26,35 +21,24 @@ sealed interface UpdateState {
 
 class UpdateChecker(
     private val manifestUrl: String = BuildConfig.UPDATE_MANIFEST_URL.ifBlank {
-        "https://github.com/TheusGG/FonoLousa/raw/main/docs/fonolousa-update.json"
+        "https://github.com/TheusGG/FonoLousa/tree/main/docs"
     }
 ) {
-    private val gson = Gson()
-
-    suspend fun check(): UpdateState = withContext(Dispatchers.IO) {
+    suspend fun check(): UpdateState {
         if (manifestUrl.isBlank()) {
-            return@withContext UpdateState.NotConfigured(
+            return UpdateState.NotConfigured(
                 "Canal de atualizacao ainda nao configurado neste APK."
             )
         }
 
-        try {
-            val connection = (URL(manifestUrl).openConnection() as HttpURLConnection).apply {
-                connectTimeout = 8000
-                readTimeout = 8000
-                requestMethod = "GET"
-            }
-
-            connection.inputStream.bufferedReader(Charsets.UTF_8).use { reader ->
-                val manifest = gson.fromJson(reader, UpdateManifest::class.java)
-                if (manifest.versionCode > BuildConfig.VERSION_CODE) {
-                    UpdateState.Available(manifest)
-                } else {
-                    UpdateState.UpToDate(BuildConfig.VERSION_NAME)
-                }
-            }
-        } catch (error: Exception) {
-            UpdateState.Error(error.message ?: "Nao foi possivel verificar atualizacao.")
-        }
+        return UpdateState.Available(
+            UpdateManifest(
+                app = "FonoLousa",
+                versionCode = BuildConfig.VERSION_CODE,
+                versionName = BuildConfig.VERSION_NAME,
+                apkUrl = manifestUrl,
+                notes = "Abra a pagina oficial para baixar a versao publicada."
+            )
+        )
     }
 }
