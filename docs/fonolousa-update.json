@@ -2,6 +2,6 @@
     "app":  "FonoLousa",
     "versionCode":  7,
     "versionName":  "1.0.6",
-    "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-debug.apk",
-    "notes":  "Categoria Animais reconstruida a partir dos MP3s reais do Mixkit; cada item agora nasce do audio correto."
+    "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
+    "notes":  "Versao release assinada para instalacao em tablet Android."
 }
