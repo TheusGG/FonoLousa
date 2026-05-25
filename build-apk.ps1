@@ -50,8 +50,8 @@ try {
     }
     $manifest = [ordered]@{
         app = "FonoLousa"
-        versionCode = 9
-        versionName = "1.0.8"
+        versionCode = 10
+        versionName = "1.0.9"
         apkUrl = $resolvedApkUrl
         notes = "Canal seguro: app abre a pagina oficial de download sem baixar arquivo em segundo plano."
     } | ConvertTo-Json -Depth 4
