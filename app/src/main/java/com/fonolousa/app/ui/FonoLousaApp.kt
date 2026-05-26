@@ -525,8 +525,11 @@ private fun ClinicalAssessmentScreen(
     val haptics = LocalHapticFeedback.current
     val categoria = categorias[categoryIndex.coerceIn(0, categorias.lastIndex)]
     val nivel = categoria.niveis[levelIndex.coerceIn(0, categoria.niveis.lastIndex)]
-    val item = nivel.itens[itemIndex.coerceIn(0, nivel.itens.lastIndex)]
-    val comparison = nivel.itens.getOrNull((itemIndex + 1) % nivel.itens.size) ?: item
+    val clinicalItems = remember(categoria.id, nivel.nivel) {
+        nivel.itens.distinctBy { it.palavra.trim().lowercase(Locale("pt", "BR")) }
+    }
+    val item = clinicalItems[itemIndex.coerceIn(0, clinicalItems.lastIndex)]
+    val comparison = clinicalItems.getOrNull((itemIndex + 1) % clinicalItems.size) ?: item
     val imageScale by animateFloatAsState(
         targetValue = if (pulse) 1.03f else 1f,
         animationSpec = tween(160),
@@ -535,7 +538,7 @@ private fun ClinicalAssessmentScreen(
     )
 
     fun nextItem() {
-        itemIndex = if (itemIndex >= nivel.itens.lastIndex) 0 else itemIndex + 1
+        itemIndex = if (itemIndex >= clinicalItems.lastIndex) 0 else itemIndex + 1
     }
 
     LaunchedEffect(activity, item.id) {
@@ -609,13 +612,14 @@ private fun ClinicalAssessmentScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(top = 14.dp),
+                    .padding(top = 14.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 ChalkText(
                     text = activity.prompt(),
-                    fontSize = 24,
+                    fontSize = 22,
                     textAlign = TextAlign.Center,
                     color = ChalkWhite.copy(alpha = 0.9f),
                     modifier = Modifier.fillMaxWidth()
@@ -626,26 +630,22 @@ private fun ClinicalAssessmentScreen(
                     contentDescription = item.displayText(nivel.nivel),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .fillMaxWidth(0.48f)
-                        .aspectRatio(1f)
-                        .padding(top = 14.dp)
+                        .size(260.dp)
                         .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
                         .clip(RoundedCornerShape(8.dp))
                         .border(4.dp, parseColor(categoria.cor), RoundedCornerShape(8.dp))
                         .background(Color.White)
                 )
                 ChalkText(
-                    text = if (activity == "nomeacao") "Figura ${itemIndex + 1}/${nivel.itens.size}" else item.displayText(nivel.nivel),
-                    fontSize = 34,
+                    text = if (activity == "nomeacao") "Figura ${itemIndex + 1}/${clinicalItems.size}" else item.displayText(nivel.nivel),
+                    fontSize = 28,
                     fontWeight = FontWeight.Black,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(top = 10.dp)
+                    modifier = Modifier.padding(bottom = 4.dp)
                 ) {
                     Button(
                         onClick = {
@@ -700,7 +700,7 @@ private fun ClinicalAssessmentScreen(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .weight(1f)
-                        .height(70.dp)
+                        .height(62.dp)
                 ) {
                     Text("Erro", fontSize = 24.sp, fontWeight = FontWeight.Black)
                 }
@@ -718,7 +718,7 @@ private fun ClinicalAssessmentScreen(
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .weight(1f)
-                        .height(70.dp)
+                        .height(62.dp)
                 ) {
                     Text("Acerto", fontSize = 24.sp, fontWeight = FontWeight.Black)
                 }
