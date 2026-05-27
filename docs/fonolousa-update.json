@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  20,
-    "versionName":  "1.0.19",
+    "versionCode":  21,
+    "versionName":  "1.0.20",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Troca cachorro repetido do nivel 3 por elefante."
+    "notes":  "Adiciona sons reais de animais nos niveis 2 e 3."
 }

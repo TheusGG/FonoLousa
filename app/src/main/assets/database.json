@@ -74,28 +74,28 @@
                                                                 "promptImagem":  "Imagem infantil simples de Porco, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "tartaruga",
-                                                                "palavra":  "Tartaruga",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_tartaruga.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_tartaruga.mp3",
-                                                                "frase":  "a tartaruga",
-                                                                "promptImagem":  "Imagem infantil simples de Tartaruga, sem texto, fundo branco"
+                                                                "id":  "abelha",
+                                                                "palavra":  "Abelha",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_abelha.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_abelha.mp3",
+                                                                "frase":  "a abelha",
+                                                                "promptImagem":  "Imagem infantil simples de Abelha, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "girafa",
-                                                                "palavra":  "Girafa",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_girafa.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_girafa.mp3",
-                                                                "frase":  "a girafa",
-                                                                "promptImagem":  "Imagem infantil simples de Girafa, sem texto, fundo branco"
+                                                                "id":  "pato",
+                                                                "palavra":  "Pato",
+                                                                "arquivoImagem":  "assets/imagens/animais/n1_pato.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_pato.mp3",
+                                                                "frase":  "o pato",
+                                                                "promptImagem":  "Imagem infantil simples de Pato, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "coelho",
-                                                                "palavra":  "Coelho",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_coelho.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_coelho.mp3",
-                                                                "frase":  "o coelho",
-                                                                "promptImagem":  "Imagem infantil simples de Coelho, sem texto, fundo branco"
+                                                                "id":  "pintinho",
+                                                                "palavra":  "Pintinho",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_pintinho.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_pintinho.mp3",
+                                                                "frase":  "o pintinho",
+                                                                "promptImagem":  "Imagem infantil simples de Pintinho, sem texto, fundo branco"
                                                             },
                                                             {
                                                                 "id":  "ovelha",
@@ -136,12 +136,12 @@
                                                                 "promptImagem":  "Imagem infantil simples de Lobo, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "crocodilo",
-                                                                "palavra":  "Crocodilo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_crocodilo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_crocodilo.mp3",
-                                                                "frase":  "o crocodilo",
-                                                                "promptImagem":  "Imagem infantil simples de Crocodilo, sem texto, fundo branco"
+                                                                "id":  "tucano",
+                                                                "palavra":  "Tucano",
+                                                                "arquivoImagem":  "assets/imagens/animais/n3_tucano.png",
+                                                                "arquivoSom":  "assets/sons/animais/n3_tucano.mp3",
+                                                                "frase":  "o tucano",
+                                                                "promptImagem":  "Imagem infantil simples de Tucano, sem texto, fundo branco"
                                                             },
                                                             {
                                                                 "id":  "elefante",
