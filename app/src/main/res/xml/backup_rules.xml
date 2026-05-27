@@ -1,2 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<full-backup-content />
+<full-backup-content>
+    <exclude domain="database" path="fonolousa-local.db" />
+    <exclude domain="database" path="fonolousa-local.db-shm" />
+    <exclude domain="database" path="fonolousa-local.db-wal" />
+</full-backup-content>

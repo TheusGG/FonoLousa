@@ -1,7 +1,10 @@
 param(
     [string]$BaseUrl = "",
     [string]$ApkUrl = "",
-    [string]$ManifestUrl = ""
+    [string]$ManifestUrl = "",
+    [ValidateSet("Debug", "Release")]
+    [string]$BuildType = "Debug",
+    [string]$ApkFileName = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -30,7 +33,7 @@ $env:PATH = "$androidStudioJdk\bin;$gradleBin;$androidSdk\platform-tools;$env:PA
 
 Push-Location $root
 try {
-    $gradleArgs = @("assembleDebug")
+    $gradleArgs = @("assemble$BuildType")
     if (-not [string]::IsNullOrWhiteSpace($ManifestUrl)) {
         $gradleArgs += "-Pfonolousa.updateManifestUrl=$ManifestUrl"
     }
@@ -40,20 +43,26 @@ try {
         throw "Gradle falhou com codigo $LASTEXITCODE. APK nao foi atualizado."
     }
     New-Item -ItemType Directory -Force output | Out-Null
-    Copy-Item -LiteralPath app\build\outputs\apk\debug\app-debug.apk -Destination output\FonoLousa-debug.apk -Force
+    $buildTypeLower = $BuildType.ToLowerInvariant()
+    $outputApkName = if (-not [string]::IsNullOrWhiteSpace($ApkFileName)) {
+        $ApkFileName
+    } else {
+        "FonoLousa-$buildTypeLower.apk"
+    }
+    Copy-Item -LiteralPath "app\build\outputs\apk\$buildTypeLower\app-$buildTypeLower.apk" -Destination "output\$outputApkName" -Force
     $resolvedApkUrl = if (-not [string]::IsNullOrWhiteSpace($ApkUrl)) {
         $ApkUrl
     } elseif ([string]::IsNullOrWhiteSpace($BaseUrl)) {
-        "https://SEU-DOMINIO-OU-GITHUB/FonoLousa-debug.apk"
+        "https://SEU-DOMINIO-OU-GITHUB/$outputApkName"
     } else {
-        $BaseUrl.TrimEnd("/") + "/FonoLousa-debug.apk"
+        $BaseUrl.TrimEnd("/") + "/$outputApkName"
     }
     $manifest = [ordered]@{
         app = "FonoLousa"
-        versionCode = 12
-        versionName = "1.0.11"
+        versionCode = 17
+        versionName = "1.0.16"
         apkUrl = $resolvedApkUrl
-        notes = "Canal seguro: app abre a pagina oficial de download sem baixar arquivo em segundo plano."
+        notes = "Melhora diagnostico do canal de atualizacao e mantem correcoes dos animais."
     } | ConvertTo-Json -Depth 4
     [IO.File]::WriteAllText((Join-Path $root "output\fonolousa-update.json"), $manifest, [Text.UTF8Encoding]::new($false))
 
@@ -74,15 +83,15 @@ try {
 <body>
   <main>
     <h1>FonoLousa</h1>
-    <p>Versao 1.0.6 de teste para instalacao em tablet Android.</p>
-    <a href="FonoLousa-debug.apk">Baixar APK</a>
+    <p>Versao 1.0.16 de teste para instalacao em tablet Android.</p>
+    <a href="$outputApkName">Baixar APK</a>
     <p>Manifesto de atualizacao: <code>fonolousa-update.json</code></p>
   </main>
 </body>
 </html>
 "@
     [IO.File]::WriteAllText((Join-Path $root "output\index.html"), $html, [Text.UTF8Encoding]::new($false))
-    Write-Host "APK gerado em: $root\output\FonoLousa-debug.apk"
+    Write-Host "APK gerado em: $root\output\$outputApkName"
     Write-Host "Manifesto gerado em: $root\output\fonolousa-update.json"
     Write-Host "Pagina gerada em: $root\output\index.html"
     if (-not [string]::IsNullOrWhiteSpace($ManifestUrl)) {

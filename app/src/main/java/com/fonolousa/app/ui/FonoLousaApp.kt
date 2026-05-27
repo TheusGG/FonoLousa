@@ -1075,9 +1075,9 @@ private fun ItemCell(
                 )
             }
         }
-        AnimatedVisibility(visible = progress?.isFavorite == true || (progress?.plays ?: 0) > 0) {
+        AnimatedVisibility(visible = progress?.isFavorite == true) {
             Text(
-                text = "${if (progress?.isFavorite == true) "Favorito" else ""}${if ((progress?.plays ?: 0) > 0) "  ${progress?.plays}x" else ""}".trim(),
+                text = "Favorito",
                 color = borderColor,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Black,
@@ -1451,6 +1451,7 @@ private fun updateMessage(state: UpdateState): String {
         UpdateState.Checking -> "Verificando nova versao..."
         is UpdateState.Available -> "Canal oficial disponivel.\n${state.manifest.notes}"
         is UpdateState.UpToDate -> "Este tablet ja esta com a versao ${state.currentVersionName}."
+        is UpdateState.RemoteBehind -> "Canal remoto desatualizado: publicado ${state.remoteVersionName}, app instalado ${state.currentVersionName}."
         is UpdateState.NotConfigured -> state.message
         is UpdateState.Error -> "Falha ao verificar: ${state.message}"
     }

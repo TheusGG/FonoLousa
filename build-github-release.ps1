@@ -1,7 +1,7 @@
 param(
     [string]$Owner = "TheusGG",
     [string]$Repo = "FonoLousa",
-    [string]$VersionName = "1.0.6",
+    [string]$VersionName = "1.0.16",
     [switch]$UsePagesApk
 )
 
@@ -19,13 +19,13 @@ $apkUrl = if ($UsePagesApk) {
 
 Push-Location $root
 try {
-    powershell -ExecutionPolicy Bypass -File .\build-apk.ps1 -ManifestUrl $manifestUrl -ApkUrl $apkUrl
+    powershell -ExecutionPolicy Bypass -File .\build-apk.ps1 -ManifestUrl $manifestUrl -ApkUrl $apkUrl -BuildType Release -ApkFileName FonoLousa-release.apk
 
     New-Item -ItemType Directory -Force docs | Out-Null
     Copy-Item -LiteralPath output\index.html -Destination docs\index.html -Force
     Copy-Item -LiteralPath output\fonolousa-update.json -Destination docs\fonolousa-update.json -Force
     if ($UsePagesApk) {
-        Copy-Item -LiteralPath output\FonoLousa-debug.apk -Destination docs\FonoLousa-debug.apk -Force
+        Copy-Item -LiteralPath output\FonoLousa-release.apk -Destination docs\FonoLousa-release.apk -Force
     }
 
     Write-Host ""
@@ -35,7 +35,7 @@ try {
     Write-Host "APK URL:           $apkUrl"
     Write-Host ""
     Write-Host "Arquivos prontos:"
-    Write-Host "  output\FonoLousa-debug.apk"
+    Write-Host "  output\FonoLousa-release.apk"
     Write-Host "  docs\index.html"
     Write-Host "  docs\fonolousa-update.json"
 } finally {

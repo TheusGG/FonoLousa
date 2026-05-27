@@ -66,12 +66,12 @@
                                               "descricao":  "Animais da fazenda",
                                               "itens":  [
                                                             {
-                                                                "id":  "vaca-no-estabulo",
-                                                                "palavra":  "Vaca",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_vaca-no-estabulo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_vaca-no-estabulo.mp3",
-                                                                "frase":  "a vaca",
-                                                                "promptImagem":  "Imagem infantil simples de Vaca, sem texto, fundo branco"
+                                                                "id":  "porco",
+                                                                "palavra":  "Porco",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_porco.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_porco.mp3",
+                                                                "frase":  "o porco",
+                                                                "promptImagem":  "Imagem infantil simples de Porco, sem texto, fundo branco"
                                                             },
                                                             {
                                                                 "id":  "galo-cantando",
@@ -90,28 +90,28 @@
                                                                 "promptImagem":  "Imagem infantil simples de Burro, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "gansos-gritando",
-                                                                "palavra":  "Gansos",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_gansos-gritando.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_gansos-gritando.mp3",
-                                                                "frase":  "os gansos",
-                                                                "promptImagem":  "Imagem infantil simples de Gansos, sem texto, fundo branco"
+                                                                "id":  "coelho",
+                                                                "palavra":  "Coelho",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_coelho.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_coelho.mp3",
+                                                                "frase":  "o coelho",
+                                                                "promptImagem":  "Imagem infantil simples de Coelho, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "gato-pequeno",
-                                                                "palavra":  "Gato pequeno",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_gato-pequeno.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_gato-pequeno.mp3",
-                                                                "frase":  "o gato pequeno",
-                                                                "promptImagem":  "Imagem infantil simples de Gato pequeno, sem texto, fundo branco"
+                                                                "id":  "ovelha",
+                                                                "palavra":  "Ovelha",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_ovelha.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_ovelha.mp3",
+                                                                "frase":  "a ovelha",
+                                                                "promptImagem":  "Imagem infantil simples de Ovelha, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "cachorro-bravo",
-                                                                "palavra":  "Cachorro bravo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_cachorro-bravo.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_cachorro-bravo.mp3",
-                                                                "frase":  "o cachorro bravo",
-                                                                "promptImagem":  "Imagem infantil simples de Cachorro bravo, sem texto, fundo branco"
+                                                                "id":  "galinha",
+                                                                "palavra":  "Galinha",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_galinha.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_galinha.mp3",
+                                                                "frase":  "a galinha",
+                                                                "promptImagem":  "Imagem infantil simples de Galinha, sem texto, fundo branco"
                                                             }
                                                         ]
                                           },
@@ -136,12 +136,12 @@
                                                                 "promptImagem":  "Imagem infantil simples de Lobo, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "lobos-uivando",
-                                                                "palavra":  "Lobos",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_lobos-uivando.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_lobos-uivando.mp3",
-                                                                "frase":  "os lobos",
-                                                                "promptImagem":  "Imagem infantil simples de Lobos, sem texto, fundo branco"
+                                                                "id":  "crocodilo",
+                                                                "palavra":  "Crocodilo",
+                                                                "arquivoImagem":  "assets/imagens/animais/n3_crocodilo.png",
+                                                                "arquivoSom":  "assets/sons/animais/n3_crocodilo.mp3",
+                                                                "frase":  "o crocodilo",
+                                                                "promptImagem":  "Imagem infantil simples de Crocodilo, sem texto, fundo branco"
                                                             },
                                                             {
                                                                 "id":  "cachorro-rosnando",
