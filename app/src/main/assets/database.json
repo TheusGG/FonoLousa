@@ -144,12 +144,12 @@
                                                                 "promptImagem":  "Imagem infantil simples de Crocodilo, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "cachorro-rosnando",
-                                                                "palavra":  "Cachorro rosnando",
-                                                                "arquivoImagem":  "assets/imagens/animais/n3_cachorro-rosnando.png",
-                                                                "arquivoSom":  "assets/sons/animais/n3_cachorro-rosnando.mp3",
-                                                                "frase":  "o cachorro rosnando",
-                                                                "promptImagem":  "Imagem infantil simples de Cachorro rosnando, sem texto, fundo branco"
+                                                                "id":  "elefante",
+                                                                "palavra":  "Elefante",
+                                                                "arquivoImagem":  "assets/imagens/animais/n3_elefante.png",
+                                                                "arquivoSom":  "assets/sons/animais/n3_elefante.mp3",
+                                                                "frase":  "o elefante",
+                                                                "promptImagem":  "Imagem infantil simples de Elefante, sem texto, fundo branco"
                                                             },
                                                             {
                                                                 "id":  "grilo-cantando",

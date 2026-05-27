@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  19,
-    "versionName":  "1.0.18",
+    "versionCode":  20,
+    "versionName":  "1.0.19",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Baixa o APK direto pelo app e abre o instalador do Android."
+    "notes":  "Troca cachorro repetido do nivel 3 por elefante."
 }
