@@ -1,8 +1,10 @@
 ﻿package com.fonolousa.app.ui
 
 import android.graphics.BitmapFactory
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.content.FileProvider
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -102,8 +104,12 @@ import com.fonolousa.app.ui.theme.ChalkShadow
 import com.fonolousa.app.ui.theme.ChalkWhite
 import com.fonolousa.app.update.UpdateChecker
 import com.fonolousa.app.update.UpdateState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
+import java.io.File
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -315,6 +321,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val checker = remember { UpdateChecker() }
     var state by remember { mutableStateOf<UpdateState>(UpdateState.Idle) }
+    var installMessage by remember { mutableStateOf<String?>(null) }
 
     BlackboardScreen {
         Column(
@@ -347,6 +354,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
                     onClick = {
                         scope.launch {
                             state = UpdateState.Checking
+                            installMessage = null
                             state = checker.check()
                         }
                     },
@@ -365,8 +373,10 @@ private fun UpdateScreen(onBack: () -> Unit) {
                 if (available != null) {
                     Button(
                         onClick = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(available.manifest.apkUrl))
-                            context.startActivity(intent)
+                            scope.launch {
+                                installMessage = "Baixando atualizacao..."
+                                installMessage = installUpdate(context, available.manifest.apkUrl)
+                            }
                         },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -380,11 +390,18 @@ private fun UpdateScreen(onBack: () -> Unit) {
                         Icon(Icons.Filled.SystemUpdate, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            text = "Abrir pagina de download",
+                            text = "Baixar e instalar",
                             fontSize = 21.sp,
                             fontWeight = FontWeight.Black
                         )
                     }
+                }
+                if (installMessage != null) {
+                    ChalkText(
+                        text = installMessage.orEmpty(),
+                        fontSize = 20,
+                        color = ChalkWhite.copy(alpha = 0.9f)
+                    )
                 }
             }
         }
@@ -1482,6 +1499,37 @@ private fun String.label(): String {
         "discriminacao" -> "Discriminacao"
         else -> this
     }
+}
+
+private suspend fun installUpdate(context: Context, apkUrl: String): String {
+    return try {
+        val apkFile = downloadUpdateApk(context, apkUrl)
+        val apkUri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            apkFile
+        )
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(apkUri, "application/vnd.android.package-archive")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+        "Instalador aberto. Confirme a atualizacao para concluir."
+    } catch (error: Exception) {
+        "Falha ao instalar: ${error.message ?: "nao foi possivel baixar o APK."}"
+    }
+}
+
+private suspend fun downloadUpdateApk(context: Context, apkUrl: String): File = withContext(Dispatchers.IO) {
+    val updateDir = File(context.cacheDir, "updates").apply { mkdirs() }
+    val apkFile = File(updateDir, "FonoLousa-update.apk")
+    URL(apkUrl).openStream().use { input ->
+        apkFile.outputStream().use { output ->
+            input.copyTo(output)
+        }
+    }
+    apkFile
 }
 
 private fun String.prompt(): String {

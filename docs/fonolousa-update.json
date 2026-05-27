@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  18,
-    "versionName":  "1.0.17",
+    "versionCode":  19,
+    "versionName":  "1.0.18",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Troca animais com imagem confusa no nivel 2."
+    "notes":  "Baixa o APK direto pelo app e abre o instalador do Android."
 }

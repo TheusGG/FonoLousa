@@ -26,8 +26,8 @@ android {
         applicationId = "com.fonolousa.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "1.0.17"
+        versionCode = 19
+        versionName = "1.0.18"
         buildConfigField(
             "String",
             "UPDATE_MANIFEST_URL",
@@ -78,6 +78,7 @@ kotlin {
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2026.04.01"))
     implementation("androidx.activity:activity-compose:1.11.0")
+    implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.material3:material3")
