@@ -74,20 +74,20 @@
                                                                 "promptImagem":  "Imagem infantil simples de Porco, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "galo-cantando",
-                                                                "palavra":  "Galo",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_galo-cantando.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_galo-cantando.mp3",
-                                                                "frase":  "o galo",
-                                                                "promptImagem":  "Imagem infantil simples de Galo, sem texto, fundo branco"
+                                                                "id":  "tartaruga",
+                                                                "palavra":  "Tartaruga",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_tartaruga.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_tartaruga.mp3",
+                                                                "frase":  "a tartaruga",
+                                                                "promptImagem":  "Imagem infantil simples de Tartaruga, sem texto, fundo branco"
                                                             },
                                                             {
-                                                                "id":  "burro-zurrando",
-                                                                "palavra":  "Burro",
-                                                                "arquivoImagem":  "assets/imagens/animais/n2_burro-zurrando.png",
-                                                                "arquivoSom":  "assets/sons/animais/n2_burro-zurrando.mp3",
-                                                                "frase":  "o burro",
-                                                                "promptImagem":  "Imagem infantil simples de Burro, sem texto, fundo branco"
+                                                                "id":  "girafa",
+                                                                "palavra":  "Girafa",
+                                                                "arquivoImagem":  "assets/imagens/animais/n2_girafa.png",
+                                                                "arquivoSom":  "assets/sons/animais/n2_girafa.mp3",
+                                                                "frase":  "a girafa",
+                                                                "promptImagem":  "Imagem infantil simples de Girafa, sem texto, fundo branco"
                                                             },
                                                             {
                                                                 "id":  "coelho",

@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  17,
-    "versionName":  "1.0.16",
+    "versionCode":  18,
+    "versionName":  "1.0.17",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Melhora diagnostico do canal de atualizacao e mantem correcoes dos animais."
+    "notes":  "Troca animais com imagem confusa no nivel 2."
 }
