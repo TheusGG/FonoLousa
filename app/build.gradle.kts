@@ -26,8 +26,8 @@ android {
         applicationId = "com.fonolousa.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 31
-        versionName = "1.0.30"
+        versionCode = 32
+        versionName = "1.0.31"
         buildConfigField(
             "String",
             "UPDATE_MANIFEST_URL",

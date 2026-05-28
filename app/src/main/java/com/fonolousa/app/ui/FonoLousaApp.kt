@@ -137,6 +137,7 @@ fun FonoLousaApp(
         composable("home") {
             HomeScreen(
                 categorias = repository.categorias(),
+                registeredChildren = clinicalResults.registeredChildNames(),
                 onCategoryClick = { navController.navigate("items/${it.id}") },
                 onUpdateClick = { navController.navigate("update") },
                 onReportClick = { navController.navigate("report") },
@@ -268,13 +269,34 @@ fun FonoLousaApp(
 @Composable
 private fun HomeScreen(
     categorias: List<Categoria>,
+    registeredChildren: List<String>,
     onCategoryClick: (Categoria) -> Unit,
     onUpdateClick: () -> Unit,
     onReportClick: () -> Unit,
     onClinicalClick: (String) -> Unit
 ) {
     var childName by remember { mutableStateOf("") }
-    val canStartAssessment = childName.trim().isNotEmpty()
+    var selectedRegisteredChild by remember { mutableStateOf("") }
+    val typedChildName = childName.cleanChildName()
+    val existingChildrenByKey = remember(registeredChildren) {
+        registeredChildren.associateBy { normalizeChildName(it) }
+    }
+    val duplicateChildName = typedChildName.isNotEmpty() && normalizeChildName(typedChildName) in existingChildrenByKey
+    val canStartNewAssessment = typedChildName.isNotEmpty() && !duplicateChildName
+    val canStartRegisteredAssessment = selectedRegisteredChild.isNotBlank()
+    val quickAssessmentChild = when {
+        canStartNewAssessment -> typedChildName
+        canStartRegisteredAssessment -> selectedRegisteredChild
+        else -> ""
+    }
+    LaunchedEffect(registeredChildren) {
+        if (registeredChildren.isNotEmpty() && selectedRegisteredChild !in registeredChildren) {
+            selectedRegisteredChild = registeredChildren.first()
+        }
+        if (registeredChildren.isEmpty()) {
+            selectedRegisteredChild = ""
+        }
+    }
 
     BlackboardScreen {
         Column(
@@ -288,8 +310,8 @@ private fun HomeScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(
-                    onClick = { onClinicalClick(childName.trim()) },
-                    enabled = canStartAssessment,
+                    onClick = { onClinicalClick(quickAssessmentChild) },
+                    enabled = quickAssessmentChild.isNotBlank(),
                     modifier = Modifier
                         .size(58.dp)
                         .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
@@ -297,7 +319,7 @@ private fun HomeScreen(
                     Icon(
                         imageVector = Icons.Filled.Assessment,
                         contentDescription = "Avaliacao clinica",
-                        tint = if (canStartAssessment) Color(0xFFFFC107) else ChalkWhite.copy(alpha = 0.38f),
+                        tint = if (quickAssessmentChild.isNotBlank()) Color(0xFFFFC107) else ChalkWhite.copy(alpha = 0.38f),
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -355,8 +377,9 @@ private fun HomeScreen(
             ) {
                 TextField(
                     value = childName,
-                    onValueChange = { childName = it.take(40) },
-                    placeholder = { Text("Nome da crianca") },
+                    onValueChange = { childName = it.replace("\n", " ").take(40) },
+                    placeholder = { Text("Nome da nova crianca") },
+                    isError = duplicateChildName,
                     singleLine = true,
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
@@ -364,8 +387,8 @@ private fun HomeScreen(
                         .height(58.dp)
                 )
                 Button(
-                    onClick = { onClinicalClick(childName.trim()) },
-                    enabled = canStartAssessment,
+                    onClick = { onClinicalClick(typedChildName) },
+                    enabled = canStartNewAssessment,
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFFC107),
@@ -373,7 +396,7 @@ private fun HomeScreen(
                     ),
                     modifier = Modifier.height(58.dp)
                 ) {
-                    Text("Iniciar Avaliacao", fontSize = 17.sp, fontWeight = FontWeight.Black)
+                    Text("Cadastrar e avaliar", fontSize = 17.sp, fontWeight = FontWeight.Black)
                 }
                 Button(
                     onClick = onReportClick,
@@ -381,6 +404,43 @@ private fun HomeScreen(
                     modifier = Modifier.height(58.dp)
                 ) {
                     Text("Ver Relatorios", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            if (duplicateChildName) {
+                ChalkText(
+                    text = "Crianca ja cadastrada. Use a lista de criancas salvas para nova avaliacao.",
+                    fontSize = 16,
+                    color = Color(0xFFFFB3B3),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                )
+            }
+            if (registeredChildren.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ReportFilterDropdown(
+                        label = "Crianca salva",
+                        value = selectedRegisteredChild,
+                        options = registeredChildren,
+                        optionLabel = { it },
+                        onSelect = { selectedRegisteredChild = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Button(
+                        onClick = { onClinicalClick(selectedRegisteredChild) },
+                        enabled = canStartRegisteredAssessment,
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.height(58.dp)
+                    ) {
+                        Text("Avaliar existente", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
             ChalkText(
@@ -510,9 +570,7 @@ private fun SessionReportScreen(
     val practiced = progress.count { it.views > 0 || it.plays > 0 }
     val formatter = remember { SimpleDateFormat("dd/MM HH:mm", Locale("pt", "BR")) }
     val scope = rememberCoroutineScope()
-    val childNames = remember(clinicalResults) {
-        clinicalResults.map { it.childName }.filter { it.isNotBlank() }.distinct().sorted()
-    }
+    val childNames = remember(clinicalResults) { clinicalResults.registeredChildNames() }
     var selectedChild by remember { mutableStateOf("") }
     var selectedTrendActivity by remember { mutableStateOf("nomeacao") }
     LaunchedEffect(childNames) {
@@ -561,7 +619,7 @@ private fun SessionReportScreen(
                             modifier = Modifier.weight(1f)
                         )
                         ReportFilterDropdown(
-                            label = "Atividade",
+                            label = "Grafico",
                             value = selectedTrendActivity,
                             options = clinicalActivityKeys(),
                             optionLabel = { it.label() },
@@ -809,13 +867,19 @@ private fun ClinicalEvaluationsAdminSection(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         ChalkText(
-                            text = evaluation.activity.label(),
+                            text = "Avaliacao clinica",
                             fontSize = 18,
                             fontWeight = FontWeight.Black,
                             maxLines = 1
                         )
                         ChalkText(
-                            text = "${formatter.format(Date(evaluation.startedAt))}  -  Acertos ${evaluation.correct}  Erros ${evaluation.errors}  Total ${evaluation.total}",
+                            text = "${formatter.format(Date(evaluation.startedAt))}  -  ${evaluation.activityLabels}",
+                            fontSize = 13,
+                            color = ChalkWhite.copy(alpha = 0.74f),
+                            maxLines = 1
+                        )
+                        ChalkText(
+                            text = "Acertos ${evaluation.correct}  Erros ${evaluation.errors}  Total ${evaluation.total}",
                             fontSize = 13,
                             color = ChalkWhite.copy(alpha = 0.74f),
                             maxLines = 1
@@ -904,7 +968,7 @@ private fun ClinicalEvaluationsAdminSection(
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(42.dp)
                         ) {
-                            Text("Excluir", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            Text("Excluir avaliacao", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -925,7 +989,7 @@ private fun ClinicalEvaluationsAdminSection(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 ChalkText(
-                                    text = "${index + 1}. ${result.word.replaceFirstChar { it.uppercase() }}",
+                                    text = "${index + 1}. ${result.activity.label()} - ${result.word.replaceFirstChar { it.uppercase() }}",
                                     fontSize = 15,
                                     maxLines = 1,
                                     modifier = Modifier.weight(1f)
@@ -1602,34 +1666,76 @@ private data class ClinicalStimulus(
 private data class ClinicalEvaluationGroup(
     val key: String,
     val sessionId: String,
-    val activity: String,
     val startedAt: Long,
     val results: List<ClinicalResultEntity>
 ) {
     val correct: Int = results.count { it.isCorrect }
     val errors: Int = results.size - correct
     val total: Int = results.size
+    val activityLabels: String = results
+        .map { it.activity }
+        .distinct()
+        .joinToString(", ") { it.label() }
 }
 
 private fun clinicalActivityKeys(): List<String> =
     listOf("nomeacao", "repeticao", "discriminacao", "leitura")
 
+private fun List<ClinicalResultEntity>.registeredChildNames(): List<String> {
+    return map { it.childName.cleanChildName() }
+        .filter { it.isNotBlank() }
+        .distinctBy { normalizeChildName(it) }
+        .sortedBy { normalizeChildName(it) }
+}
+
+private fun String.cleanChildName(): String =
+    trim().split(Regex("\\s+")).filter { it.isNotBlank() }.joinToString(" ")
+
+private fun normalizeChildName(name: String): String =
+    name.cleanChildName().lowercase(Locale.forLanguageTag("pt-BR"))
+
 private fun clinicalEvaluationGroups(results: List<ClinicalResultEntity>): List<ClinicalEvaluationGroup> {
+    val activityOrder = clinicalActivityKeys()
+    val expectedEvaluationSize = CLINICAL_TRIALS_PER_ACTIVITY * activityOrder.size
+    val maxSameEvaluationGapMillis = 5 * 60 * 1000L
+    fun activityIndex(activity: String): Int = activityOrder.indexOf(activity).takeIf { it >= 0 } ?: Int.MAX_VALUE
+
     return results
-        .groupBy { "${it.sessionId}|${it.activity}" }
-        .flatMap { (baseKey, groupResults) ->
-            groupResults
-                .sortedBy { it.createdAt }
-                .chunked(CLINICAL_TRIALS_PER_ACTIVITY)
-                .mapIndexed { index, chunk ->
-                    ClinicalEvaluationGroup(
-                        key = "$baseKey|$index",
-                        sessionId = chunk.first().sessionId,
-                        activity = chunk.first().activity,
-                        startedAt = chunk.first().createdAt,
-                        results = chunk
+        .groupBy { it.sessionId }
+        .flatMap { (sessionId, sessionResults) ->
+            val groups = mutableListOf<List<ClinicalResultEntity>>()
+            var current = mutableListOf<ClinicalResultEntity>()
+            var previous: ClinicalResultEntity? = null
+
+            sessionResults.sortedBy { it.createdAt }.forEach { result ->
+                val previousResult = previous
+                val shouldStartNewEvaluation = current.isNotEmpty() && previousResult != null && (
+                    result.createdAt - previousResult.createdAt > maxSameEvaluationGapMillis ||
+                        activityIndex(result.activity) < activityIndex(previousResult.activity) ||
+                        current.size >= expectedEvaluationSize
                     )
+
+                if (shouldStartNewEvaluation) {
+                    groups += current.toList()
+                    current = mutableListOf()
                 }
+
+                current += result
+                previous = result
+            }
+
+            if (current.isNotEmpty()) {
+                groups += current.toList()
+            }
+
+            groups.mapIndexed { index, chunk ->
+                ClinicalEvaluationGroup(
+                    key = "$sessionId|$index",
+                    sessionId = sessionId,
+                    startedAt = chunk.first().createdAt,
+                    results = chunk
+                )
+            }
         }
         .sortedByDescending { it.startedAt }
 }
