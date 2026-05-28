@@ -37,7 +37,7 @@ foreach ($category in $db.categorias) {
                 palavra = $item.palavra
                 imagem = $item.arquivoImagem
                 imagemExiste = [bool]$image
-                imagemTipo = if ($image -and $image.Length -gt 120000) { "real/custom" } elseif ($image) { "placeholder" } else { "missing" }
+                imagemTipo = if ($image -and ($image.Length -gt 120000 -or $item.arquivoImagem -match "/cur_[^/]+\.png$")) { "real/custom" } elseif ($image) { "placeholder" } else { "missing" }
                 som = $item.arquivoSom
                 somExiste = [bool]$sound
                 audioFallback = $audioFallback
