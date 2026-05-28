@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  23,
-    "versionName":  "1.0.22",
+    "versionCode":  24,
+    "versionName":  "1.0.23",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Corrige avaliacao clinica, fluxo de 10 tentativas e relatorios por crianca."
+    "notes":  "Remove desempenho da tela de teste e mostra acertos/erros por crianca no relatorio."
 }

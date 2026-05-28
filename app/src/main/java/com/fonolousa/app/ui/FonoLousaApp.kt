@@ -163,7 +163,6 @@ fun FonoLousaApp(
                 sessionRepository = sessionRepository,
                 audioPlayer = audioPlayer,
                 categorias = repository.categorias(),
-                results = clinicalResults,
                 onBack = { navController.popBackStack() }
             )
         }
@@ -473,16 +472,16 @@ private fun SessionReportScreen(
     val childNames = remember(clinicalResults) {
         clinicalResults.map { it.childName }.filter { it.isNotBlank() }.distinct().sorted()
     }
-    var selectedChild by remember { mutableStateOf("Todas") }
+    var selectedChild by remember { mutableStateOf("") }
     var selectedTrendActivity by remember { mutableStateOf("nomeacao") }
     LaunchedEffect(childNames) {
-        if (selectedChild != "Todas" && selectedChild !in childNames) {
-            selectedChild = "Todas"
+        if (childNames.isNotEmpty() && selectedChild !in childNames) {
+            selectedChild = childNames.first()
         }
     }
     val childFilteredResults = remember(clinicalResults, selectedChild) {
-        if (selectedChild == "Todas") {
-            clinicalResults
+        if (selectedChild.isBlank()) {
+            emptyList()
         } else {
             clinicalResults.filter { it.childName == selectedChild }
         }
@@ -516,7 +515,7 @@ private fun SessionReportScreen(
                     ReportFilterDropdown(
                         label = "Crianca",
                         value = selectedChild,
-                        options = listOf("Todas") + childNames,
+                        options = childNames,
                         optionLabel = { it },
                         onSelect = { selectedChild = it },
                         modifier = Modifier.weight(1f)
@@ -531,9 +530,13 @@ private fun SessionReportScreen(
                     )
                 }
             }
+            ClinicalCountsSection(
+                results = childFilteredResults,
+                modifier = Modifier.padding(top = 18.dp)
+            )
             ClinicalChartSection(
                 results = childFilteredResults,
-                modifier = Modifier.padding(top = 22.dp)
+                modifier = Modifier.padding(top = 14.dp)
             )
             ClinicalTrendSection(
                 results = childFilteredResults,
@@ -670,7 +673,6 @@ private fun ClinicalAssessmentScreen(
     sessionRepository: SessionRepository,
     audioPlayer: AudioPlayer,
     categorias: List<Categoria>,
-    results: List<ClinicalResultEntity>,
     onBack: () -> Unit
 ) {
     val activities = listOf("nomeacao", "repeticao", "discriminacao")
@@ -742,7 +744,6 @@ private fun ClinicalAssessmentScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
                     .padding(top = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -811,7 +812,7 @@ private fun ClinicalAssessmentScreen(
                     contentDescription = item.displayText(nivel.nivel),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .size(220.dp)
+                        .size(300.dp)
                         .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
                         .clip(RoundedCornerShape(8.dp))
                         .border(4.dp, parseColor(categoria.cor), RoundedCornerShape(8.dp))
@@ -908,10 +909,73 @@ private fun ClinicalAssessmentScreen(
                         Text("Acerto", fontSize = 24.sp, fontWeight = FontWeight.Black)
                     }
                 }
-                ClinicalChartSection(
-                    results = results.filter { it.childName.equals(childName, ignoreCase = true) },
-                    modifier = Modifier.padding(top = 2.dp)
-                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClinicalCountsSection(
+    results: List<ClinicalResultEntity>,
+    modifier: Modifier = Modifier
+) {
+    val summaries = clinicalActivitySummaries(results)
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
+            .background(Color.White.copy(alpha = 0.10f))
+            .padding(14.dp)
+    ) {
+        ChalkText(
+            text = "Acertos e erros por avaliacao",
+            fontSize = 20,
+            fontWeight = FontWeight.Black,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            summaries.forEach { summary ->
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White.copy(alpha = 0.10f))
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    ChalkText(
+                        text = summary.label,
+                        fontSize = 17,
+                        fontWeight = FontWeight.Black,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    ChalkText(
+                        text = "Acertos: ${summary.correct}",
+                        fontSize = 16,
+                        color = Color(0xFFB8F5BD),
+                        textAlign = TextAlign.Center
+                    )
+                    ChalkText(
+                        text = "Erros: ${summary.errors}",
+                        fontSize = 16,
+                        color = Color(0xFFFFB3B3),
+                        textAlign = TextAlign.Center
+                    )
+                    ChalkText(
+                        text = "Total: ${summary.total}",
+                        fontSize = 15,
+                        color = ChalkWhite.copy(alpha = 0.82f),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
@@ -1070,6 +1134,25 @@ private data class ClinicalBar(
     val percent: Int,
     val total: Int
 )
+
+private data class ClinicalActivitySummary(
+    val label: String,
+    val correct: Int,
+    val errors: Int
+) {
+    val total: Int = correct + errors
+}
+
+private fun clinicalActivitySummaries(results: List<ClinicalResultEntity>): List<ClinicalActivitySummary> {
+    return listOf("nomeacao", "repeticao", "discriminacao").map { activity ->
+        val items = results.filter { it.activity == activity }
+        ClinicalActivitySummary(
+            label = activity.label(),
+            correct = items.count { it.isCorrect },
+            errors = items.count { !it.isCorrect }
+        )
+    }
+}
 
 @Composable
 private fun CategoryButton(categoria: Categoria, onClick: () -> Unit) {
