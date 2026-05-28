@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  27,
-    "versionName":  "1.0.26",
+    "versionCode":  28,
+    "versionName":  "1.0.27",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Padroniza todas as figuras na mesma base visual e atualiza Alimentos."
+    "notes":  "Exibe os botoes de som na avaliacao clinica de repeticao e discriminacao."
 }

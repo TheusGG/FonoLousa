@@ -797,8 +797,9 @@ private fun ClinicalAssessmentScreen(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .padding(top = 10.dp),
-                    verticalArrangement = Arrangement.Center,
+                        .verticalScroll(rememberScrollState())
+                        .padding(top = 10.dp, bottom = 12.dp),
+                    verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     ChalkText(
@@ -818,31 +819,9 @@ private fun ClinicalAssessmentScreen(
                             .fillMaxWidth()
                             .padding(top = 8.dp)
                     )
-                    AssetImage(
-                        repository = repository,
-                        path = item.arquivoImagem,
-                        contentDescription = item.displayText(stimulus.level),
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .padding(top = 18.dp)
-                            .size(380.dp)
-                            .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(4.dp, parseColor(stimulus.categoria.cor), RoundedCornerShape(8.dp))
-                            .background(Color.White)
-                    )
-                    ChalkText(
-                        text = activity.trialLabel(currentTrial, totalTrials),
-                        fontSize = 28,
-                        fontWeight = FontWeight.Black,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp)
-                    )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                        modifier = Modifier.padding(top = 14.dp)
                     ) {
                         Button(
                             onClick = {
@@ -855,7 +834,11 @@ private fun ClinicalAssessmentScreen(
                         ) {
                             Icon(Icons.Filled.VolumeUp, contentDescription = null)
                             Spacer(Modifier.width(6.dp))
-                            Text("Som", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = if (activity == "discriminacao") "Som 1" else "Som",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                         if (activity == "discriminacao" && comparison != null) {
                             Button(
@@ -870,10 +853,34 @@ private fun ClinicalAssessmentScreen(
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier.height(58.dp)
                             ) {
+                                Icon(Icons.Filled.VolumeUp, contentDescription = null)
+                                Spacer(Modifier.width(6.dp))
                                 Text("Tocar par", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
+                    AssetImage(
+                        repository = repository,
+                        path = item.arquivoImagem,
+                        contentDescription = item.displayText(stimulus.level),
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .padding(top = 14.dp)
+                            .size(300.dp)
+                            .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(4.dp, parseColor(stimulus.categoria.cor), RoundedCornerShape(8.dp))
+                            .background(Color.White)
+                    )
+                    ChalkText(
+                        text = activity.trialLabel(currentTrial, totalTrials),
+                        fontSize = 28,
+                        fontWeight = FontWeight.Black,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                    )
                     if (showFeedback != null) {
                         ChalkText(
                             text = showFeedback.orEmpty(),
