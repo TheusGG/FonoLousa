@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  28,
-    "versionName":  "1.0.27",
+    "versionCode":  29,
+    "versionName":  "1.0.28",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Exibe os botoes de som na avaliacao clinica de repeticao e discriminacao."
+    "notes":  "Fixa controles de audio na avaliacao e melhora reproducao dos sons dos animais."
 }

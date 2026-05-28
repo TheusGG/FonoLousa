@@ -797,8 +797,7 @@ private fun ClinicalAssessmentScreen(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(top = 10.dp, bottom = 12.dp),
+                        .padding(top = 10.dp, bottom = 10.dp),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -819,67 +818,27 @@ private fun ClinicalAssessmentScreen(
                             .fillMaxWidth()
                             .padding(top = 8.dp)
                     )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.padding(top = 14.dp)
-                    ) {
-                        Button(
-                            onClick = {
-                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
-                                pulse = true
-                            },
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(58.dp)
-                        ) {
-                            Icon(Icons.Filled.VolumeUp, contentDescription = null)
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                text = if (activity == "discriminacao") "Som 1" else "Som",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        if (activity == "discriminacao" && comparison != null) {
-                            Button(
-                                onClick = {
-                                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                    scope.launch {
-                                        audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
-                                        delay(900)
-                                        audioPlayer.play(comparison.item.arquivoSom, comparison.item.audioText(comparison.level))
-                                    }
-                                },
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.height(58.dp)
-                            ) {
-                                Icon(Icons.Filled.VolumeUp, contentDescription = null)
-                                Spacer(Modifier.width(6.dp))
-                                Text("Tocar par", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
+                    ChalkText(
+                        text = activity.trialLabel(currentTrial, totalTrials),
+                        fontSize = 26,
+                        fontWeight = FontWeight.Black,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                    )
                     AssetImage(
                         repository = repository,
                         path = item.arquivoImagem,
                         contentDescription = item.displayText(stimulus.level),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
-                            .padding(top = 14.dp)
-                            .size(300.dp)
+                            .padding(top = 10.dp)
+                            .size(260.dp)
                             .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
                             .clip(RoundedCornerShape(8.dp))
                             .border(4.dp, parseColor(stimulus.categoria.cor), RoundedCornerShape(8.dp))
                             .background(Color.White)
-                    )
-                    ChalkText(
-                        text = activity.trialLabel(currentTrial, totalTrials),
-                        fontSize = 28,
-                        fontWeight = FontWeight.Black,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp)
                     )
                     if (showFeedback != null) {
                         ChalkText(
@@ -892,6 +851,62 @@ private fun ClinicalAssessmentScreen(
                 }
             }
             if (stimulus != null && item != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
+                            pulse = true
+                        },
+                        enabled = !assessmentFinished,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFFC107),
+                            contentColor = ChalkGreen
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(58.dp)
+                    ) {
+                        Icon(Icons.Filled.VolumeUp, contentDescription = null)
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = if (activity == "discriminacao") "Som 1" else "Som",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    if (activity == "discriminacao" && comparison != null) {
+                        Button(
+                            onClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                scope.launch {
+                                    audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
+                                    delay(900)
+                                    audioPlayer.play(comparison.item.arquivoSom, comparison.item.audioText(comparison.level))
+                                }
+                            },
+                            enabled = !assessmentFinished,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFFFC107),
+                                contentColor = ChalkGreen
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(58.dp)
+                        ) {
+                            Icon(Icons.Filled.VolumeUp, contentDescription = null)
+                            Spacer(Modifier.width(6.dp))
+                            Text("Tocar par", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
