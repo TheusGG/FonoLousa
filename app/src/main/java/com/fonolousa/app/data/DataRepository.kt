@@ -25,6 +25,12 @@ class DataRepository(context: Context) {
     fun item(categoryId: String, level: Int, index: Int): ItemFono =
         nivel(categoryId, level).itens[index.coerceIn(0, nivel(categoryId, level).itens.lastIndex)]
 
+    fun itensDaCategoria(categoryId: String): List<ItemFono> =
+        categoria(categoryId)
+            .niveis
+            .flatMap { it.itens }
+            .distinctBy { it.palavra.trim().lowercase() }
+
     fun assetPath(path: String): String = path.removePrefix("assets/")
 
     fun assetExists(path: String): Boolean {

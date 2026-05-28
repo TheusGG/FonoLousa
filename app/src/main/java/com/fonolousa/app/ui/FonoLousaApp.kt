@@ -134,7 +134,7 @@ fun FonoLousaApp(
         composable("home") {
             HomeScreen(
                 categorias = repository.categorias(),
-                onCategoryClick = { navController.navigate("levels/${it.id}") },
+                onCategoryClick = { navController.navigate("items/${it.id}") },
                 onUpdateClick = { navController.navigate("update") },
                 onReportClick = { navController.navigate("report") },
                 onClinicalClick = { childName -> navController.navigate("clinical/${Uri.encode(childName)}") }
@@ -178,6 +178,27 @@ fun FonoLousaApp(
             )
         }
         composable(
+            route = "items/{categoryId}",
+            arguments = listOf(navArgument("categoryId") { type = NavType.StringType })
+        ) { entry ->
+            val categoryId = entry.arguments?.getString("categoryId").orEmpty()
+            val category = repository.categoria(categoryId)
+            val itens = remember(categoryId) { repository.itensDaCategoria(categoryId) }
+            val nivel = remember(categoryId, itens) {
+                Nivel(nivel = 0, descricao = "Todos os estimulos", itens = itens)
+            }
+            ItemsGridScreen(
+                repository = repository,
+                sessionRepository = sessionRepository,
+                audioPlayer = audioPlayer,
+                categoria = category,
+                nivel = nivel,
+                progress = progress,
+                onBack = { navController.popBackStack() },
+                onItemClick = { index -> navController.navigate("viewer/$categoryId/0/$index") }
+            )
+        }
+        composable(
             route = "items/{categoryId}/{level}",
             arguments = listOf(
                 navArgument("categoryId") { type = NavType.StringType },
@@ -211,7 +232,15 @@ fun FonoLousaApp(
             val level = entry.arguments?.getInt("level") ?: 1
             val index = entry.arguments?.getInt("index") ?: 0
             val category = repository.categoria(categoryId)
-            val nivel = repository.nivel(categoryId, level)
+            val nivel = if (level <= 0) {
+                Nivel(
+                    nivel = 0,
+                    descricao = "Todos os estimulos",
+                    itens = repository.itensDaCategoria(categoryId)
+                )
+            } else {
+                repository.nivel(categoryId, level)
+            }
             ItemViewerScreen(
                 repository = repository,
                 sessionRepository = sessionRepository,
@@ -676,23 +705,33 @@ private fun ClinicalAssessmentScreen(
     onBack: () -> Unit
 ) {
     val activities = listOf("nomeacao", "repeticao", "discriminacao")
-    val totalTrials = 10
+    val clinicalStimuli = remember(categorias) {
+        categorias.flatMap { categoria ->
+            categoria.niveis
+                .flatMap { nivel ->
+                    nivel.itens.map { item ->
+                        ClinicalStimulus(
+                            categoria = categoria,
+                            level = nivel.nivel,
+                            item = item
+                        )
+                    }
+                }
+                .distinctBy { it.item.palavra.trim().lowercase(Locale.forLanguageTag("pt-BR")) }
+                .take(3)
+        }
+    }
+    val totalTrials = clinicalStimuli.size.coerceAtLeast(1)
     var activity by remember { mutableStateOf(activities.first()) }
-    var categoryIndex by remember { mutableStateOf(0) }
-    var levelIndex by remember { mutableStateOf(0) }
     var itemIndex by remember { mutableStateOf(0) }
     var assessmentFinished by remember { mutableStateOf(false) }
     var showFeedback by remember { mutableStateOf<String?>(null) }
     var pulse by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
-    val categoria = categorias[categoryIndex.coerceIn(0, categorias.lastIndex)]
-    val nivel = categoria.niveis[levelIndex.coerceIn(0, categoria.niveis.lastIndex)]
-    val clinicalItems = remember(categoria.id, nivel.nivel) {
-        nivel.itens.distinctBy { it.palavra.trim().lowercase(Locale("pt", "BR")) }
-    }
-    val item = clinicalItems[itemIndex.coerceIn(0, totalTrials - 1) % clinicalItems.size]
-    val comparison = clinicalItems.getOrNull((itemIndex + 1) % clinicalItems.size) ?: item
+    val stimulus = clinicalStimuli.getOrNull(itemIndex.coerceIn(0, totalTrials - 1))
+    val item = stimulus?.item
+    val comparison = if (clinicalStimuli.isEmpty()) null else clinicalStimuli[(itemIndex + 1) % clinicalStimuli.size]
     val imageScale by animateFloatAsState(
         targetValue = if (pulse) 1.03f else 1f,
         animationSpec = tween(160),
@@ -740,133 +779,112 @@ private fun ClinicalAssessmentScreen(
                 maxLines = 1,
                 modifier = Modifier.padding(top = 4.dp)
             )
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    activities.forEach { option ->
-                        Button(
-                            onClick = {
-                                if (activity != option || assessmentFinished) {
-                                    activity = option
-                                    resetAssessmentProgress()
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (activity == option) Color(0xFFFFC107) else Color.White.copy(alpha = 0.16f),
-                                contentColor = if (activity == option) Color(0xFF1A1A1A) else ChalkWhite
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(58.dp)
-                        ) {
-                            Text(option.label(), fontSize = 16.sp, fontWeight = FontWeight.Black, maxLines = 1)
-                        }
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    NavButton(
-                        text = categoria.nome,
-                        enabled = categorias.size > 1,
-                        iconLeft = true,
-                        onClick = {
-                            categoryIndex = if (categoryIndex == 0) categorias.lastIndex else categoryIndex - 1
-                            levelIndex = 0
-                            resetAssessmentProgress()
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                    NavButton(
-                        text = "Nivel ${nivel.nivel}",
-                        enabled = categoria.niveis.size > 1,
-                        iconLeft = false,
-                        onClick = {
-                            levelIndex = if (levelIndex >= categoria.niveis.lastIndex) 0 else levelIndex + 1
-                            resetAssessmentProgress()
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                ChalkText(
-                    text = activity.prompt(),
-                    fontSize = 22,
-                    textAlign = TextAlign.Center,
-                    color = ChalkWhite.copy(alpha = 0.9f),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                AssetImage(
-                    repository = repository,
-                    path = item.arquivoImagem,
-                    contentDescription = item.displayText(nivel.nivel),
-                    contentScale = ContentScale.Fit,
+            if (stimulus == null || item == null) {
+                Box(
                     modifier = Modifier
-                        .size(300.dp)
-                        .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
-                        .clip(RoundedCornerShape(8.dp))
-                        .border(4.dp, parseColor(categoria.cor), RoundedCornerShape(8.dp))
-                        .background(Color.White)
-                )
-                ChalkText(
-                    text = activity.trialLabel(currentTrial, totalTrials),
-                    fontSize = 28,
-                    fontWeight = FontWeight.Black,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(bottom = 4.dp)
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Button(
-                        onClick = {
-                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
-                            pulse = true
-                        },
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(58.dp)
+                    ChalkText(
+                        text = "Nenhum estimulo disponivel para avaliacao.",
+                        fontSize = 24,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    ChalkText(
+                        text = activity.label(),
+                        fontSize = 24,
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFFFFC107),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    ChalkText(
+                        text = activity.prompt(),
+                        fontSize = 22,
+                        textAlign = TextAlign.Center,
+                        color = ChalkWhite.copy(alpha = 0.9f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                    )
+                    AssetImage(
+                        repository = repository,
+                        path = item.arquivoImagem,
+                        contentDescription = item.displayText(stimulus.level),
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .padding(top = 18.dp)
+                            .size(380.dp)
+                            .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(4.dp, parseColor(stimulus.categoria.cor), RoundedCornerShape(8.dp))
+                            .background(Color.White)
+                    )
+                    ChalkText(
+                        text = activity.trialLabel(currentTrial, totalTrials),
+                        fontSize = 28,
+                        fontWeight = FontWeight.Black,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                     ) {
-                        Icon(Icons.Filled.VolumeUp, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        Text("Som", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    }
-                    if (activity == "discriminacao") {
                         Button(
                             onClick = {
                                 haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                scope.launch {
-                                    audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
-                                    delay(900)
-                                    audioPlayer.play(comparison.arquivoSom, comparison.audioText(nivel.nivel))
-                                }
+                                audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
+                                pulse = true
                             },
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(58.dp)
                         ) {
-                            Text("Tocar par", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Icon(Icons.Filled.VolumeUp, contentDescription = null)
+                            Spacer(Modifier.width(6.dp))
+                            Text("Som", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        }
+                        if (activity == "discriminacao" && comparison != null) {
+                            Button(
+                                onClick = {
+                                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    scope.launch {
+                                        audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
+                                        delay(900)
+                                        audioPlayer.play(comparison.item.arquivoSom, comparison.item.audioText(comparison.level))
+                                    }
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.height(58.dp)
+                            ) {
+                                Text("Tocar par", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
+                    if (showFeedback != null) {
+                        ChalkText(
+                            text = showFeedback.orEmpty(),
+                            fontSize = 22,
+                            color = Color(0xFFFFC107),
+                            modifier = Modifier.padding(top = 10.dp)
+                        )
+                    }
                 }
-                if (showFeedback != null) {
-                    ChalkText(
-                        text = showFeedback.orEmpty(),
-                        fontSize = 22,
-                        color = Color(0xFFFFC107),
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
-                }
+            }
+            if (stimulus != null && item != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -875,7 +893,7 @@ private fun ClinicalAssessmentScreen(
                         onClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             scope.launch {
-                                sessionRepository.recordClinicalResult(childName, activity, categoria.id, nivel.nivel, item, false)
+                                sessionRepository.recordClinicalResult(childName, activity, stimulus.categoria.id, stimulus.level, item, false)
                             }
                             showFeedback = "Erro registrado"
                             nextTrial()
@@ -893,7 +911,7 @@ private fun ClinicalAssessmentScreen(
                         onClick = {
                             haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             scope.launch {
-                                sessionRepository.recordClinicalResult(childName, activity, categoria.id, nivel.nivel, item, true)
+                                sessionRepository.recordClinicalResult(childName, activity, stimulus.categoria.id, stimulus.level, item, true)
                             }
                             showFeedback = "Acerto registrado"
                             audioPlayer.playVictory()
@@ -1135,6 +1153,12 @@ private data class ClinicalBar(
     val total: Int
 )
 
+private data class ClinicalStimulus(
+    val categoria: Categoria,
+    val level: Int,
+    val item: ItemFono
+)
+
 private data class ClinicalActivitySummary(
     val label: String,
     val correct: Int,
@@ -1296,7 +1320,10 @@ private fun ItemsGridScreen(
                 .fillMaxSize()
                 .padding(22.dp)
         ) {
-            TopBar(title = "${categoria.nome} - N\u00edvel ${nivel.nivel}", onBack = onBack)
+            TopBar(
+                title = if (nivel.nivel <= 0) categoria.nome else "${categoria.nome} - N\u00edvel ${nivel.nivel}",
+                onBack = onBack
+            )
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
@@ -1469,7 +1496,10 @@ private fun ItemViewerScreen(
                     .fillMaxSize()
                     .padding(22.dp)
             ) {
-                TopBar(title = "${categoria.nome} - N\u00edvel ${nivel.nivel}", onBack = onBack)
+                TopBar(
+                    title = if (nivel.nivel <= 0) categoria.nome else "${categoria.nome} - N\u00edvel ${nivel.nivel}",
+                    onBack = onBack
+                )
                 Column(
                     modifier = Modifier
                         .weight(1f)
