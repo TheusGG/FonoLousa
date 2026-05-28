@@ -118,6 +118,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+private const val CLINICAL_TRIALS_PER_ACTIVITY = 10
+
 @Composable
 fun FonoLousaApp(
     repository: DataRepository,
@@ -145,6 +147,7 @@ fun FonoLousaApp(
         }
         composable("report") {
             SessionReportScreen(
+                sessionRepository = sessionRepository,
                 progress = progress,
                 favorites = favorites,
                 events = recentEvents,
@@ -163,7 +166,13 @@ fun FonoLousaApp(
                 sessionRepository = sessionRepository,
                 audioPlayer = audioPlayer,
                 categorias = repository.categorias(),
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onReport = { navController.navigate("report") },
+                onHome = {
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
             )
         }
         composable(
@@ -488,6 +497,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
 
 @Composable
 private fun SessionReportScreen(
+    sessionRepository: SessionRepository,
     progress: List<ItemProgressEntity>,
     favorites: List<ItemProgressEntity>,
     events: List<SessionEventEntity>,
@@ -498,6 +508,7 @@ private fun SessionReportScreen(
     val totalPlays = progress.sumOf { it.plays }
     val practiced = progress.count { it.views > 0 || it.plays > 0 }
     val formatter = remember { SimpleDateFormat("dd/MM HH:mm", Locale("pt", "BR")) }
+    val scope = rememberCoroutineScope()
     val childNames = remember(clinicalResults) {
         clinicalResults.map { it.childName }.filter { it.isNotBlank() }.distinct().sorted()
     }
@@ -520,76 +531,76 @@ private fun SessionReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(18.dp)
         ) {
             TopBar(title = "Relatorio da sessao", onBack = onBack)
-            Row(
+            Column(
                 modifier = Modifier
+                    .weight(1f)
                     .fillMaxWidth()
-                    .padding(top = 18.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                ReportMetric("Itens", practiced.toString(), Modifier.weight(1f))
-                ReportMetric("Toques", totalViews.toString(), Modifier.weight(1f))
-                ReportMetric("Sons", totalPlays.toString(), Modifier.weight(1f))
-                ReportMetric("Favoritos", favorites.size.toString(), Modifier.weight(1f))
-            }
-            if (childNames.isNotEmpty()) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(top = 14.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    ReportFilterDropdown(
-                        label = "Crianca",
-                        value = selectedChild,
-                        options = childNames,
-                        optionLabel = { it },
-                        onSelect = { selectedChild = it },
-                        modifier = Modifier.weight(1f)
-                    )
-                    ReportFilterDropdown(
-                        label = "Categoria",
-                        value = selectedTrendActivity,
-                        options = listOf("nomeacao", "repeticao", "discriminacao"),
-                        optionLabel = { it.label() },
-                        onSelect = { selectedTrendActivity = it },
-                        modifier = Modifier.weight(1f)
-                    )
+                    ReportMetric("Itens", practiced.toString(), Modifier.weight(1f))
+                    ReportMetric("Toques", totalViews.toString(), Modifier.weight(1f))
+                    ReportMetric("Sons", totalPlays.toString(), Modifier.weight(1f))
+                    ReportMetric("Favoritos", favorites.size.toString(), Modifier.weight(1f))
                 }
-            }
-            ClinicalCountsSection(
-                results = childFilteredResults,
-                modifier = Modifier.padding(top = 18.dp)
-            )
-            ClinicalChartSection(
-                results = childFilteredResults,
-                modifier = Modifier.padding(top = 14.dp)
-            )
-            ClinicalTrendSection(
-                results = childFilteredResults,
-                activity = selectedTrendActivity,
-                modifier = Modifier.padding(top = 14.dp)
-            )
-            ChalkText(
-                text = "Ultimas interacoes",
-                fontSize = 28,
-                fontWeight = FontWeight.Black,
-                modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
-            )
-            Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
+                if (childNames.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        ReportFilterDropdown(
+                            label = "Crianca",
+                            value = selectedChild,
+                            options = childNames,
+                            optionLabel = { it },
+                            onSelect = { selectedChild = it },
+                            modifier = Modifier.weight(1f)
+                        )
+                        ReportFilterDropdown(
+                            label = "Categoria",
+                            value = selectedTrendActivity,
+                            options = clinicalActivityKeys(),
+                            optionLabel = { it.label() },
+                            onSelect = { selectedTrendActivity = it },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                ClinicalCountsSection(results = childFilteredResults)
+                ClinicalChartSection(results = childFilteredResults)
+                ClinicalTrendSection(results = childFilteredResults, activity = selectedTrendActivity)
+                ClinicalResultsAdminSection(
+                    results = childFilteredResults,
+                    formatter = formatter,
+                    onSave = { result, isCorrect ->
+                        scope.launch { sessionRepository.updateClinicalResult(result.id, isCorrect) }
+                    },
+                    onDelete = { result ->
+                        scope.launch { sessionRepository.deleteClinicalResult(result.id) }
+                    }
+                )
+                ChalkText(
+                    text = "Ultimas interacoes",
+                    fontSize = 24,
+                    fontWeight = FontWeight.Black
+                )
                 if (events.isEmpty()) {
                     ChalkText(
                         text = "Nenhuma interacao registrada ainda.",
-                        fontSize = 22,
+                        fontSize = 20,
                         color = ChalkWhite.copy(alpha = 0.82f)
                     )
                 } else {
-                    events.take(40).forEach { event ->
+                    events.take(30).forEach { event ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -676,22 +687,144 @@ private fun ReportFilterDropdown(
 private fun ReportMetric(label: String, value: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
-            .height(104.dp)
+            .height(92.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(2.dp, ChalkWhite.copy(alpha = 0.55f), RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.11f))
-            .padding(12.dp),
+            .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ChalkText(text = value, fontSize = 28, fontWeight = FontWeight.Black, textAlign = TextAlign.Center)
+        ChalkText(text = value, fontSize = 24, fontWeight = FontWeight.Black, textAlign = TextAlign.Center)
         ChalkText(
             text = label,
-            fontSize = 16,
+            fontSize = 14,
             color = ChalkWhite.copy(alpha = 0.78f),
             textAlign = TextAlign.Center,
             maxLines = 1
         )
+    }
+}
+
+@Composable
+private fun ClinicalResultsAdminSection(
+    results: List<ClinicalResultEntity>,
+    formatter: SimpleDateFormat,
+    onSave: (ClinicalResultEntity, Boolean) -> Unit,
+    onDelete: (ClinicalResultEntity) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var pendingDeleteId by remember { mutableStateOf<Long?>(null) }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
+            .background(Color.White.copy(alpha = 0.10f))
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        ChalkText(
+            text = "Editar testes",
+            fontSize = 20,
+            fontWeight = FontWeight.Black
+        )
+        if (results.isEmpty()) {
+            ChalkText(
+                text = "Nenhum teste salvo para esta crianca.",
+                fontSize = 18,
+                color = ChalkWhite.copy(alpha = 0.82f)
+            )
+        } else {
+            results.sortedByDescending { it.createdAt }.take(12).forEach { result ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White.copy(alpha = 0.10f))
+                        .padding(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        ChalkText(
+                            text = result.word.replaceFirstChar { it.uppercase() },
+                            fontSize = 18,
+                            fontWeight = FontWeight.Black,
+                            maxLines = 1
+                        )
+                        ChalkText(
+                            text = "${result.activity.label()} - ${formatter.format(Date(result.createdAt))}",
+                            fontSize = 13,
+                            color = ChalkWhite.copy(alpha = 0.74f),
+                            maxLines = 1
+                        )
+                    }
+                    if (pendingDeleteId == result.id) {
+                        Button(
+                            onClick = {
+                                onDelete(result)
+                                pendingDeleteId = null
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFE53935),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(42.dp)
+                        ) {
+                            Text("Confirmar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Button(
+                            onClick = { pendingDeleteId = null },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White.copy(alpha = 0.16f),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(42.dp)
+                        ) {
+                            Text("Cancelar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        Button(
+                            onClick = { onSave(result, true) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (result.isCorrect) Color(0xFF43A047) else Color.White.copy(alpha = 0.16f),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(42.dp)
+                        ) {
+                            Text("Acerto", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Button(
+                            onClick = { onSave(result, false) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (!result.isCorrect) Color(0xFFE53935) else Color.White.copy(alpha = 0.16f),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(42.dp)
+                        ) {
+                            Text("Erro", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Button(
+                            onClick = { pendingDeleteId = result.id },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF5D4037),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(42.dp)
+                        ) {
+                            Text("Excluir", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -702,31 +835,19 @@ private fun ClinicalAssessmentScreen(
     sessionRepository: SessionRepository,
     audioPlayer: AudioPlayer,
     categorias: List<Categoria>,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onReport: () -> Unit,
+    onHome: () -> Unit
 ) {
-    val activities = listOf("nomeacao", "repeticao", "discriminacao")
-    val clinicalStimuli = remember(categorias) {
-        categorias.flatMap { categoria ->
-            categoria.niveis
-                .flatMap { nivel ->
-                    nivel.itens.map { item ->
-                        ClinicalStimulus(
-                            categoria = categoria,
-                            level = nivel.nivel,
-                            item = item
-                        )
-                    }
-                }
-                .distinctBy { it.item.palavra.trim().lowercase(Locale.forLanguageTag("pt-BR")) }
-                .take(3)
-        }
-    }
+    val activities = remember { clinicalActivityKeys() }
+    val clinicalStimuli = remember(categorias) { buildClinicalStimuli(categorias) }
     val totalTrials = clinicalStimuli.size.coerceAtLeast(1)
     var activity by remember { mutableStateOf(activities.first()) }
     var itemIndex by remember { mutableStateOf(0) }
     var assessmentFinished by remember { mutableStateOf(false) }
     var showFeedback by remember { mutableStateOf<String?>(null) }
     var pulse by remember { mutableStateOf(false) }
+    var readingAnswered by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
     val stimulus = clinicalStimuli.getOrNull(itemIndex.coerceIn(0, totalTrials - 1))
@@ -742,14 +863,18 @@ private fun ClinicalAssessmentScreen(
     val currentTrial = itemIndex + 1
 
     fun resetAssessmentProgress() {
+        activity = activities.first()
         itemIndex = 0
         assessmentFinished = false
         showFeedback = null
+        readingAnswered = false
     }
 
     fun nextTrial() {
+        readingAnswered = false
         if (itemIndex < totalTrials - 1) {
             itemIndex += 1
+            showFeedback = null
             return
         }
 
@@ -765,21 +890,56 @@ private fun ClinicalAssessmentScreen(
         }
     }
 
+    fun recordAnswer(isCorrect: Boolean) {
+        val currentStimulus = stimulus ?: return
+        val currentItem = item ?: return
+        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        scope.launch {
+            sessionRepository.recordClinicalResult(
+                childName,
+                activity,
+                currentStimulus.categoria.id,
+                currentStimulus.level,
+                currentItem,
+                isCorrect
+            )
+        }
+        showFeedback = if (isCorrect) "Acerto registrado" else "Erro registrado"
+        if (isCorrect) {
+            audioPlayer.playVictory()
+        }
+        if (activity == "leitura") {
+            readingAnswered = true
+        } else {
+            nextTrial()
+        }
+    }
+
     BlackboardScreen {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(22.dp)
+                .padding(18.dp)
         ) {
             TopBar(title = "Avaliacao clinica", onBack = onBack)
             ChalkText(
                 text = childName,
-                fontSize = 18,
+                fontSize = 16,
                 color = ChalkWhite.copy(alpha = 0.82f),
                 maxLines = 1,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 2.dp)
             )
-            if (stimulus == null || item == null) {
+            if (assessmentFinished) {
+                ClinicalFinishedState(
+                    childName = childName,
+                    onReport = onReport,
+                    onRestart = ::resetAssessmentProgress,
+                    onHome = onHome,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                )
+            } else if (stimulus == null || item == null) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -793,17 +953,20 @@ private fun ClinicalAssessmentScreen(
                     )
                 }
             } else {
+                val isReading = activity == "leitura"
+                val showImage = !isReading || readingAnswered
+                val stimulusText = item.displayText(stimulus.level)
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .padding(top = 10.dp, bottom = 10.dp),
-                    verticalArrangement = Arrangement.Top,
+                        .padding(top = 6.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     ChalkText(
                         text = activity.label(),
-                        fontSize = 24,
+                        fontSize = 22,
                         fontWeight = FontWeight.Black,
                         color = Color(0xFFFFC107),
                         textAlign = TextAlign.Center,
@@ -811,7 +974,7 @@ private fun ClinicalAssessmentScreen(
                     )
                     ChalkText(
                         text = activity.prompt(),
-                        fontSize = 22,
+                        fontSize = 18,
                         textAlign = TextAlign.Center,
                         color = ChalkWhite.copy(alpha = 0.9f),
                         modifier = Modifier
@@ -820,78 +983,74 @@ private fun ClinicalAssessmentScreen(
                     )
                     ChalkText(
                         text = activity.trialLabel(currentTrial, totalTrials),
-                        fontSize = 26,
+                        fontSize = 22,
                         fontWeight = FontWeight.Black,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 12.dp)
+                            .padding(top = 8.dp)
                     )
-                    AssetImage(
-                        repository = repository,
-                        path = item.arquivoImagem,
-                        contentDescription = item.displayText(stimulus.level),
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .size(260.dp)
-                            .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
-                            .clip(RoundedCornerShape(8.dp))
-                            .border(4.dp, parseColor(stimulus.categoria.cor), RoundedCornerShape(8.dp))
-                            .background(Color.White)
-                    )
+                    if (isReading) {
+                        ReadingStimulusText(
+                            text = stimulusText,
+                            modifier = Modifier.padding(top = 10.dp)
+                        )
+                    }
+                    if (showImage) {
+                        AssetImage(
+                            repository = repository,
+                            path = item.arquivoImagem,
+                            contentDescription = stimulusText,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                                .size(if (isReading) 210.dp else 240.dp)
+                                .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(4.dp, parseColor(stimulus.categoria.cor), RoundedCornerShape(8.dp))
+                                .background(Color.White)
+                        )
+                    }
                     if (showFeedback != null) {
                         ChalkText(
                             text = showFeedback.orEmpty(),
-                            fontSize = 22,
+                            fontSize = 18,
                             color = Color(0xFFFFC107),
-                            modifier = Modifier.padding(top = 10.dp)
+                            modifier = Modifier.padding(top = 8.dp)
                         )
                     }
                 }
             }
-            if (stimulus != null && item != null) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
+            if (!assessmentFinished && stimulus != null && item != null) {
+                if (activity == "leitura" && readingAnswered) {
                     Button(
-                        onClick = {
-                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
-                            pulse = true
-                        },
-                        enabled = !assessmentFinished,
+                        onClick = { nextTrial() },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFFFFC107),
                             contentColor = ChalkGreen
                         ),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier
-                            .weight(1f)
-                            .height(58.dp)
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .padding(bottom = 8.dp)
                     ) {
-                        Icon(Icons.Filled.VolumeUp, contentDescription = null)
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = if (activity == "discriminacao") "Som 1" else "Som",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text("Proximo", fontSize = 20.sp, fontWeight = FontWeight.Black)
                     }
-                    if (activity == "discriminacao" && comparison != null) {
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    if (activity != "leitura") {
                         Button(
                             onClick = {
                                 haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                scope.launch {
-                                    audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
-                                    delay(900)
-                                    audioPlayer.play(comparison.item.arquivoSom, comparison.item.audioText(comparison.level))
-                                }
+                                audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
+                                pulse = true
                             },
-                            enabled = !assessmentFinished,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFFFFC107),
                                 contentColor = ChalkGreen
@@ -903,52 +1062,165 @@ private fun ClinicalAssessmentScreen(
                         ) {
                             Icon(Icons.Filled.VolumeUp, contentDescription = null)
                             Spacer(Modifier.width(6.dp))
-                            Text("Tocar par", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                text = if (activity == "discriminacao") "Som 1" else "Som",
+                                fontSize = 19.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        if (activity == "discriminacao" && comparison != null) {
+                            Button(
+                                onClick = {
+                                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    scope.launch {
+                                        audioPlayer.play(item.arquivoSom, item.audioText(stimulus.level))
+                                        delay(900)
+                                        audioPlayer.play(comparison.item.arquivoSom, comparison.item.audioText(comparison.level))
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFFFC107),
+                                    contentColor = ChalkGreen
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp)
+                            ) {
+                                Icon(Icons.Filled.VolumeUp, contentDescription = null)
+                                Spacer(Modifier.width(6.dp))
+                                Text("Tocar par", fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            scope.launch {
-                                sessionRepository.recordClinicalResult(childName, activity, stimulus.categoria.id, stimulus.level, item, false)
-                            }
-                            showFeedback = "Erro registrado"
-                            nextTrial()
-                        },
-                        enabled = !assessmentFinished,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935), contentColor = Color.White),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(62.dp)
+                if (!(activity == "leitura" && readingAnswered)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
-                        Text("Erro", fontSize = 24.sp, fontWeight = FontWeight.Black)
-                    }
-                    Button(
-                        onClick = {
-                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            scope.launch {
-                                sessionRepository.recordClinicalResult(childName, activity, stimulus.categoria.id, stimulus.level, item, true)
-                            }
-                            showFeedback = "Acerto registrado"
-                            audioPlayer.playVictory()
-                            nextTrial()
-                        },
-                        enabled = !assessmentFinished,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047), contentColor = Color.White),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(62.dp)
-                    ) {
-                        Text("Acerto", fontSize = 24.sp, fontWeight = FontWeight.Black)
+                        Button(
+                            onClick = { recordAnswer(false) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935), contentColor = Color.White),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(60.dp)
+                        ) {
+                            Text("Erro", fontSize = 22.sp, fontWeight = FontWeight.Black)
+                        }
+                        Button(
+                            onClick = { recordAnswer(true) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047), contentColor = Color.White),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(60.dp)
+                        ) {
+                            Text("Acerto", fontSize = 22.sp, fontWeight = FontWeight.Black)
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReadingStimulusText(text: String, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth(0.62f)
+            .clip(RoundedCornerShape(8.dp))
+            .border(3.dp, Color(0xFFFFC107), RoundedCornerShape(8.dp))
+            .background(Color.White.copy(alpha = 0.94f))
+            .padding(horizontal = 18.dp, vertical = 20.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text.uppercase(Locale.forLanguageTag("pt-BR")),
+            color = ChalkGreen,
+            fontSize = 34.sp,
+            fontWeight = FontWeight.Black,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun ClinicalFinishedState(
+    childName: String,
+    onReport: () -> Unit,
+    onRestart: () -> Unit,
+    onHome: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ChalkText(
+            text = "Avaliacao concluida",
+            fontSize = 30,
+            fontWeight = FontWeight.Black,
+            color = Color(0xFFFFC107),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        ChalkText(
+            text = childName,
+            fontSize = 22,
+            color = ChalkWhite.copy(alpha = 0.88f),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 22.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(
+                onClick = onReport,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFFC107),
+                    contentColor = ChalkGreen
+                ),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(58.dp)
+            ) {
+                Text("Ir para relatorio", fontSize = 18.sp, fontWeight = FontWeight.Black)
+            }
+            Button(
+                onClick = onRestart,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White.copy(alpha = 0.16f),
+                    contentColor = ChalkWhite
+                ),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(58.dp)
+            ) {
+                Text("Nova avaliacao", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            }
+            Button(
+                onClick = onHome,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White.copy(alpha = 0.16f),
+                    contentColor = ChalkWhite
+                ),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(58.dp)
+            ) {
+                Text("Inicio", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -1026,7 +1298,7 @@ private fun ClinicalChartSection(
     results: List<ClinicalResultEntity>,
     modifier: Modifier = Modifier
 ) {
-    val summaries = listOf("nomeacao", "repeticao", "discriminacao").map { activity ->
+    val summaries = clinicalActivityKeys().map { activity ->
         val items = results.filter { it.activity == activity }
         val percent = if (items.isEmpty()) 0 else (items.count { it.isCorrect } * 100f / items.size).roundToInt()
         ClinicalBar(activity.label(), percent, items.size)
@@ -1181,6 +1453,55 @@ private data class ClinicalStimulus(
     val item: ItemFono
 )
 
+private fun clinicalActivityKeys(): List<String> =
+    listOf("nomeacao", "repeticao", "discriminacao", "leitura")
+
+private fun buildClinicalStimuli(categorias: List<Categoria>): List<ClinicalStimulus> {
+    val locale = Locale.forLanguageTag("pt-BR")
+    val buckets = categorias
+        .mapNotNull { categoria ->
+            val stimuli = categoria.niveis
+                .flatMap { nivel ->
+                    nivel.itens.map { item ->
+                        ClinicalStimulus(
+                            categoria = categoria,
+                            level = nivel.nivel,
+                            item = item
+                        )
+                    }
+                }
+                .distinctBy { it.item.palavra.trim().lowercase(locale) }
+                .shuffled()
+                .toMutableList()
+
+            if (stimuli.isEmpty()) null else stimuli
+        }
+        .shuffled()
+        .toMutableList()
+
+    val result = mutableListOf<ClinicalStimulus>()
+    var previousCategoryId: String? = null
+
+    while (result.size < CLINICAL_TRIALS_PER_ACTIVITY && buckets.any { it.isNotEmpty() }) {
+        val bucketIndex = buckets.indexOfFirst { bucket ->
+            bucket.isNotEmpty() && bucket.first().categoria.id != previousCategoryId
+        }.takeIf { it >= 0 } ?: buckets.indexOfFirst { it.isNotEmpty() }
+
+        if (bucketIndex < 0) break
+
+        val stimulus = buckets[bucketIndex].removeAt(0)
+        result += stimulus
+        previousCategoryId = stimulus.categoria.id
+
+        val bucket = buckets.removeAt(bucketIndex)
+        if (bucket.isNotEmpty()) {
+            buckets.add(bucket)
+        }
+    }
+
+    return result
+}
+
 private data class ClinicalActivitySummary(
     val label: String,
     val correct: Int,
@@ -1190,7 +1511,7 @@ private data class ClinicalActivitySummary(
 }
 
 private fun clinicalActivitySummaries(results: List<ClinicalResultEntity>): List<ClinicalActivitySummary> {
-    return listOf("nomeacao", "repeticao", "discriminacao").map { activity ->
+    return clinicalActivityKeys().map { activity ->
         val items = results.filter { it.activity == activity }
         ClinicalActivitySummary(
             label = activity.label(),
@@ -1667,24 +1988,24 @@ private fun TopBar(title: String, onBack: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .height(66.dp)
+            .height(58.dp)
     ) {
         IconButton(
             onClick = onBack,
             modifier = Modifier
-                .size(58.dp)
+                .size(52.dp)
                 .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Voltar",
                 tint = ChalkWhite,
-                modifier = Modifier.size(34.dp)
+                modifier = Modifier.size(30.dp)
             )
         }
         ChalkText(
             text = title,
-            fontSize = 30,
+            fontSize = 28,
             fontWeight = FontWeight.Black,
             maxLines = 1,
             modifier = Modifier
@@ -1872,6 +2193,7 @@ private fun String.label(): String {
         "nomeacao" -> "Nomeacao"
         "repeticao" -> "Repeticao"
         "discriminacao" -> "Discriminacao"
+        "leitura" -> "Leitura"
         else -> this
     }
 }
@@ -1881,6 +2203,7 @@ private fun String.trialLabel(currentTrial: Int, totalTrials: Int): String {
         "nomeacao" -> "Figura $currentTrial/$totalTrials"
         "repeticao" -> "Audio $currentTrial/$totalTrials"
         "discriminacao" -> "Par $currentTrial/$totalTrials"
+        "leitura" -> "Leitura $currentTrial/$totalTrials"
         else -> "Tentativa $currentTrial/$totalTrials"
     }
 }
@@ -1921,6 +2244,7 @@ private fun String.prompt(): String {
         "nomeacao" -> "Mostre a figura e marque a resposta da crianca."
         "repeticao" -> "Toque o som e marque se a crianca repetiu corretamente."
         "discriminacao" -> "Toque os sons e marque se a crianca discriminou corretamente."
+        "leitura" -> "Mostre o texto; apos a resposta, revele a figura."
         else -> "Marque o desempenho da crianca."
     }
 }

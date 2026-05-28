@@ -62,6 +62,14 @@ class SessionRepository(context: Context) {
         }
     }
 
+    suspend fun updateClinicalResult(resultId: Long, isCorrect: Boolean) {
+        dao.updateClinicalResult(resultId, isCorrect)
+    }
+
+    suspend fun deleteClinicalResult(resultId: Long) {
+        dao.deleteClinicalResult(resultId)
+    }
+
     private suspend fun updateProgress(
         categoryId: String,
         level: Int,

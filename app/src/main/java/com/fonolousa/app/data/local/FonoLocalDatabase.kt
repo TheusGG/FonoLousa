@@ -79,6 +79,12 @@ interface FonoLocalDao {
 
     @Insert
     suspend fun insertClinicalResult(result: ClinicalResultEntity)
+
+    @Query("UPDATE clinical_results SET isCorrect = :isCorrect WHERE id = :id")
+    suspend fun updateClinicalResult(id: Long, isCorrect: Boolean)
+
+    @Query("DELETE FROM clinical_results WHERE id = :id")
+    suspend fun deleteClinicalResult(id: Long)
 }
 
 @Database(

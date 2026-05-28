@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  29,
-    "versionName":  "1.0.28",
+    "versionCode":  30,
+    "versionName":  "1.0.29",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Fixa controles de audio na avaliacao e melhora reproducao dos sons dos animais."
+    "notes":  "Melhora avaliacao clinica, mistura categorias, reduz para 10 itens e adiciona Leitura."
 }
