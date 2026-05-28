@@ -134,377 +134,151 @@
                            "niveis":  [
                                           {
                                               "nivel":  1,
-                                              "descricao":  "Palavras curtas",
+                                              "descricao":  "Estimulos selecionados",
                                               "itens":  [
                                                             {
                                                                 "id":  "leite",
                                                                 "palavra":  "Leite",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_leite.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_leite.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_leite.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_leite.mp3",
                                                                 "frase":  "o leite",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Leite, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Leite, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "arroz",
                                                                 "palavra":  "Arroz",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_arroz.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_arroz.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_arroz.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_arroz.mp3",
                                                                 "frase":  "o arroz",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Arroz, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Arroz, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "ovo",
                                                                 "palavra":  "Ovo",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_ovo.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_ovo.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_ovo.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_ovo.mp3",
                                                                 "frase":  "o ovo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Ovo, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Ovo, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "bolo",
                                                                 "palavra":  "Bolo",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_bolo.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_bolo.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_bolo.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_bolo.mp3",
                                                                 "frase":  "o bolo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Bolo, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Bolo, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "sopa",
                                                                 "palavra":  "Sopa",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_sopa.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_sopa.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_sopa.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_sopa.mp3",
                                                                 "frase":  "a sopa",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Sopa, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Sopa, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "suco",
                                                                 "palavra":  "Suco",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_suco.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_suco.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_suco.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_suco.mp3",
                                                                 "frase":  "o suco",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Suco, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Suco, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "cafe",
                                                                 "palavra":  "Cafe",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_cafe.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_cafe.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_cafe.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_cafe.mp3",
                                                                 "frase":  "o cafe",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Cafe, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Cafe, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "uva",
                                                                 "palavra":  "Uva",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_uva.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_uva.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_uva.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_uva.mp3",
                                                                 "frase":  "a uva",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Uva, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "bife",
-                                                                "palavra":  "Bife",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_bife.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_bife.mp3",
-                                                                "frase":  "o bife",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Bife, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Uva, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "queijo",
                                                                 "palavra":  "Queijo",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_queijo.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_queijo.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_queijo.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_queijo.mp3",
                                                                 "frase":  "o queijo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Queijo, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Queijo, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "pera",
                                                                 "palavra":  "Pera",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_pera.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_pera.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_pera.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_pera.mp3",
                                                                 "frase":  "a pera",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pera, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Pera, fundo branco, sem texto"
                                                             },
-                                                            {
-                                                                "id":  "doce",
-                                                                "palavra":  "Doce",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n1_doce.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n1_doce.mp3",
-                                                                "frase":  "o doce",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Doce, fundo branco, sem texto, estilo livro infantil"
-                                                            }
-                                                        ]
-                                          },
-                                          {
-                                              "nivel":  2,
-                                              "descricao":  "Palavras medias",
-                                              "itens":  [
                                                             {
                                                                 "id":  "banana",
                                                                 "palavra":  "Banana",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_banana.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_banana.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_banana.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_banana.mp3",
                                                                 "frase":  "a banana",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Banana, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Banana, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "frango",
                                                                 "palavra":  "Frango",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_frango.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_frango.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_frango.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_frango.mp3",
                                                                 "frase":  "o frango",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Frango, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Frango, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "sorvete",
                                                                 "palavra":  "Sorvete",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_sorvete.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_sorvete.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_sorvete.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_sorvete.mp3",
                                                                 "frase":  "o sorvete",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Sorvete, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Sorvete, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "cenoura",
                                                                 "palavra":  "Cenoura",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_cenoura.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_cenoura.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_cenoura.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_cenoura.mp3",
                                                                 "frase":  "a cenoura",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Cenoura, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Cenoura, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "pipoca",
                                                                 "palavra":  "Pipoca",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_pipoca.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_pipoca.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_pipoca.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_pipoca.mp3",
                                                                 "frase":  "a pipoca",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pipoca, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Pipoca, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "biscoito",
                                                                 "palavra":  "Biscoito",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_biscoito.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_biscoito.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_biscoito.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_biscoito.mp3",
                                                                 "frase":  "o biscoito",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Biscoito, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "iogurte",
-                                                                "palavra":  "Iogurte",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_iogurte.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_iogurte.mp3",
-                                                                "frase":  "o iogurte",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Iogurte, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "presunto",
-                                                                "palavra":  "Presunto",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_presunto.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_presunto.mp3",
-                                                                "frase":  "o presunto",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Presunto, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "lasanha",
-                                                                "palavra":  "Lasanha",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_lasanha.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_lasanha.mp3",
-                                                                "frase":  "a lasanha",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Lasanha, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "panqueca",
-                                                                "palavra":  "Panqueca",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_panqueca.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_panqueca.mp3",
-                                                                "frase":  "a panqueca",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Panqueca, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "farofa",
-                                                                "palavra":  "Farofa",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_farofa.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_farofa.mp3",
-                                                                "frase":  "a farofa",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Farofa, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Biscoito, fundo branco, sem texto"
                                                             },
                                                             {
                                                                 "id":  "sanduiche",
                                                                 "palavra":  "Sanduiche",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n2_sanduiche.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n2_sanduiche.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_sanduiche.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_sanduiche.mp3",
                                                                 "frase":  "o sanduiche",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Sanduiche, fundo branco, sem texto, estilo livro infantil"
-                                                            }
-                                                        ]
-                                          },
-                                          {
-                                              "nivel":  3,
-                                              "descricao":  "Palavras longas",
-                                              "itens":  [
+                                                                "promptImagem":  "Imagem infantil 2D clara de Sanduiche, fundo branco, sem texto"
+                                                            },
                                                             {
                                                                 "id":  "chocolate",
                                                                 "palavra":  "Chocolate",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_chocolate.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_chocolate.mp3",
+                                                                "arquivoImagem":  "assets/imagens/alimentos/cur_chocolate.png",
+                                                                "arquivoSom":  "assets/sons/alimentos/cur_chocolate.mp3",
                                                                 "frase":  "o chocolate",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Chocolate, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "macarrao",
-                                                                "palavra":  "Macarrao",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_macarrao.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_macarrao.mp3",
-                                                                "frase":  "o macarrao",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Macarrao, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "gelatina",
-                                                                "palavra":  "Gelatina",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_gelatina.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_gelatina.mp3",
-                                                                "frase":  "a gelatina",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Gelatina, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "torresmo",
-                                                                "palavra":  "Torresmo",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_torresmo.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_torresmo.mp3",
-                                                                "frase":  "o torresmo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Torresmo, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "brigadeiro",
-                                                                "palavra":  "Brigadeiro",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_brigadeiro.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_brigadeiro.mp3",
-                                                                "frase":  "o brigadeiro",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Brigadeiro, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "cocada",
-                                                                "palavra":  "Cocada",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_cocada.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_cocada.mp3",
-                                                                "frase":  "a cocada",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Cocada, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "canjica",
-                                                                "palavra":  "Canjica",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_canjica.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_canjica.mp3",
-                                                                "frase":  "a canjica",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Canjica, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "pamonha",
-                                                                "palavra":  "Pamonha",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_pamonha.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_pamonha.mp3",
-                                                                "frase":  "a pamonha",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pamonha, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "pudim",
-                                                                "palavra":  "Pudim",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_pudim.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_pudim.mp3",
-                                                                "frase":  "o pudim",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pudim, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "goiabada",
-                                                                "palavra":  "Goiabada",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n3_goiabada.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n3_goiabada.mp3",
-                                                                "frase":  "a goiabada",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Goiabada, fundo branco, sem texto, estilo livro infantil"
-                                                            }
-                                                        ]
-                                          },
-                                          {
-                                              "nivel":  4,
-                                              "descricao":  "Frases",
-                                              "itens":  [
-                                                            {
-                                                                "id":  "leite",
-                                                                "palavra":  "Leite",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_leite.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_leite.mp3",
-                                                                "frase":  "o leite",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Leite, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "banana",
-                                                                "palavra":  "Banana",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_banana.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_banana.mp3",
-                                                                "frase":  "a banana",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Banana, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "bolo",
-                                                                "palavra":  "Bolo",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_bolo.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_bolo.mp3",
-                                                                "frase":  "o bolo",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Bolo, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "sopa",
-                                                                "palavra":  "Sopa",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_sopa.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_sopa.mp3",
-                                                                "frase":  "a sopa",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Sopa, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "sorvete",
-                                                                "palavra":  "Sorvete",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_sorvete.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_sorvete.mp3",
-                                                                "frase":  "o sorvete",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Sorvete, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "fruta",
-                                                                "palavra":  "Fruta",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_fruta.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_fruta.mp3",
-                                                                "frase":  "a fruta",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Fruta, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "gelado",
-                                                                "palavra":  "Gelado",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_gelado.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_gelado.mp3",
-                                                                "frase":  "o suco gelado",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Gelado, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "pipoca",
-                                                                "palavra":  "Pipoca",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_pipoca.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_pipoca.mp3",
-                                                                "frase":  "a pipoca",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Pipoca, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "sanduiche",
-                                                                "palavra":  "Sanduiche",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_sanduiche.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_sanduiche.mp3",
-                                                                "frase":  "o sanduiche",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Sanduiche, fundo branco, sem texto, estilo livro infantil"
-                                                            },
-                                                            {
-                                                                "id":  "cenoura",
-                                                                "palavra":  "Cenoura",
-                                                                "arquivoImagem":  "assets/imagens/alimentos/n4_cenoura.png",
-                                                                "arquivoSom":  "assets/sons/alimentos/n4_cenoura.mp3",
-                                                                "frase":  "a cenoura",
-                                                                "promptImagem":  "Ilustracao infantil colorida em estilo cartoon, tracos simples e amigaveis, de Cenoura, fundo branco, sem texto, estilo livro infantil"
+                                                                "promptImagem":  "Imagem infantil 2D clara de Chocolate, fundo branco, sem texto"
                                                             }
                                                         ]
                                           }

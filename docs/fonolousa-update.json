@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  26,
-    "versionName":  "1.0.25",
+    "versionCode":  27,
+    "versionName":  "1.0.26",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Curadoria das categorias com figuras claras, listas reduzidas e remocao de estimulos repetidos."
+    "notes":  "Padroniza todas as figuras na mesma base visual e atualiza Alimentos."
 }

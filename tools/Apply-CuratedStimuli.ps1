@@ -62,6 +62,26 @@ $curated = @{
         (New-Stimulus "Grilo" "o grilo" @("1f997") "assets/sons/animais/n3_grilo-cantando.mp3"),
         (New-Stimulus "Dinossauro" "o dinossauro" @("1f996") "assets/sons/animais/n2_dinossauro.mp3")
     )
+    "alimentos" = @(
+        (New-Stimulus "Leite" "o leite" @("1f95b")),
+        (New-Stimulus "Arroz" "o arroz" @("1f35a")),
+        (New-Stimulus "Ovo" "o ovo" @("1f95a")),
+        (New-Stimulus "Bolo" "o bolo" @("1f370")),
+        (New-Stimulus "Sopa" "a sopa" @("1f372")),
+        (New-Stimulus "Suco" "o suco" @("1f9c3")),
+        (New-Stimulus "Cafe" "o cafe" @("2615")),
+        (New-Stimulus "Uva" "a uva" @("1f347")),
+        (New-Stimulus "Queijo" "o queijo" @("1f9c0")),
+        (New-Stimulus "Pera" "a pera" @("1f350")),
+        (New-Stimulus "Banana" "a banana" @("1f34c")),
+        (New-Stimulus "Frango" "o frango" @("1f357")),
+        (New-Stimulus "Sorvete" "o sorvete" @("1f366")),
+        (New-Stimulus "Cenoura" "a cenoura" @("1f955")),
+        (New-Stimulus "Pipoca" "a pipoca" @("1f37f")),
+        (New-Stimulus "Biscoito" "o biscoito" @("1f36a")),
+        (New-Stimulus "Sanduiche" "o sanduiche" @("1f96a")),
+        (New-Stimulus "Chocolate" "o chocolate" @("1f36b"))
+    )
     "casa-objetos" = @(
         (New-Stimulus "Cama" "a cama" @("1f6cf-fe0f")),
         (New-Stimulus "Porta" "a porta" @("1f6aa")),
