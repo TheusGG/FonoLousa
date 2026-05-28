@@ -44,6 +44,7 @@ data class SessionEventEntity(
 data class ClinicalResultEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val sessionId: String,
+    val childName: String = "Crianca",
     val activity: String,
     val categoryId: String,
     val level: Int,
@@ -82,7 +83,7 @@ interface FonoLocalDao {
 
 @Database(
     entities = [ItemProgressEntity::class, SessionEventEntity::class, ClinicalResultEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class FonoLocalDatabase : RoomDatabase() {
@@ -99,7 +100,7 @@ abstract class FonoLocalDatabase : RoomDatabase() {
                     FonoLocalDatabase::class.java,
                     "fonolousa-local.db"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                     .also { instance = it }
             }
@@ -121,6 +122,14 @@ abstract class FonoLocalDatabase : RoomDatabase() {
                         createdAt INTEGER NOT NULL
                     )
                     """.trimIndent()
+                )
+            }
+        }
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE clinical_results ADD COLUMN childName TEXT NOT NULL DEFAULT 'Crianca'"
                 )
             }
         }

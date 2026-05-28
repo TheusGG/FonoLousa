@@ -36,6 +36,7 @@ class SessionRepository(context: Context) {
     }
 
     suspend fun recordClinicalResult(
+        childName: String,
         activity: String,
         categoryId: String,
         level: Int,
@@ -46,6 +47,7 @@ class SessionRepository(context: Context) {
         dao.insertClinicalResult(
             ClinicalResultEntity(
                 sessionId = sessionId,
+                childName = childName.ifBlank { "Crianca" },
                 activity = activity,
                 categoryId = categoryId,
                 level = level,

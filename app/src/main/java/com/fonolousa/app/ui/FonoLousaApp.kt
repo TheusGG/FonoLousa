@@ -52,9 +52,12 @@ import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -105,6 +108,7 @@ import com.fonolousa.app.ui.theme.ChalkWhite
 import com.fonolousa.app.update.UpdateChecker
 import com.fonolousa.app.update.UpdateState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
@@ -133,7 +137,7 @@ fun FonoLousaApp(
                 onCategoryClick = { navController.navigate("levels/${it.id}") },
                 onUpdateClick = { navController.navigate("update") },
                 onReportClick = { navController.navigate("report") },
-                onClinicalClick = { navController.navigate("clinical") }
+                onClinicalClick = { childName -> navController.navigate("clinical/${Uri.encode(childName)}") }
             )
         }
         composable("update") {
@@ -148,8 +152,13 @@ fun FonoLousaApp(
                 onBack = { navController.popBackStack() }
             )
         }
-        composable("clinical") {
+        composable(
+            route = "clinical/{childName}",
+            arguments = listOf(navArgument("childName") { type = NavType.StringType })
+        ) { entry ->
+            val childName = Uri.decode(entry.arguments?.getString("childName").orEmpty())
             ClinicalAssessmentScreen(
+                childName = childName.ifBlank { "Crianca" },
                 repository = repository,
                 sessionRepository = sessionRepository,
                 audioPlayer = audioPlayer,
@@ -224,8 +233,11 @@ private fun HomeScreen(
     onCategoryClick: (Categoria) -> Unit,
     onUpdateClick: () -> Unit,
     onReportClick: () -> Unit,
-    onClinicalClick: () -> Unit
+    onClinicalClick: (String) -> Unit
 ) {
+    var childName by remember { mutableStateOf("") }
+    val canStartAssessment = childName.trim().isNotEmpty()
+
     BlackboardScreen {
         Column(
             modifier = Modifier
@@ -238,7 +250,8 @@ private fun HomeScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(
-                    onClick = onClinicalClick,
+                    onClick = { onClinicalClick(childName.trim()) },
+                    enabled = canStartAssessment,
                     modifier = Modifier
                         .size(58.dp)
                         .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
@@ -246,7 +259,7 @@ private fun HomeScreen(
                     Icon(
                         imageVector = Icons.Filled.Assessment,
                         contentDescription = "Avaliacao clinica",
-                        tint = Color(0xFFFFC107),
+                        tint = if (canStartAssessment) Color(0xFFFFC107) else ChalkWhite.copy(alpha = 0.38f),
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -295,6 +308,43 @@ private fun HomeScreen(
                     .fillMaxWidth()
                     .padding(top = 2.dp)
             )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 14.dp, bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    value = childName,
+                    onValueChange = { childName = it.take(40) },
+                    placeholder = { Text("Nome da crianca") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(58.dp)
+                )
+                Button(
+                    onClick = { onClinicalClick(childName.trim()) },
+                    enabled = canStartAssessment,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFC107),
+                        contentColor = Color(0xFF1A1A1A)
+                    ),
+                    modifier = Modifier.height(58.dp)
+                ) {
+                    Text("Iniciar Avaliacao", fontSize = 17.sp, fontWeight = FontWeight.Black)
+                }
+                Button(
+                    onClick = onReportClick,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.height(58.dp)
+                ) {
+                    Text("Ver Relatorios", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                }
+            }
             ChalkText(
                 text = "Toque em uma categoria",
                 fontSize = 24,
@@ -420,6 +470,23 @@ private fun SessionReportScreen(
     val totalPlays = progress.sumOf { it.plays }
     val practiced = progress.count { it.views > 0 || it.plays > 0 }
     val formatter = remember { SimpleDateFormat("dd/MM HH:mm", Locale("pt", "BR")) }
+    val childNames = remember(clinicalResults) {
+        clinicalResults.map { it.childName }.filter { it.isNotBlank() }.distinct().sorted()
+    }
+    var selectedChild by remember { mutableStateOf("Todas") }
+    var selectedTrendActivity by remember { mutableStateOf("nomeacao") }
+    LaunchedEffect(childNames) {
+        if (selectedChild != "Todas" && selectedChild !in childNames) {
+            selectedChild = "Todas"
+        }
+    }
+    val childFilteredResults = remember(clinicalResults, selectedChild) {
+        if (selectedChild == "Todas") {
+            clinicalResults
+        } else {
+            clinicalResults.filter { it.childName == selectedChild }
+        }
+    }
 
     BlackboardScreen {
         Column(
@@ -439,9 +506,39 @@ private fun SessionReportScreen(
                 ReportMetric("Sons", totalPlays.toString(), Modifier.weight(1f))
                 ReportMetric("Favoritos", favorites.size.toString(), Modifier.weight(1f))
             }
+            if (childNames.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    ReportFilterDropdown(
+                        label = "Crianca",
+                        value = selectedChild,
+                        options = listOf("Todas") + childNames,
+                        optionLabel = { it },
+                        onSelect = { selectedChild = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                    ReportFilterDropdown(
+                        label = "Categoria",
+                        value = selectedTrendActivity,
+                        options = listOf("nomeacao", "repeticao", "discriminacao"),
+                        optionLabel = { it.label() },
+                        onSelect = { selectedTrendActivity = it },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
             ClinicalChartSection(
-                results = clinicalResults,
+                results = childFilteredResults,
                 modifier = Modifier.padding(top = 22.dp)
+            )
+            ClinicalTrendSection(
+                results = childFilteredResults,
+                activity = selectedTrendActivity,
+                modifier = Modifier.padding(top = 14.dp)
             )
             ChalkText(
                 text = "Ultimas interacoes",
@@ -500,6 +597,50 @@ private fun SessionReportScreen(
 }
 
 @Composable
+private fun ReportFilterDropdown(
+    label: String,
+    value: String,
+    options: List<String>,
+    optionLabel: (String) -> String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        Button(
+            onClick = { expanded = true },
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(58.dp)
+        ) {
+            Text(
+                text = "$label: ${optionLabel(value)}",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(optionLabel(option)) },
+                    onClick = {
+                        onSelect(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ReportMetric(label: String, value: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
@@ -524,6 +665,7 @@ private fun ReportMetric(label: String, value: String, modifier: Modifier = Modi
 
 @Composable
 private fun ClinicalAssessmentScreen(
+    childName: String,
     repository: DataRepository,
     sessionRepository: SessionRepository,
     audioPlayer: AudioPlayer,
@@ -532,10 +674,12 @@ private fun ClinicalAssessmentScreen(
     onBack: () -> Unit
 ) {
     val activities = listOf("nomeacao", "repeticao", "discriminacao")
+    val totalTrials = 10
     var activity by remember { mutableStateOf(activities.first()) }
     var categoryIndex by remember { mutableStateOf(0) }
     var levelIndex by remember { mutableStateOf(0) }
     var itemIndex by remember { mutableStateOf(0) }
+    var assessmentFinished by remember { mutableStateOf(false) }
     var showFeedback by remember { mutableStateOf<String?>(null) }
     var pulse by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -545,7 +689,7 @@ private fun ClinicalAssessmentScreen(
     val clinicalItems = remember(categoria.id, nivel.nivel) {
         nivel.itens.distinctBy { it.palavra.trim().lowercase(Locale("pt", "BR")) }
     }
-    val item = clinicalItems[itemIndex.coerceIn(0, clinicalItems.lastIndex)]
+    val item = clinicalItems[itemIndex.coerceIn(0, totalTrials - 1) % clinicalItems.size]
     val comparison = clinicalItems.getOrNull((itemIndex + 1) % clinicalItems.size) ?: item
     val imageScale by animateFloatAsState(
         targetValue = if (pulse) 1.03f else 1f,
@@ -553,15 +697,30 @@ private fun ClinicalAssessmentScreen(
         finishedListener = { pulse = false },
         label = "clinicalPulse"
     )
+    val currentActivityIndex = activities.indexOf(activity).coerceAtLeast(0)
+    val currentTrial = itemIndex + 1
 
-    fun nextItem() {
-        itemIndex = if (itemIndex >= clinicalItems.lastIndex) 0 else itemIndex + 1
+    fun resetAssessmentProgress() {
+        itemIndex = 0
+        assessmentFinished = false
+        showFeedback = null
     }
 
-    LaunchedEffect(activity, item.id) {
-        if (activity == "repeticao") {
-            audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
-            pulse = true
+    fun nextTrial() {
+        if (itemIndex < totalTrials - 1) {
+            itemIndex += 1
+            return
+        }
+
+        val nextActivityIndex = currentActivityIndex + 1
+        if (nextActivityIndex < activities.size) {
+            activity = activities[nextActivityIndex]
+            itemIndex = 0
+            assessmentFinished = false
+            showFeedback = "${activities[currentActivityIndex].label()} concluida"
+        } else {
+            assessmentFinished = true
+            showFeedback = "Avaliacao concluida"
         }
     }
 
@@ -572,68 +731,73 @@ private fun ClinicalAssessmentScreen(
                 .padding(22.dp)
         ) {
             TopBar(title = "Avaliacao clinica", onBack = onBack)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                activities.forEach { option ->
-                    Button(
-                        onClick = {
-                            activity = option
-                            showFeedback = null
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (activity == option) Color(0xFFFFC107) else Color.White.copy(alpha = 0.16f),
-                            contentColor = if (activity == option) Color(0xFF1A1A1A) else ChalkWhite
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(58.dp)
-                    ) {
-                        Text(activity.label(), fontSize = 16.sp, fontWeight = FontWeight.Black, maxLines = 1)
-                    }
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                NavButton(
-                    text = categoria.nome,
-                    enabled = categorias.size > 1,
-                    iconLeft = true,
-                    onClick = {
-                        categoryIndex = if (categoryIndex == 0) categorias.lastIndex else categoryIndex - 1
-                        levelIndex = 0
-                        itemIndex = 0
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-                NavButton(
-                    text = "Nivel ${nivel.nivel}",
-                    enabled = categoria.niveis.size > 1,
-                    iconLeft = false,
-                    onClick = {
-                        levelIndex = if (levelIndex >= categoria.niveis.lastIndex) 0 else levelIndex + 1
-                        itemIndex = 0
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            ChalkText(
+                text = childName,
+                fontSize = 18,
+                color = ChalkWhite.copy(alpha = 0.82f),
+                maxLines = 1,
+                modifier = Modifier.padding(top = 4.dp)
+            )
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(top = 14.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    activities.forEach { option ->
+                        Button(
+                            onClick = {
+                                if (activity != option || assessmentFinished) {
+                                    activity = option
+                                    resetAssessmentProgress()
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (activity == option) Color(0xFFFFC107) else Color.White.copy(alpha = 0.16f),
+                                contentColor = if (activity == option) Color(0xFF1A1A1A) else ChalkWhite
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(58.dp)
+                        ) {
+                            Text(option.label(), fontSize = 16.sp, fontWeight = FontWeight.Black, maxLines = 1)
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    NavButton(
+                        text = categoria.nome,
+                        enabled = categorias.size > 1,
+                        iconLeft = true,
+                        onClick = {
+                            categoryIndex = if (categoryIndex == 0) categorias.lastIndex else categoryIndex - 1
+                            levelIndex = 0
+                            resetAssessmentProgress()
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                    NavButton(
+                        text = "Nivel ${nivel.nivel}",
+                        enabled = categoria.niveis.size > 1,
+                        iconLeft = false,
+                        onClick = {
+                            levelIndex = if (levelIndex >= categoria.niveis.lastIndex) 0 else levelIndex + 1
+                            resetAssessmentProgress()
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
                 ChalkText(
                     text = activity.prompt(),
                     fontSize = 22,
@@ -647,14 +811,14 @@ private fun ClinicalAssessmentScreen(
                     contentDescription = item.displayText(nivel.nivel),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
-                        .size(260.dp)
+                        .size(220.dp)
                         .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
                         .clip(RoundedCornerShape(8.dp))
                         .border(4.dp, parseColor(categoria.cor), RoundedCornerShape(8.dp))
                         .background(Color.White)
                 )
                 ChalkText(
-                    text = if (activity == "nomeacao") "Figura ${itemIndex + 1}/${clinicalItems.size}" else item.displayText(nivel.nivel),
+                    text = activity.trialLabel(currentTrial, totalTrials),
                     fontSize = 28,
                     fontWeight = FontWeight.Black,
                     textAlign = TextAlign.Center,
@@ -681,8 +845,11 @@ private fun ClinicalAssessmentScreen(
                         Button(
                             onClick = {
                                 haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
-                                audioPlayer.play(comparison.arquivoSom, comparison.audioText(nivel.nivel))
+                                scope.launch {
+                                    audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
+                                    delay(900)
+                                    audioPlayer.play(comparison.arquivoSom, comparison.audioText(nivel.nivel))
+                                }
                             },
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(58.dp)
@@ -699,51 +866,53 @@ private fun ClinicalAssessmentScreen(
                         modifier = Modifier.padding(top = 10.dp)
                     )
                 }
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                Button(
-                    onClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        scope.launch {
-                            sessionRepository.recordClinicalResult(activity, categoria.id, nivel.nivel, item, false)
-                        }
-                        showFeedback = "Erro registrado"
-                        nextItem()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935), contentColor = Color.White),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(62.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    Text("Erro", fontSize = 24.sp, fontWeight = FontWeight.Black)
+                    Button(
+                        onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            scope.launch {
+                                sessionRepository.recordClinicalResult(childName, activity, categoria.id, nivel.nivel, item, false)
+                            }
+                            showFeedback = "Erro registrado"
+                            nextTrial()
+                        },
+                        enabled = !assessmentFinished,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935), contentColor = Color.White),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(62.dp)
+                    ) {
+                        Text("Erro", fontSize = 24.sp, fontWeight = FontWeight.Black)
+                    }
+                    Button(
+                        onClick = {
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            scope.launch {
+                                sessionRepository.recordClinicalResult(childName, activity, categoria.id, nivel.nivel, item, true)
+                            }
+                            showFeedback = "Acerto registrado"
+                            audioPlayer.playVictory()
+                            nextTrial()
+                        },
+                        enabled = !assessmentFinished,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047), contentColor = Color.White),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(62.dp)
+                    ) {
+                        Text("Acerto", fontSize = 24.sp, fontWeight = FontWeight.Black)
+                    }
                 }
-                Button(
-                    onClick = {
-                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                        scope.launch {
-                            sessionRepository.recordClinicalResult(activity, categoria.id, nivel.nivel, item, true)
-                        }
-                        showFeedback = "Acerto registrado"
-                        audioPlayer.playVictory()
-                        nextItem()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047), contentColor = Color.White),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(62.dp)
-                ) {
-                    Text("Acerto", fontSize = 24.sp, fontWeight = FontWeight.Black)
-                }
+                ClinicalChartSection(
+                    results = results.filter { it.childName.equals(childName, ignoreCase = true) },
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
-            ClinicalChartSection(
-                results = results,
-                modifier = Modifier.padding(top = 14.dp)
-            )
         }
     }
 }
@@ -781,6 +950,77 @@ private fun ClinicalChartSection(
         ) {
             summaries.forEach { summary ->
                 ClinicalBarView(summary = summary, modifier = Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClinicalTrendSection(
+    results: List<ClinicalResultEntity>,
+    activity: String,
+    modifier: Modifier = Modifier
+) {
+    val points = remember(results, activity) {
+        results
+            .filter { it.activity == activity }
+            .sortedBy { it.createdAt }
+            .chunked(10)
+            .map { group ->
+                if (group.isEmpty()) {
+                    0f
+                } else {
+                    group.count { it.isCorrect } * 100f / group.size
+                }
+            }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(154.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
+            .background(Color.White.copy(alpha = 0.10f))
+            .padding(12.dp)
+    ) {
+        ChalkText(
+            text = "Evolucao - ${activity.label()}",
+            fontSize = 20,
+            fontWeight = FontWeight.Black,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        if (points.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                ChalkText(
+                    text = "Sem sessoes registradas.",
+                    fontSize = 18,
+                    color = ChalkWhite.copy(alpha = 0.78f)
+                )
+            }
+        } else {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val chartWidth = size.width
+                val chartHeight = size.height
+                val stepX = if (points.size <= 1) chartWidth else chartWidth / (points.size - 1)
+                val offsets = points.mapIndexed { index, value ->
+                    Offset(
+                        x = if (points.size <= 1) chartWidth / 2f else stepX * index,
+                        y = chartHeight - (value.coerceIn(0f, 100f) / 100f * chartHeight)
+                    )
+                }
+                for (index in 0 until offsets.lastIndex) {
+                    drawLine(
+                        color = Color(0xFFFFC107),
+                        start = offsets[index],
+                        end = offsets[index + 1],
+                        strokeWidth = 6f
+                    )
+                }
+                offsets.forEach { point ->
+                    drawCircle(color = ChalkWhite, radius = 8f, center = point)
+                    drawCircle(color = Color(0xFFFFC107), radius = 5f, center = point)
+                }
             }
         }
     }
@@ -1498,6 +1738,15 @@ private fun String.label(): String {
         "repeticao" -> "Repeticao"
         "discriminacao" -> "Discriminacao"
         else -> this
+    }
+}
+
+private fun String.trialLabel(currentTrial: Int, totalTrials: Int): String {
+    return when (this) {
+        "nomeacao" -> "Figura $currentTrial/$totalTrials"
+        "repeticao" -> "Audio $currentTrial/$totalTrials"
+        "discriminacao" -> "Par $currentTrial/$totalTrials"
+        else -> "Tentativa $currentTrial/$totalTrials"
     }
 }
 

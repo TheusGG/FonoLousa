@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  22,
-    "versionName":  "1.0.21",
+    "versionCode":  23,
+    "versionName":  "1.0.22",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Corrige animais e sons dos niveis 2 e 3."
+    "notes":  "Corrige avaliacao clinica, fluxo de 10 tentativas e relatorios por crianca."
 }
