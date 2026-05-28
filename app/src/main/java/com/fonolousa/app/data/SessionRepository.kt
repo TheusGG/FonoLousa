@@ -37,6 +37,7 @@ class SessionRepository(context: Context) {
 
     suspend fun recordClinicalResult(
         childName: String,
+        clinicalSessionId: String,
         activity: String,
         categoryId: String,
         level: Int,
@@ -46,7 +47,7 @@ class SessionRepository(context: Context) {
         val now = System.currentTimeMillis()
         dao.insertClinicalResult(
             ClinicalResultEntity(
-                sessionId = sessionId,
+                sessionId = clinicalSessionId,
                 childName = childName.ifBlank { "Crianca" },
                 activity = activity,
                 categoryId = categoryId,
@@ -68,6 +69,12 @@ class SessionRepository(context: Context) {
 
     suspend fun deleteClinicalResult(resultId: Long) {
         dao.deleteClinicalResult(resultId)
+    }
+
+    suspend fun deleteClinicalResults(resultIds: List<Long>) {
+        if (resultIds.isNotEmpty()) {
+            dao.deleteClinicalResults(resultIds)
+        }
     }
 
     private suspend fun updateProgress(

@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  30,
-    "versionName":  "1.0.29",
+    "versionCode":  31,
+    "versionName":  "1.0.30",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Melhora avaliacao clinica, mistura categorias, reduz para 10 itens e adiciona Leitura."
+    "notes":  "Corrige relatorio clinico com avaliacoes por crianca e edicao agrupada."
 }

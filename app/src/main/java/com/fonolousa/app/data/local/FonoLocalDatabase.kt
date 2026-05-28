@@ -85,6 +85,9 @@ interface FonoLocalDao {
 
     @Query("DELETE FROM clinical_results WHERE id = :id")
     suspend fun deleteClinicalResult(id: Long)
+
+    @Query("DELETE FROM clinical_results WHERE id IN (:ids)")
+    suspend fun deleteClinicalResults(ids: List<Long>)
 }
 
 @Database(

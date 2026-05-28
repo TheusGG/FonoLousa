@@ -117,6 +117,7 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 private const val CLINICAL_TRIALS_PER_ACTIVITY = 10
 
@@ -526,12 +527,15 @@ private fun SessionReportScreen(
             clinicalResults.filter { it.childName == selectedChild }
         }
     }
+    val evaluationGroups = remember(childFilteredResults) {
+        clinicalEvaluationGroups(childFilteredResults)
+    }
 
     BlackboardScreen {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(18.dp)
+                .padding(horizontal = 18.dp, vertical = 14.dp)
         ) {
             TopBar(title = "Relatorio da sessao", onBack = onBack)
             Column(
@@ -539,22 +543,13 @@ private fun SessionReportScreen(
                     .weight(1f)
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 14.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    ReportMetric("Itens", practiced.toString(), Modifier.weight(1f))
-                    ReportMetric("Toques", totalViews.toString(), Modifier.weight(1f))
-                    ReportMetric("Sons", totalPlays.toString(), Modifier.weight(1f))
-                    ReportMetric("Favoritos", favorites.size.toString(), Modifier.weight(1f))
-                }
                 if (childNames.isNotEmpty()) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         ReportFilterDropdown(
@@ -566,7 +561,7 @@ private fun SessionReportScreen(
                             modifier = Modifier.weight(1f)
                         )
                         ReportFilterDropdown(
-                            label = "Categoria",
+                            label = "Atividade",
                             value = selectedTrendActivity,
                             options = clinicalActivityKeys(),
                             optionLabel = { it.label() },
@@ -575,19 +570,43 @@ private fun SessionReportScreen(
                         )
                     }
                 }
+                ClinicalPatientSummarySection(
+                    results = childFilteredResults,
+                    evaluations = evaluationGroups
+                )
                 ClinicalCountsSection(results = childFilteredResults)
                 ClinicalChartSection(results = childFilteredResults)
                 ClinicalTrendSection(results = childFilteredResults, activity = selectedTrendActivity)
-                ClinicalResultsAdminSection(
-                    results = childFilteredResults,
+                ClinicalEvaluationsAdminSection(
+                    evaluations = evaluationGroups,
                     formatter = formatter,
-                    onSave = { result, isCorrect ->
-                        scope.launch { sessionRepository.updateClinicalResult(result.id, isCorrect) }
+                    onSave = { answers ->
+                        scope.launch {
+                            answers.forEach { (id, isCorrect) ->
+                                sessionRepository.updateClinicalResult(id, isCorrect)
+                            }
+                        }
                     },
-                    onDelete = { result ->
-                        scope.launch { sessionRepository.deleteClinicalResult(result.id) }
+                    onDelete = { evaluation ->
+                        scope.launch {
+                            sessionRepository.deleteClinicalResults(evaluation.results.map { it.id })
+                        }
                     }
                 )
+                ChalkText(
+                    text = "Uso geral do app",
+                    fontSize = 22,
+                    fontWeight = FontWeight.Black
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    ReportMetric("Itens", practiced.toString(), Modifier.weight(1f))
+                    ReportMetric("Toques", totalViews.toString(), Modifier.weight(1f))
+                    ReportMetric("Sons", totalPlays.toString(), Modifier.weight(1f))
+                    ReportMetric("Favoritos", favorites.size.toString(), Modifier.weight(1f))
+                }
                 ChalkText(
                     text = "Ultimas interacoes",
                     fontSize = 24,
@@ -707,14 +726,52 @@ private fun ReportMetric(label: String, value: String, modifier: Modifier = Modi
 }
 
 @Composable
-private fun ClinicalResultsAdminSection(
+private fun ClinicalPatientSummarySection(
     results: List<ClinicalResultEntity>,
-    formatter: SimpleDateFormat,
-    onSave: (ClinicalResultEntity, Boolean) -> Unit,
-    onDelete: (ClinicalResultEntity) -> Unit,
+    evaluations: List<ClinicalEvaluationGroup>,
     modifier: Modifier = Modifier
 ) {
-    var pendingDeleteId by remember { mutableStateOf<Long?>(null) }
+    val correct = results.count { it.isCorrect }
+    val errors = results.size - correct
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
+            .background(Color.White.copy(alpha = 0.10f))
+            .padding(12.dp)
+    ) {
+        ChalkText(
+            text = "Resumo clinico da crianca",
+            fontSize = 20,
+            fontWeight = FontWeight.Black
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            ReportMetric("Avaliacoes", evaluations.size.toString(), Modifier.weight(1f))
+            ReportMetric("Acertos", correct.toString(), Modifier.weight(1f))
+            ReportMetric("Erros", errors.toString(), Modifier.weight(1f))
+            ReportMetric("Total", results.size.toString(), Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun ClinicalEvaluationsAdminSection(
+    evaluations: List<ClinicalEvaluationGroup>,
+    formatter: SimpleDateFormat,
+    onSave: (Map<Long, Boolean>) -> Unit,
+    onDelete: (ClinicalEvaluationGroup) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var editingKey by remember { mutableStateOf<String?>(null) }
+    var pendingDeleteKey by remember { mutableStateOf<String?>(null) }
+    var draftAnswers by remember { mutableStateOf<Map<Long, Boolean>>(emptyMap()) }
 
     Column(
         modifier = modifier
@@ -726,18 +783,21 @@ private fun ClinicalResultsAdminSection(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         ChalkText(
-            text = "Editar testes",
+            text = "Avaliacoes da crianca",
             fontSize = 20,
             fontWeight = FontWeight.Black
         )
-        if (results.isEmpty()) {
+        if (evaluations.isEmpty()) {
             ChalkText(
-                text = "Nenhum teste salvo para esta crianca.",
+                text = "Nenhuma avaliacao salva para esta crianca.",
                 fontSize = 18,
                 color = ChalkWhite.copy(alpha = 0.82f)
             )
         } else {
-            results.sortedByDescending { it.createdAt }.take(12).forEach { result ->
+            evaluations.forEach { evaluation ->
+                val isEditing = editingKey == evaluation.key
+                val isPendingDelete = pendingDeleteKey == evaluation.key
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -749,23 +809,25 @@ private fun ClinicalResultsAdminSection(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         ChalkText(
-                            text = result.word.replaceFirstChar { it.uppercase() },
+                            text = evaluation.activity.label(),
                             fontSize = 18,
                             fontWeight = FontWeight.Black,
                             maxLines = 1
                         )
                         ChalkText(
-                            text = "${result.activity.label()} - ${formatter.format(Date(result.createdAt))}",
+                            text = "${formatter.format(Date(evaluation.startedAt))}  -  Acertos ${evaluation.correct}  Erros ${evaluation.errors}  Total ${evaluation.total}",
                             fontSize = 13,
                             color = ChalkWhite.copy(alpha = 0.74f),
                             maxLines = 1
                         )
                     }
-                    if (pendingDeleteId == result.id) {
+                    if (isPendingDelete) {
                         Button(
                             onClick = {
-                                onDelete(result)
-                                pendingDeleteId = null
+                                onDelete(evaluation)
+                                pendingDeleteKey = null
+                                editingKey = null
+                                draftAnswers = emptyMap()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFFE53935),
@@ -777,7 +839,37 @@ private fun ClinicalResultsAdminSection(
                             Text("Confirmar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         }
                         Button(
-                            onClick = { pendingDeleteId = null },
+                            onClick = { pendingDeleteKey = null },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White.copy(alpha = 0.16f),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(42.dp)
+                        ) {
+                            Text("Cancelar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                    } else if (isEditing) {
+                        Button(
+                            onClick = {
+                                onSave(draftAnswers)
+                                editingKey = null
+                                draftAnswers = emptyMap()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF43A047),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(42.dp)
+                        ) {
+                            Text("Salvar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Button(
+                            onClick = {
+                                editingKey = null
+                                draftAnswers = emptyMap()
+                            },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.White.copy(alpha = 0.16f),
                                 contentColor = Color.White
@@ -789,37 +881,78 @@ private fun ClinicalResultsAdminSection(
                         }
                     } else {
                         Button(
-                            onClick = { onSave(result, true) },
+                            onClick = {
+                                editingKey = evaluation.key
+                                pendingDeleteKey = null
+                                draftAnswers = evaluation.results.associate { it.id to it.isCorrect }
+                            },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (result.isCorrect) Color(0xFF43A047) else Color.White.copy(alpha = 0.16f),
-                                contentColor = Color.White
+                                containerColor = Color(0xFFFFC107),
+                                contentColor = Color(0xFF102D13)
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(42.dp)
                         ) {
-                            Text("Acerto", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            Text("Editar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         }
                         Button(
-                            onClick = { onSave(result, false) },
+                            onClick = { pendingDeleteKey = evaluation.key },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (!result.isCorrect) Color(0xFFE53935) else Color.White.copy(alpha = 0.16f),
-                                contentColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(42.dp)
-                        ) {
-                            Text("Erro", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Button(
-                            onClick = { pendingDeleteId = result.id },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF5D4037),
+                                containerColor = Color(0xFFE53935),
                                 contentColor = Color.White
                             ),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(42.dp)
                         ) {
                             Text("Excluir", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+                if (isEditing) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White.copy(alpha = 0.08f))
+                            .padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        evaluation.results.sortedBy { it.createdAt }.forEachIndexed { index, result ->
+                            val isCorrect = draftAnswers[result.id] ?: result.isCorrect
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                ChalkText(
+                                    text = "${index + 1}. ${result.word.replaceFirstChar { it.uppercase() }}",
+                                    fontSize = 15,
+                                    maxLines = 1,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Button(
+                                    onClick = { draftAnswers = draftAnswers + (result.id to true) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (isCorrect) Color(0xFF43A047) else Color.White.copy(alpha = 0.16f),
+                                        contentColor = Color.White
+                                    ),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.height(38.dp)
+                                ) {
+                                    Text("Acerto", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Button(
+                                    onClick = { draftAnswers = draftAnswers + (result.id to false) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (!isCorrect) Color(0xFFE53935) else Color.White.copy(alpha = 0.16f),
+                                        contentColor = Color.White
+                                    ),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.height(38.dp)
+                                ) {
+                                    Text("Erro", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
                     }
                 }
@@ -848,6 +981,8 @@ private fun ClinicalAssessmentScreen(
     var showFeedback by remember { mutableStateOf<String?>(null) }
     var pulse by remember { mutableStateOf(false) }
     var readingAnswered by remember { mutableStateOf(false) }
+    var clinicalSessionId by remember { mutableStateOf(UUID.randomUUID().toString()) }
+    var savingAnswer by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
     val stimulus = clinicalStimuli.getOrNull(itemIndex.coerceIn(0, totalTrials - 1))
@@ -868,6 +1003,8 @@ private fun ClinicalAssessmentScreen(
         assessmentFinished = false
         showFeedback = null
         readingAnswered = false
+        clinicalSessionId = UUID.randomUUID().toString()
+        savingAnswer = false
     }
 
     fun nextTrial() {
@@ -891,27 +1028,34 @@ private fun ClinicalAssessmentScreen(
     }
 
     fun recordAnswer(isCorrect: Boolean) {
+        if (savingAnswer) return
         val currentStimulus = stimulus ?: return
         val currentItem = item ?: return
         haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        savingAnswer = true
         scope.launch {
-            sessionRepository.recordClinicalResult(
-                childName,
-                activity,
-                currentStimulus.categoria.id,
-                currentStimulus.level,
-                currentItem,
-                isCorrect
-            )
-        }
-        showFeedback = if (isCorrect) "Acerto registrado" else "Erro registrado"
-        if (isCorrect) {
-            audioPlayer.playVictory()
-        }
-        if (activity == "leitura") {
-            readingAnswered = true
-        } else {
-            nextTrial()
+            try {
+                sessionRepository.recordClinicalResult(
+                    childName,
+                    clinicalSessionId,
+                    activity,
+                    currentStimulus.categoria.id,
+                    currentStimulus.level,
+                    currentItem,
+                    isCorrect
+                )
+                showFeedback = if (isCorrect) "Acerto registrado" else "Erro registrado"
+                if (isCorrect) {
+                    audioPlayer.playVictory()
+                }
+                if (activity == "leitura") {
+                    readingAnswered = true
+                } else {
+                    nextTrial()
+                }
+            } finally {
+                savingAnswer = false
+            }
         }
     }
 
@@ -1101,6 +1245,7 @@ private fun ClinicalAssessmentScreen(
                     ) {
                         Button(
                             onClick = { recordAnswer(false) },
+                            enabled = !savingAnswer,
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935), contentColor = Color.White),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier
@@ -1111,6 +1256,7 @@ private fun ClinicalAssessmentScreen(
                         }
                         Button(
                             onClick = { recordAnswer(true) },
+                            enabled = !savingAnswer,
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047), contentColor = Color.White),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier
@@ -1453,8 +1599,40 @@ private data class ClinicalStimulus(
     val item: ItemFono
 )
 
+private data class ClinicalEvaluationGroup(
+    val key: String,
+    val sessionId: String,
+    val activity: String,
+    val startedAt: Long,
+    val results: List<ClinicalResultEntity>
+) {
+    val correct: Int = results.count { it.isCorrect }
+    val errors: Int = results.size - correct
+    val total: Int = results.size
+}
+
 private fun clinicalActivityKeys(): List<String> =
     listOf("nomeacao", "repeticao", "discriminacao", "leitura")
+
+private fun clinicalEvaluationGroups(results: List<ClinicalResultEntity>): List<ClinicalEvaluationGroup> {
+    return results
+        .groupBy { "${it.sessionId}|${it.activity}" }
+        .flatMap { (baseKey, groupResults) ->
+            groupResults
+                .sortedBy { it.createdAt }
+                .chunked(CLINICAL_TRIALS_PER_ACTIVITY)
+                .mapIndexed { index, chunk ->
+                    ClinicalEvaluationGroup(
+                        key = "$baseKey|$index",
+                        sessionId = chunk.first().sessionId,
+                        activity = chunk.first().activity,
+                        startedAt = chunk.first().createdAt,
+                        results = chunk
+                    )
+                }
+        }
+        .sortedByDescending { it.startedAt }
+}
 
 private fun buildClinicalStimuli(categorias: List<Categoria>): List<ClinicalStimulus> {
     val locale = Locale.forLanguageTag("pt-BR")
