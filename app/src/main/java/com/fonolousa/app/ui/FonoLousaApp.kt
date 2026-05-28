@@ -58,6 +58,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -276,27 +277,12 @@ private fun HomeScreen(
     onClinicalClick: (String) -> Unit
 ) {
     var childName by remember { mutableStateOf("") }
-    var selectedRegisteredChild by remember { mutableStateOf("") }
     val typedChildName = childName.cleanChildName()
     val existingChildrenByKey = remember(registeredChildren) {
         registeredChildren.associateBy { normalizeChildName(it) }
     }
     val duplicateChildName = typedChildName.isNotEmpty() && normalizeChildName(typedChildName) in existingChildrenByKey
     val canStartNewAssessment = typedChildName.isNotEmpty() && !duplicateChildName
-    val canStartRegisteredAssessment = selectedRegisteredChild.isNotBlank()
-    val quickAssessmentChild = when {
-        canStartNewAssessment -> typedChildName
-        canStartRegisteredAssessment -> selectedRegisteredChild
-        else -> ""
-    }
-    LaunchedEffect(registeredChildren) {
-        if (registeredChildren.isNotEmpty() && selectedRegisteredChild !in registeredChildren) {
-            selectedRegisteredChild = registeredChildren.first()
-        }
-        if (registeredChildren.isEmpty()) {
-            selectedRegisteredChild = ""
-        }
-    }
 
     BlackboardScreen {
         Column(
@@ -310,45 +296,30 @@ private fun HomeScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(
-                    onClick = { onClinicalClick(quickAssessmentChild) },
-                    enabled = quickAssessmentChild.isNotBlank(),
-                    modifier = Modifier
-                        .size(58.dp)
-                        .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Assessment,
-                        contentDescription = "Avaliacao clinica",
-                        tint = if (quickAssessmentChild.isNotBlank()) Color(0xFFFFC107) else ChalkWhite.copy(alpha = 0.38f),
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-                Spacer(Modifier.width(10.dp))
-                IconButton(
                     onClick = onReportClick,
                     modifier = Modifier
-                        .size(58.dp)
+                        .size(56.dp)
                         .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Assessment,
                         contentDescription = "Relatorio da sessao",
-                        tint = ChalkWhite,
-                        modifier = Modifier.size(32.dp)
+                        tint = Color(0xFFFFC107),
+                        modifier = Modifier.size(30.dp)
                     )
                 }
                 Spacer(Modifier.width(10.dp))
                 IconButton(
                     onClick = onUpdateClick,
                     modifier = Modifier
-                        .size(58.dp)
+                        .size(56.dp)
                         .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.SystemUpdate,
                         contentDescription = "Atualizar app",
                         tint = ChalkWhite,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(30.dp)
                     )
                 }
             }
@@ -371,7 +342,11 @@ private fun HomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 14.dp, bottom = 12.dp),
+                    .padding(top = 16.dp, bottom = if (duplicateChildName) 8.dp else 16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(2.dp, ChalkWhite.copy(alpha = 0.42f), RoundedCornerShape(8.dp))
+                    .background(Color.White.copy(alpha = 0.10f))
+                    .padding(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -382,9 +357,24 @@ private fun HomeScreen(
                     isError = duplicateChildName,
                     singleLine = true,
                     shape = RoundedCornerShape(8.dp),
+                    textStyle = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF113D18),
+                        unfocusedTextColor = Color(0xFF113D18),
+                        focusedContainerColor = Color(0xFFFCFBF1),
+                        unfocusedContainerColor = Color(0xFFFCFBF1),
+                        errorContainerColor = Color(0xFFFFF6F6),
+                        cursorColor = ChalkGreen,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color(0xFFE53935)
+                    ),
                     modifier = Modifier
                         .weight(1f)
-                        .height(58.dp)
+                        .height(62.dp)
                 )
                 Button(
                     onClick = { onClinicalClick(typedChildName) },
@@ -394,21 +384,25 @@ private fun HomeScreen(
                         containerColor = Color(0xFFFFC107),
                         contentColor = Color(0xFF1A1A1A)
                     ),
-                    modifier = Modifier.height(58.dp)
+                    modifier = Modifier
+                        .height(62.dp)
+                        .width(230.dp)
                 ) {
                     Text("Cadastrar e avaliar", fontSize = 17.sp, fontWeight = FontWeight.Black)
                 }
                 Button(
                     onClick = onReportClick,
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.height(58.dp)
+                    modifier = Modifier
+                        .height(62.dp)
+                        .width(170.dp)
                 ) {
                     Text("Ver Relatorios", fontSize = 17.sp, fontWeight = FontWeight.Bold)
                 }
             }
             if (duplicateChildName) {
                 ChalkText(
-                    text = "Crianca ja cadastrada. Use a lista de criancas salvas para nova avaliacao.",
+                    text = "Crianca ja cadastrada. Use outro nome para novo cadastro.",
                     fontSize = 16,
                     color = Color(0xFFFFB3B3),
                     textAlign = TextAlign.Center,
@@ -416,32 +410,6 @@ private fun HomeScreen(
                         .fillMaxWidth()
                         .padding(bottom = 8.dp)
                 )
-            }
-            if (registeredChildren.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ReportFilterDropdown(
-                        label = "Crianca salva",
-                        value = selectedRegisteredChild,
-                        options = registeredChildren,
-                        optionLabel = { it },
-                        onSelect = { selectedRegisteredChild = it },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Button(
-                        onClick = { onClinicalClick(selectedRegisteredChild) },
-                        enabled = canStartRegisteredAssessment,
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(58.dp)
-                    ) {
-                        Text("Avaliar existente", fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
             }
             ChalkText(
                 text = "Toque em uma categoria",
