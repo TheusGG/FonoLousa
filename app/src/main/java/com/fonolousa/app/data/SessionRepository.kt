@@ -48,7 +48,7 @@ class SessionRepository(context: Context) {
         dao.insertClinicalResult(
             ClinicalResultEntity(
                 sessionId = clinicalSessionId,
-                childName = childName.ifBlank { "Crianca" },
+                childName = sanitizeChildName(childName),
                 activity = activity,
                 categoryId = categoryId,
                 level = level,
@@ -111,3 +111,10 @@ class SessionRepository(context: Context) {
         fun itemKey(categoryId: String, level: Int, itemId: String): String = "$categoryId:$level:$itemId"
     }
 }
+
+private fun sanitizeChildName(name: String): String =
+    name.trim()
+        .split(Regex("\\s+"))
+        .filter { it.isNotBlank() }
+        .joinToString(" ")
+        .ifBlank { "Crianca" }

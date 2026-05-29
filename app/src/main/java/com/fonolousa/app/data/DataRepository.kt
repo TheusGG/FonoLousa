@@ -3,10 +3,12 @@ package com.fonolousa.app.data
 import android.content.Context
 import android.content.res.AssetManager
 import com.google.gson.Gson
+import java.util.Locale
 
 class DataRepository(context: Context) {
     private val assets: AssetManager = context.applicationContext.assets
     private val gson = Gson()
+    private val ptBr = Locale.forLanguageTag("pt-BR")
 
     val database: FonoDatabase by lazy {
         assets.open("database.json").bufferedReader(Charsets.UTF_8).use { reader ->
@@ -22,14 +24,16 @@ class DataRepository(context: Context) {
     fun nivel(categoryId: String, level: Int): Nivel =
         categoria(categoryId).niveis.first { it.nivel == level }
 
-    fun item(categoryId: String, level: Int, index: Int): ItemFono =
-        nivel(categoryId, level).itens[index.coerceIn(0, nivel(categoryId, level).itens.lastIndex)]
+    fun item(categoryId: String, level: Int, index: Int): ItemFono {
+        val items = nivel(categoryId, level).itens
+        return items[index.coerceIn(0, items.lastIndex)]
+    }
 
     fun itensDaCategoria(categoryId: String): List<ItemFono> =
         categoria(categoryId)
             .niveis
             .flatMap { it.itens }
-            .distinctBy { it.palavra.trim().lowercase() }
+            .distinctBy { it.palavra.trim().lowercase(ptBr) }
 
     fun assetPath(path: String): String = path.removePrefix("assets/")
 

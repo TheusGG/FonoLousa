@@ -114,6 +114,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 import java.io.File
+import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -536,7 +537,7 @@ private fun SessionReportScreen(
     val totalViews = progress.sumOf { it.views }
     val totalPlays = progress.sumOf { it.plays }
     val practiced = progress.count { it.views > 0 || it.plays > 0 }
-    val formatter = remember { SimpleDateFormat("dd/MM HH:mm", Locale("pt", "BR")) }
+    val formatter = remember { SimpleDateFormat("dd/MM HH:mm", Locale.forLanguageTag("pt-BR")) }
     val scope = rememberCoroutineScope()
     val childNames = remember(clinicalResults) { clinicalResults.registeredChildNames() }
     var selectedChild by remember { mutableStateOf("") }
@@ -546,11 +547,12 @@ private fun SessionReportScreen(
             selectedChild = childNames.first()
         }
     }
-    val childFilteredResults = remember(clinicalResults, selectedChild) {
-        if (selectedChild.isBlank()) {
+    val selectedChildKey = remember(selectedChild) { normalizeChildName(selectedChild) }
+    val childFilteredResults = remember(clinicalResults, selectedChildKey) {
+        if (selectedChildKey.isBlank()) {
             emptyList()
         } else {
-            clinicalResults.filter { it.childName == selectedChild }
+            clinicalResults.filter { normalizeChildName(it.childName) == selectedChildKey }
         }
     }
     val evaluationGroups = remember(childFilteredResults) {
@@ -1515,19 +1517,7 @@ private fun ClinicalTrendSection(
     activity: String,
     modifier: Modifier = Modifier
 ) {
-    val points = remember(results, activity) {
-        results
-            .filter { it.activity == activity }
-            .sortedBy { it.createdAt }
-            .chunked(10)
-            .map { group ->
-                if (group.isEmpty()) {
-                    0f
-                } else {
-                    group.count { it.isCorrect } * 100f / group.size
-                }
-            }
-    }
+    val points = remember(results, activity) { clinicalTrendPoints(results, activity) }
 
     Column(
         modifier = modifier
@@ -1706,6 +1696,19 @@ private fun clinicalEvaluationGroups(results: List<ClinicalResultEntity>): List<
             }
         }
         .sortedByDescending { it.startedAt }
+}
+
+private fun clinicalTrendPoints(results: List<ClinicalResultEntity>, activity: String): List<Float> {
+    return clinicalEvaluationGroups(results)
+        .sortedBy { it.startedAt }
+        .mapNotNull { evaluation ->
+            val activityResults = evaluation.results.filter { it.activity == activity }
+            if (activityResults.isEmpty()) {
+                null
+            } else {
+                activityResults.count { it.isCorrect } * 100f / activityResults.size
+            }
+        }
 }
 
 private fun buildClinicalStimuli(categorias: List<Categoria>): List<ClinicalStimulus> {
@@ -2483,10 +2486,23 @@ private suspend fun installUpdate(context: Context, apkUrl: String): String {
 private suspend fun downloadUpdateApk(context: Context, apkUrl: String): File = withContext(Dispatchers.IO) {
     val updateDir = File(context.cacheDir, "updates").apply { mkdirs() }
     val apkFile = File(updateDir, "FonoLousa-update.apk")
-    URL(apkUrl).openStream().use { input ->
-        apkFile.outputStream().use { output ->
-            input.copyTo(output)
+    var connection: HttpURLConnection? = null
+    try {
+        connection = (URL(apkUrl).openConnection() as HttpURLConnection).apply {
+            connectTimeout = 15000
+            readTimeout = 30000
+            requestMethod = "GET"
         }
+        if (connection.responseCode !in 200..299) {
+            throw IllegalStateException("APK indisponivel: HTTP ${connection.responseCode}")
+        }
+        connection.inputStream.use { input ->
+            apkFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+    } finally {
+        connection?.disconnect()
     }
     apkFile
 }

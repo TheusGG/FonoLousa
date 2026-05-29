@@ -4,7 +4,8 @@ param(
     [string]$ManifestUrl = "",
     [ValidateSet("Debug", "Release")]
     [string]$BuildType = "Debug",
-    [string]$ApkFileName = ""
+    [string]$ApkFileName = "",
+    [string]$ReleaseNotes = "Auditoria tecnica, melhorias no relatorio clinico, banco local e canal de atualizacao."
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,6 +34,18 @@ $env:PATH = "$androidStudioJdk\bin;$gradleBin;$androidSdk\platform-tools;$env:PA
 
 Push-Location $root
 try {
+    $buildFile = Join-Path $root "app\build.gradle.kts"
+    $buildText = Get-Content -LiteralPath $buildFile -Raw
+    $versionCodeMatch = [regex]::Match($buildText, "versionCode\s*=\s*(\d+)")
+    $versionNameMatch = [regex]::Match($buildText, "versionName\s*=\s*`"([^`"]+)`"")
+
+    if (-not $versionCodeMatch.Success -or -not $versionNameMatch.Success) {
+        throw "Nao foi possivel ler versionCode/versionName em app\build.gradle.kts."
+    }
+
+    $versionCode = [int]$versionCodeMatch.Groups[1].Value
+    $versionName = $versionNameMatch.Groups[1].Value
+
     $gradleArgs = @("assemble$BuildType")
     if (-not [string]::IsNullOrWhiteSpace($ManifestUrl)) {
         $gradleArgs += "-Pfonolousa.updateManifestUrl=$ManifestUrl"
@@ -59,10 +72,10 @@ try {
     }
     $manifest = [ordered]@{
         app = "FonoLousa"
-        versionCode = 33
-        versionName = "1.0.32"
+        versionCode = $versionCode
+        versionName = $versionName
         apkUrl = $resolvedApkUrl
-        notes = "Remove crianca salva da tela inicial e melhora layout de cadastro."
+        notes = $ReleaseNotes
     } | ConvertTo-Json -Depth 4
     [IO.File]::WriteAllText((Join-Path $root "output\fonolousa-update.json"), $manifest, [Text.UTF8Encoding]::new($false))
 
@@ -83,7 +96,7 @@ try {
 <body>
   <main>
     <h1>FonoLousa</h1>
-    <p>Versao 1.0.32 de teste para instalacao em tablet Android.</p>
+    <p>Versao $versionName ($versionCode) para instalacao em tablet Android.</p>
     <a href="$outputApkName">Baixar APK</a>
     <p>Manifesto de atualizacao: <code>fonolousa-update.json</code></p>
   </main>

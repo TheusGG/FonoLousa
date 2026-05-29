@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.Insert
+import androidx.room.Index
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
@@ -14,7 +15,13 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
-@Entity(tableName = "item_progress")
+@Entity(
+    tableName = "item_progress",
+    indices = [
+        Index(value = ["categoryId", "level"]),
+        Index(value = ["isFavorite", "updatedAt"])
+    ]
+)
 data class ItemProgressEntity(
     @PrimaryKey val itemKey: String,
     val categoryId: String,
@@ -28,7 +35,12 @@ data class ItemProgressEntity(
     val updatedAt: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "session_events")
+@Entity(
+    tableName = "session_events",
+    indices = [
+        Index(value = ["createdAt"])
+    ]
+)
 data class SessionEventEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val sessionId: String,
@@ -40,7 +52,14 @@ data class SessionEventEntity(
     val createdAt: Long = System.currentTimeMillis()
 )
 
-@Entity(tableName = "clinical_results")
+@Entity(
+    tableName = "clinical_results",
+    indices = [
+        Index(value = ["childName"]),
+        Index(value = ["sessionId"]),
+        Index(value = ["activity", "createdAt"])
+    ]
+)
 data class ClinicalResultEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val sessionId: String,
@@ -92,7 +111,7 @@ interface FonoLocalDao {
 
 @Database(
     entities = [ItemProgressEntity::class, SessionEventEntity::class, ClinicalResultEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class FonoLocalDatabase : RoomDatabase() {
@@ -109,7 +128,7 @@ abstract class FonoLocalDatabase : RoomDatabase() {
                     FonoLocalDatabase::class.java,
                     "fonolousa-local.db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                     .also { instance = it }
             }
@@ -140,6 +159,17 @@ abstract class FonoLocalDatabase : RoomDatabase() {
                 db.execSQL(
                     "ALTER TABLE clinical_results ADD COLUMN childName TEXT NOT NULL DEFAULT 'Crianca'"
                 )
+            }
+        }
+
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_item_progress_categoryId_level ON item_progress(categoryId, level)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_item_progress_isFavorite_updatedAt ON item_progress(isFavorite, updatedAt)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_session_events_createdAt ON session_events(createdAt)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_clinical_results_childName ON clinical_results(childName)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_clinical_results_sessionId ON clinical_results(sessionId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_clinical_results_activity_createdAt ON clinical_results(activity, createdAt)")
             }
         }
     }

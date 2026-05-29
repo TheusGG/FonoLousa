@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  33,
-    "versionName":  "1.0.32",
+    "versionCode":  34,
+    "versionName":  "1.0.33",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Remove crianca salva da tela inicial e melhora layout de cadastro."
+    "notes":  "Auditoria tecnica, melhorias no relatorio clinico, banco local e canal de atualizacao."
 }
