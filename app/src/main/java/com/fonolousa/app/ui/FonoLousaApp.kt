@@ -2349,6 +2349,12 @@ private fun ItemCell(
 ) {
     val haptics = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
+    val displayText = item.displayText(level).uppercase(Locale.forLanguageTag("pt-BR"))
+    val itemTextSize = when {
+        displayText.length > 32 -> 14.sp
+        displayText.length > 22 -> 16.sp
+        else -> 18.sp
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -2384,9 +2390,9 @@ private fun ItemCell(
             )
         }
         Text(
-            text = item.displayText(level).uppercase(),
+            text = displayText,
             color = Color(0xFF2A2A2A),
-            fontSize = 18.sp,
+            fontSize = itemTextSize,
             fontWeight = FontWeight.Black,
             textAlign = TextAlign.Center,
             maxLines = 2,
