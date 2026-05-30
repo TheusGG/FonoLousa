@@ -3,7 +3,10 @@
 import android.graphics.BitmapFactory
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -87,6 +90,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavType
@@ -110,6 +114,7 @@ import com.fonolousa.app.ui.theme.ChalkShadow
 import com.fonolousa.app.ui.theme.ChalkWhite
 import com.fonolousa.app.update.UpdateChecker
 import com.fonolousa.app.update.UpdateState
+import com.fonolousa.app.update.isTrustedUpdateUrl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -118,6 +123,7 @@ import kotlin.math.roundToInt
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -167,7 +173,7 @@ fun FonoLousaApp(
         ) { entry ->
             val childName = Uri.decode(entry.arguments?.getString("childName").orEmpty())
             ClinicalAssessmentScreen(
-                childName = childName.ifBlank { "Crianca" },
+                childName = childName.ifBlank { "Criança" },
                 repository = repository,
                 sessionRepository = sessionRepository,
                 audioPlayer = audioPlayer,
@@ -200,7 +206,7 @@ fun FonoLousaApp(
             val category = repository.categoria(categoryId)
             val itens = remember(categoryId) { repository.itensDaCategoria(categoryId) }
             val nivel = remember(categoryId, itens) {
-                Nivel(nivel = 0, descricao = "Todos os estimulos", itens = itens)
+                Nivel(nivel = 0, descricao = "Todos os estímulos", itens = itens)
             }
             ItemsGridScreen(
                 repository = repository,
@@ -250,7 +256,7 @@ fun FonoLousaApp(
             val nivel = if (level <= 0) {
                 Nivel(
                     nivel = 0,
-                    descricao = "Todos os estimulos",
+                    descricao = "Todos os estímulos",
                     itens = repository.itensDaCategoria(categoryId)
                 )
             } else {
@@ -324,7 +330,7 @@ private fun HomeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Assessment,
-                            contentDescription = "Relatorio da sessao",
+                            contentDescription = "Relatório da sessão",
                             tint = Color(0xFFFFC107),
                             modifier = Modifier.size(topIconInnerSize)
                         )
@@ -352,7 +358,7 @@ private fun HomeScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 ChalkText(
-                    text = "Versao ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                    text = "Versão ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                     fontSize = versionSize,
                     color = ChalkWhite.copy(alpha = 0.82f),
                     textAlign = TextAlign.Center,
@@ -377,7 +383,7 @@ private fun HomeScreen(
                 )
                 if (duplicateChildName) {
                     ChalkText(
-                        text = "Crianca ja cadastrada. Use outro nome para novo cadastro.",
+                        text = "Criança já cadastrada. Use outro nome para novo cadastro.",
                         fontSize = if (compactWidth) 14 else 16,
                         color = Color(0xFFFFB3B3),
                         textAlign = TextAlign.Center,
@@ -459,7 +465,7 @@ private fun HomeRegistrationPanel(
                     .height(56.dp)
             )
             HomeSecondaryButton(
-                text = "Ver Relatorios",
+                text = "Ver Relatórios",
                 compact = true,
                 onClick = onReportClick,
                 modifier = Modifier
@@ -492,7 +498,7 @@ private fun HomeRegistrationPanel(
                     .width(230.dp)
             )
             HomeSecondaryButton(
-                text = "Ver Relatorios",
+                text = "Ver Relatórios",
                 compact = false,
                 onClick = onReportClick,
                 modifier = Modifier
@@ -516,7 +522,7 @@ private fun HomeNameTextField(
         onValueChange = onChildNameChange,
         placeholder = {
             Text(
-                text = "Nome da nova crianca",
+                text = "Nome da nova criança",
                 fontSize = if (compact) 16.sp else 18.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -622,7 +628,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 ChalkText(
-                    text = "Canal de atualizacao",
+                    text = "Canal de atualização",
                     fontSize = 30,
                     fontWeight = FontWeight.Black
                 )
@@ -645,7 +651,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
                         .height(64.dp)
                 ) {
                     Text(
-                        text = "Verificar atualizacao",
+                        text = "Verificar atualização",
                         fontSize = 21.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -655,7 +661,7 @@ private fun UpdateScreen(onBack: () -> Unit) {
                     Button(
                         onClick = {
                             scope.launch {
-                                installMessage = "Baixando atualizacao..."
+                                installMessage = "Baixando atualização..."
                                 installMessage = installUpdate(context, available.manifest.apkUrl)
                             }
                         },
@@ -724,124 +730,165 @@ private fun SessionReportScreen(
     }
 
     BlackboardScreen {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 18.dp, vertical = 14.dp)
-        ) {
-            TopBar(title = "Relatorio da sessao", onBack = onBack)
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val compactReport = maxWidth < 780.dp || maxHeight < 620.dp
+            val pageHorizontalPadding = if (compactReport) 10.dp else 18.dp
+            val pageVerticalPadding = if (compactReport) 8.dp else 14.dp
+            val sectionSpacing = if (compactReport) 10.dp else 12.dp
+
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = pageHorizontalPadding, vertical = pageVerticalPadding)
             ) {
-                if (childNames.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        ReportFilterDropdown(
-                            label = "Crianca",
-                            value = selectedChild,
-                            options = childNames,
-                            optionLabel = { it },
-                            onSelect = { selectedChild = it },
-                            modifier = Modifier.weight(1f)
-                        )
-                        ReportFilterDropdown(
-                            label = "Grafico",
-                            value = selectedTrendActivity,
-                            options = clinicalActivityKeys(),
-                            optionLabel = { it.label() },
-                            onSelect = { selectedTrendActivity = it },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-                ClinicalPatientSummarySection(
-                    results = childFilteredResults,
-                    evaluations = evaluationGroups
-                )
-                ClinicalCountsSection(results = childFilteredResults)
-                ClinicalChartSection(results = childFilteredResults)
-                ClinicalTrendSection(results = childFilteredResults, activity = selectedTrendActivity)
-                ClinicalEvaluationsAdminSection(
-                    evaluations = evaluationGroups,
-                    formatter = formatter,
-                    onSave = { answers ->
-                        scope.launch {
-                            answers.forEach { (id, isCorrect) ->
-                                sessionRepository.updateClinicalResult(id, isCorrect)
-                            }
-                        }
-                    },
-                    onDelete = { evaluation ->
-                        scope.launch {
-                            sessionRepository.deleteClinicalResults(evaluation.results.map { it.id })
-                        }
-                    }
-                )
-                ChalkText(
-                    text = "Uso geral do app",
-                    fontSize = 22,
-                    fontWeight = FontWeight.Black
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                TopBar(title = "Relatório da sessão", onBack = onBack, compact = compactReport)
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(sectionSpacing)
                 ) {
-                    ReportMetric("Itens", practiced.toString(), Modifier.weight(1f))
-                    ReportMetric("Toques", totalViews.toString(), Modifier.weight(1f))
-                    ReportMetric("Sons", totalPlays.toString(), Modifier.weight(1f))
-                    ReportMetric("Favoritos", favorites.size.toString(), Modifier.weight(1f))
-                }
-                ChalkText(
-                    text = "Ultimas interacoes",
-                    fontSize = 24,
-                    fontWeight = FontWeight.Black
-                )
-                if (events.isEmpty()) {
-                    ChalkText(
-                        text = "Nenhuma interacao registrada ainda.",
-                        fontSize = 20,
-                        color = ChalkWhite.copy(alpha = 0.82f)
-                    )
-                } else {
-                    events.take(30).forEach { event ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.White.copy(alpha = 0.10f))
-                                .border(1.dp, ChalkWhite.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                ChalkText(
-                                    text = event.word.replaceFirstChar { it.uppercase() },
-                                    fontSize = 21,
-                                    maxLines = 1
+                    if (childNames.isNotEmpty()) {
+                        if (compactReport) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 6.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                ReportFilterDropdown(
+                                    label = "Criança",
+                                    value = selectedChild,
+                                    options = childNames,
+                                    optionLabel = { it },
+                                    onSelect = { selectedChild = it },
+                                    compact = true,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
-                                ChalkText(
-                                    text = "${event.categoryId} - nivel ${event.level}",
-                                    fontSize = 16,
-                                    color = ChalkWhite.copy(alpha = 0.74f),
-                                    maxLines = 1
+                                ReportFilterDropdown(
+                                    label = "Gráfico",
+                                    value = selectedTrendActivity,
+                                    options = clinicalActivityKeys(),
+                                    optionLabel = { it.label() },
+                                    onSelect = { selectedTrendActivity = it },
+                                    compact = true,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
-                            ChalkText(
-                                text = "${event.eventType.label()}  ${formatter.format(Date(event.createdAt))}",
-                                fontSize = 16,
-                                textAlign = TextAlign.End,
-                                color = ChalkWhite.copy(alpha = 0.84f),
-                                modifier = Modifier.width(138.dp)
-                            )
+                        } else {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 10.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                ReportFilterDropdown(
+                                    label = "Criança",
+                                    value = selectedChild,
+                                    options = childNames,
+                                    optionLabel = { it },
+                                    onSelect = { selectedChild = it },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                ReportFilterDropdown(
+                                    label = "Gráfico",
+                                    value = selectedTrendActivity,
+                                    options = clinicalActivityKeys(),
+                                    optionLabel = { it.label() },
+                                    onSelect = { selectedTrendActivity = it },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+                    ClinicalPatientSummarySection(
+                        results = childFilteredResults,
+                        evaluations = evaluationGroups,
+                        compact = compactReport
+                    )
+                    ClinicalCountsSection(results = childFilteredResults, compact = compactReport)
+                    ClinicalChartSection(results = childFilteredResults, compact = compactReport)
+                    ClinicalTrendSection(results = childFilteredResults, activity = selectedTrendActivity, compact = compactReport)
+                    ClinicalEvaluationsAdminSection(
+                        evaluations = evaluationGroups,
+                        formatter = formatter,
+                        compact = compactReport,
+                        onSave = { answers ->
+                            scope.launch {
+                                answers.forEach { (id, isCorrect) ->
+                                    sessionRepository.updateClinicalResult(id, isCorrect)
+                                }
+                            }
+                        },
+                        onDelete = { evaluation ->
+                            scope.launch {
+                                sessionRepository.deleteClinicalResults(evaluation.results.map { it.id })
+                            }
+                        }
+                    )
+                    ChalkText(
+                        text = "Uso geral do app",
+                        fontSize = if (compactReport) 20 else 22,
+                        fontWeight = FontWeight.Black
+                    )
+                    AdaptiveMetricGrid(
+                        columns = if (compactReport) 2 else 4,
+                        itemCount = 4,
+                        horizontalSpacing = if (compactReport) 8.dp else 10.dp,
+                        verticalSpacing = 8.dp
+                    ) { tileModifier, index ->
+                        when (index) {
+                            0 -> ReportMetric("Itens", practiced.toString(), tileModifier, compact = compactReport)
+                            1 -> ReportMetric("Toques", totalViews.toString(), tileModifier, compact = compactReport)
+                            2 -> ReportMetric("Sons", totalPlays.toString(), tileModifier, compact = compactReport)
+                            3 -> ReportMetric("Favoritos", favorites.size.toString(), tileModifier, compact = compactReport)
+                        }
+                    }
+                    ChalkText(
+                        text = "Últimas interações",
+                        fontSize = if (compactReport) 22 else 24,
+                        fontWeight = FontWeight.Black
+                    )
+                    if (events.isEmpty()) {
+                        ChalkText(
+                            text = "Nenhuma interação registrada ainda.",
+                            fontSize = if (compactReport) 18 else 20,
+                            color = ChalkWhite.copy(alpha = 0.82f)
+                        )
+                    } else {
+                        events.take(30).forEach { event ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.White.copy(alpha = 0.10f))
+                                    .border(1.dp, ChalkWhite.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                                    .padding(if (compactReport) 10.dp else 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    ChalkText(
+                                        text = event.word.replaceFirstChar { it.uppercase() },
+                                        fontSize = if (compactReport) 18 else 21,
+                                        maxLines = 1
+                                    )
+                                    ChalkText(
+                                        text = "${event.categoryId} - nível ${event.level}",
+                                        fontSize = if (compactReport) 14 else 16,
+                                        color = ChalkWhite.copy(alpha = 0.74f),
+                                        maxLines = 1
+                                    )
+                                }
+                                ChalkText(
+                                    text = "${event.eventType.label()}  ${formatter.format(Date(event.createdAt))}",
+                                    fontSize = if (compactReport) 14 else 16,
+                                    textAlign = TextAlign.End,
+                                    color = ChalkWhite.copy(alpha = 0.84f),
+                                    modifier = Modifier.width(if (compactReport) 116.dp else 138.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -857,6 +904,7 @@ private fun ReportFilterDropdown(
     options: List<String>,
     optionLabel: (String) -> String,
     onSelect: (String) -> Unit,
+    compact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -867,11 +915,11 @@ private fun ReportFilterDropdown(
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(58.dp)
+                .height(if (compact) 52.dp else 58.dp)
         ) {
             Text(
                 text = "$label: ${optionLabel(value)}",
-                fontSize = 16.sp,
+                fontSize = if (compact) 15.sp else 16.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -895,21 +943,62 @@ private fun ReportFilterDropdown(
 }
 
 @Composable
-private fun ReportMetric(label: String, value: String, modifier: Modifier = Modifier) {
+private fun AdaptiveMetricGrid(
+    columns: Int,
+    itemCount: Int,
+    modifier: Modifier = Modifier,
+    horizontalSpacing: Dp = 10.dp,
+    verticalSpacing: Dp = 10.dp,
+    content: @Composable (Modifier, Int) -> Unit
+) {
+    val safeColumns = columns.coerceAtLeast(1)
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(verticalSpacing)
+    ) {
+        (0 until itemCount).chunked(safeColumns).forEach { rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(horizontalSpacing)
+            ) {
+                rowItems.forEach { index ->
+                    content(Modifier.weight(1f), index)
+                }
+                repeat(safeColumns - rowItems.size) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReportMetric(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
+) {
     Column(
         modifier = modifier
-            .height(92.dp)
+            .height(if (compact) 78.dp else 92.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(2.dp, ChalkWhite.copy(alpha = 0.55f), RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.11f))
-            .padding(10.dp),
+            .padding(if (compact) 8.dp else 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        ChalkText(text = value, fontSize = 24, fontWeight = FontWeight.Black, textAlign = TextAlign.Center)
+        ChalkText(
+            text = value,
+            fontSize = if (compact) 21 else 24,
+            fontWeight = FontWeight.Black,
+            textAlign = TextAlign.Center
+        )
         ChalkText(
             text = label,
-            fontSize = 14,
+            fontSize = if (compact) 13 else 14,
             color = ChalkWhite.copy(alpha = 0.78f),
             textAlign = TextAlign.Center,
             maxLines = 1
@@ -921,10 +1010,17 @@ private fun ReportMetric(label: String, value: String, modifier: Modifier = Modi
 private fun ClinicalPatientSummarySection(
     results: List<ClinicalResultEntity>,
     evaluations: List<ClinicalEvaluationGroup>,
+    compact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val correct = results.count { it.isCorrect }
     val errors = results.size - correct
+    val metrics = listOf(
+        "Avaliações" to evaluations.size.toString(),
+        "Acertos" to correct.toString(),
+        "Erros" to errors.toString(),
+        "Total" to results.size.toString()
+    )
 
     Column(
         modifier = modifier
@@ -932,23 +1028,22 @@ private fun ClinicalPatientSummarySection(
             .clip(RoundedCornerShape(8.dp))
             .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.10f))
-            .padding(12.dp)
+            .padding(if (compact) 10.dp else 12.dp)
     ) {
         ChalkText(
-            text = "Resumo clinico da crianca",
-            fontSize = 20,
+            text = "Resumo clínico da criança",
+            fontSize = if (compact) 18 else 20,
             fontWeight = FontWeight.Black
         )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            ReportMetric("Avaliacoes", evaluations.size.toString(), Modifier.weight(1f))
-            ReportMetric("Acertos", correct.toString(), Modifier.weight(1f))
-            ReportMetric("Erros", errors.toString(), Modifier.weight(1f))
-            ReportMetric("Total", results.size.toString(), Modifier.weight(1f))
+        AdaptiveMetricGrid(
+            columns = if (compact) 2 else 4,
+            itemCount = metrics.size,
+            modifier = Modifier.padding(top = 10.dp),
+            horizontalSpacing = if (compact) 8.dp else 10.dp,
+            verticalSpacing = 8.dp
+        ) { tileModifier, index ->
+            val (label, value) = metrics[index]
+            ReportMetric(label, value, tileModifier, compact = compact)
         }
     }
 }
@@ -957,6 +1052,7 @@ private fun ClinicalPatientSummarySection(
 private fun ClinicalEvaluationsAdminSection(
     evaluations: List<ClinicalEvaluationGroup>,
     formatter: SimpleDateFormat,
+    compact: Boolean = false,
     onSave: (Map<Long, Boolean>) -> Unit,
     onDelete: (ClinicalEvaluationGroup) -> Unit,
     modifier: Modifier = Modifier
@@ -971,139 +1067,107 @@ private fun ClinicalEvaluationsAdminSection(
             .clip(RoundedCornerShape(8.dp))
             .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.10f))
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .padding(if (compact) 10.dp else 12.dp),
+        verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 10.dp)
     ) {
         ChalkText(
-            text = "Avaliacoes da crianca",
-            fontSize = 20,
+            text = "Avaliações da criança",
+            fontSize = if (compact) 18 else 20,
             fontWeight = FontWeight.Black
         )
         if (evaluations.isEmpty()) {
             ChalkText(
-                text = "Nenhuma avaliacao salva para esta crianca.",
-                fontSize = 18,
+                text = "Nenhuma avaliação salva para esta criança.",
+                fontSize = if (compact) 16 else 18,
                 color = ChalkWhite.copy(alpha = 0.82f)
             )
         } else {
             evaluations.forEach { evaluation ->
                 val isEditing = editingKey == evaluation.key
                 val isPendingDelete = pendingDeleteKey == evaluation.key
+                val cardModifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White.copy(alpha = 0.10f))
+                    .padding(if (compact) 8.dp else 10.dp)
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.White.copy(alpha = 0.10f))
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        ChalkText(
-                            text = "Avaliacao clinica",
-                            fontSize = 18,
-                            fontWeight = FontWeight.Black,
-                            maxLines = 1
+                if (compact) {
+                    Column(
+                        modifier = cardModifier,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ClinicalEvaluationSummaryText(
+                            evaluation = evaluation,
+                            formatter = formatter,
+                            compact = true
                         )
-                        ChalkText(
-                            text = "${formatter.format(Date(evaluation.startedAt))}  -  ${evaluation.activityLabels}",
-                            fontSize = 13,
-                            color = ChalkWhite.copy(alpha = 0.74f),
-                            maxLines = 1
-                        )
-                        ChalkText(
-                            text = "Acertos ${evaluation.correct}  Erros ${evaluation.errors}  Total ${evaluation.total}",
-                            fontSize = 13,
-                            color = ChalkWhite.copy(alpha = 0.74f),
-                            maxLines = 1
-                        )
-                    }
-                    if (isPendingDelete) {
-                        Button(
-                            onClick = {
+                        ClinicalEvaluationActionButtons(
+                            isPendingDelete = isPendingDelete,
+                            isEditing = isEditing,
+                            compact = true,
+                            onConfirmDelete = {
                                 onDelete(evaluation)
                                 pendingDeleteKey = null
                                 editingKey = null
                                 draftAnswers = emptyMap()
                             },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFE53935),
-                                contentColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(42.dp)
-                        ) {
-                            Text("Confirmar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Button(
-                            onClick = { pendingDeleteKey = null },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White.copy(alpha = 0.16f),
-                                contentColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(42.dp)
-                        ) {
-                            Text("Cancelar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
-                    } else if (isEditing) {
-                        Button(
-                            onClick = {
+                            onCancelDelete = { pendingDeleteKey = null },
+                            onSaveEdit = {
                                 onSave(draftAnswers)
                                 editingKey = null
                                 draftAnswers = emptyMap()
                             },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF43A047),
-                                contentColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(42.dp)
-                        ) {
-                            Text("Salvar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Button(
-                            onClick = {
+                            onCancelEdit = {
                                 editingKey = null
                                 draftAnswers = emptyMap()
                             },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.White.copy(alpha = 0.16f),
-                                contentColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(42.dp)
-                        ) {
-                            Text("Cancelar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
-                    } else {
-                        Button(
-                            onClick = {
+                            onEdit = {
                                 editingKey = evaluation.key
                                 pendingDeleteKey = null
                                 draftAnswers = evaluation.results.associate { it.id to it.isCorrect }
                             },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFFFC107),
-                                contentColor = Color(0xFF102D13)
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(42.dp)
-                        ) {
-                            Text("Editar", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Button(
-                            onClick = { pendingDeleteKey = evaluation.key },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFE53935),
-                                contentColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(42.dp)
-                        ) {
-                            Text("Excluir avaliacao", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        }
+                            onDelete = { pendingDeleteKey = evaluation.key }
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = cardModifier,
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ClinicalEvaluationSummaryText(
+                            evaluation = evaluation,
+                            formatter = formatter,
+                            compact = false,
+                            modifier = Modifier.weight(1f)
+                        )
+                        ClinicalEvaluationActionButtons(
+                            isPendingDelete = isPendingDelete,
+                            isEditing = isEditing,
+                            compact = false,
+                            onConfirmDelete = {
+                                onDelete(evaluation)
+                                pendingDeleteKey = null
+                                editingKey = null
+                                draftAnswers = emptyMap()
+                            },
+                            onCancelDelete = { pendingDeleteKey = null },
+                            onSaveEdit = {
+                                onSave(draftAnswers)
+                                editingKey = null
+                                draftAnswers = emptyMap()
+                            },
+                            onCancelEdit = {
+                                editingKey = null
+                                draftAnswers = emptyMap()
+                            },
+                            onEdit = {
+                                editingKey = evaluation.key
+                                pendingDeleteKey = null
+                                draftAnswers = evaluation.results.associate { it.id to it.isCorrect }
+                            },
+                            onDelete = { pendingDeleteKey = evaluation.key }
+                        )
                     }
                 }
                 if (isEditing) {
@@ -1153,6 +1217,136 @@ private fun ClinicalEvaluationsAdminSection(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClinicalEvaluationSummaryText(
+    evaluation: ClinicalEvaluationGroup,
+    formatter: SimpleDateFormat,
+    compact: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        ChalkText(
+            text = "Avaliação clínica",
+            fontSize = if (compact) 16 else 18,
+            fontWeight = FontWeight.Black,
+            maxLines = 1
+        )
+        ChalkText(
+            text = "${formatter.format(Date(evaluation.startedAt))}  -  ${evaluation.activityLabels}",
+            fontSize = if (compact) 12 else 13,
+            color = ChalkWhite.copy(alpha = 0.74f),
+            maxLines = 1
+        )
+        ChalkText(
+            text = "Acertos ${evaluation.correct}  Erros ${evaluation.errors}  Total ${evaluation.total}",
+            fontSize = if (compact) 12 else 13,
+            color = ChalkWhite.copy(alpha = 0.74f),
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun ClinicalEvaluationActionButtons(
+    isPendingDelete: Boolean,
+    isEditing: Boolean,
+    compact: Boolean,
+    onConfirmDelete: () -> Unit,
+    onCancelDelete: () -> Unit,
+    onSaveEdit: () -> Unit,
+    onCancelEdit: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val buttonHeight = if (compact) 40.dp else 42.dp
+    val fontSize = if (compact) 12.sp else 13.sp
+
+    Row(
+        modifier = if (compact) modifier.fillMaxWidth() else modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val buttonModifier = if (compact) Modifier.weight(1f).height(buttonHeight) else Modifier.height(buttonHeight)
+
+        when {
+            isPendingDelete -> {
+                Button(
+                    onClick = onConfirmDelete,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFE53935),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = buttonModifier
+                ) {
+                    Text("Confirmar", fontSize = fontSize, fontWeight = FontWeight.Bold)
+                }
+                Button(
+                    onClick = onCancelDelete,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White.copy(alpha = 0.16f),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = buttonModifier
+                ) {
+                    Text("Cancelar", fontSize = fontSize, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            isEditing -> {
+                Button(
+                    onClick = onSaveEdit,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF43A047),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = buttonModifier
+                ) {
+                    Text("Salvar", fontSize = fontSize, fontWeight = FontWeight.Bold)
+                }
+                Button(
+                    onClick = onCancelEdit,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White.copy(alpha = 0.16f),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = buttonModifier
+                ) {
+                    Text("Cancelar", fontSize = fontSize, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            else -> {
+                Button(
+                    onClick = onEdit,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFFFC107),
+                        contentColor = Color(0xFF102D13)
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = buttonModifier
+                ) {
+                    Text("Editar", fontSize = fontSize, fontWeight = FontWeight.Bold)
+                }
+                Button(
+                    onClick = onDelete,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFE53935),
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = buttonModifier
+                ) {
+                    Text("Excluir avaliação", fontSize = fontSize, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -1218,10 +1412,10 @@ private fun ClinicalAssessmentScreen(
             activity = activities[nextActivityIndex]
             itemIndex = 0
             assessmentFinished = false
-            showFeedback = "${activities[currentActivityIndex].label()} concluida"
+            showFeedback = "${activities[currentActivityIndex].label()} concluída"
         } else {
             assessmentFinished = true
-            showFeedback = "Avaliacao concluida"
+            showFeedback = "Avaliação concluída"
         }
     }
 
@@ -1263,7 +1457,7 @@ private fun ClinicalAssessmentScreen(
                 .fillMaxSize()
                 .padding(18.dp)
         ) {
-            TopBar(title = "Avaliacao clinica", onBack = onBack)
+            TopBar(title = "Avaliação clínica", onBack = onBack)
             ChalkText(
                 text = childName,
                 fontSize = 16,
@@ -1289,7 +1483,7 @@ private fun ClinicalAssessmentScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     ChalkText(
-                        text = "Nenhum estimulo disponivel para avaliacao.",
+                        text = "Nenhum estímulo disponível para avaliação.",
                         fontSize = 24,
                         textAlign = TextAlign.Center
                     )
@@ -1507,7 +1701,7 @@ private fun ClinicalFinishedState(
         verticalArrangement = Arrangement.Center
     ) {
         ChalkText(
-            text = "Avaliacao concluida",
+            text = "Avaliação concluída",
             fontSize = 30,
             fontWeight = FontWeight.Black,
             color = Color(0xFFFFC107),
@@ -1538,7 +1732,7 @@ private fun ClinicalFinishedState(
                     .weight(1f)
                     .height(58.dp)
             ) {
-                Text("Ir para relatorio", fontSize = 18.sp, fontWeight = FontWeight.Black)
+                Text("Ir para relatório", fontSize = 18.sp, fontWeight = FontWeight.Black)
             }
             Button(
                 onClick = onRestart,
@@ -1551,7 +1745,7 @@ private fun ClinicalFinishedState(
                     .weight(1f)
                     .height(58.dp)
             ) {
-                Text("Nova avaliacao", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Nova avaliação", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
             Button(
                 onClick = onHome,
@@ -1564,7 +1758,7 @@ private fun ClinicalFinishedState(
                     .weight(1f)
                     .height(58.dp)
             ) {
-                Text("Inicio", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Início", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -1573,6 +1767,7 @@ private fun ClinicalFinishedState(
 @Composable
 private fun ClinicalCountsSection(
     results: List<ClinicalResultEntity>,
+    compact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val summaries = clinicalActivitySummaries(results)
@@ -1583,63 +1778,76 @@ private fun ClinicalCountsSection(
             .clip(RoundedCornerShape(8.dp))
             .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.10f))
-            .padding(14.dp)
+            .padding(if (compact) 10.dp else 14.dp)
     ) {
         ChalkText(
-            text = "Acertos e erros por avaliacao",
-            fontSize = 20,
+            text = "Acertos e erros por avaliação",
+            fontSize = if (compact) 18 else 20,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(bottom = 10.dp)
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            summaries.forEach { summary ->
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.White.copy(alpha = 0.10f))
-                        .padding(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    ChalkText(
-                        text = summary.label,
-                        fontSize = 17,
-                        fontWeight = FontWeight.Black,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    ChalkText(
-                        text = "Acertos: ${summary.correct}",
-                        fontSize = 16,
-                        color = Color(0xFFB8F5BD),
-                        textAlign = TextAlign.Center
-                    )
-                    ChalkText(
-                        text = "Erros: ${summary.errors}",
-                        fontSize = 16,
-                        color = Color(0xFFFFB3B3),
-                        textAlign = TextAlign.Center
-                    )
-                    ChalkText(
-                        text = "Total: ${summary.total}",
-                        fontSize = 15,
-                        color = ChalkWhite.copy(alpha = 0.82f),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+        AdaptiveMetricGrid(
+            columns = if (compact) 2 else summaries.size,
+            itemCount = summaries.size,
+            horizontalSpacing = if (compact) 8.dp else 12.dp,
+            verticalSpacing = 8.dp
+        ) { tileModifier, index ->
+            ClinicalActivityCountCard(
+                summary = summaries[index],
+                compact = compact,
+                modifier = tileModifier
+            )
         }
+    }
+}
+
+@Composable
+private fun ClinicalActivityCountCard(
+    summary: ClinicalActivitySummary,
+    compact: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.White.copy(alpha = 0.10f))
+            .padding(if (compact) 9.dp else 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(if (compact) 2.dp else 4.dp)
+    ) {
+        ChalkText(
+            text = summary.label,
+            fontSize = if (compact) 15 else 17,
+            fontWeight = FontWeight.Black,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            modifier = Modifier.fillMaxWidth()
+        )
+        ChalkText(
+            text = "Acertos: ${summary.correct}",
+            fontSize = if (compact) 14 else 16,
+            color = Color(0xFFB8F5BD),
+            textAlign = TextAlign.Center
+        )
+        ChalkText(
+            text = "Erros: ${summary.errors}",
+            fontSize = if (compact) 14 else 16,
+            color = Color(0xFFFFB3B3),
+            textAlign = TextAlign.Center
+        )
+        ChalkText(
+            text = "Total: ${summary.total}",
+            fontSize = if (compact) 13 else 15,
+            color = ChalkWhite.copy(alpha = 0.82f),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
 @Composable
 private fun ClinicalChartSection(
     results: List<ClinicalResultEntity>,
+    compact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val summaries = clinicalActivityKeys().map { activity ->
@@ -1651,25 +1859,25 @@ private fun ClinicalChartSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(154.dp)
+            .height(if (compact) 132.dp else 154.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.10f))
-            .padding(12.dp)
+            .padding(if (compact) 10.dp else 12.dp)
     ) {
         ChalkText(
-            text = "Desempenho clinico",
-            fontSize = 20,
+            text = "Desempenho clínico",
+            fontSize = if (compact) 18 else 20,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(bottom = 6.dp)
         )
         Row(
             modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 12.dp),
             verticalAlignment = Alignment.Bottom
         ) {
             summaries.forEach { summary ->
-                ClinicalBarView(summary = summary, modifier = Modifier.weight(1f))
+                ClinicalBarView(summary = summary, compact = compact, modifier = Modifier.weight(1f))
             }
         }
     }
@@ -1679,6 +1887,7 @@ private fun ClinicalChartSection(
 private fun ClinicalTrendSection(
     results: List<ClinicalResultEntity>,
     activity: String,
+    compact: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val points = remember(results, activity) { clinicalTrendPoints(results, activity) }
@@ -1686,23 +1895,23 @@ private fun ClinicalTrendSection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(154.dp)
+            .height(if (compact) 132.dp else 154.dp)
             .clip(RoundedCornerShape(8.dp))
             .border(2.dp, ChalkWhite.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.10f))
-            .padding(12.dp)
+            .padding(if (compact) 10.dp else 12.dp)
     ) {
         ChalkText(
-            text = "Evolucao - ${activity.label()}",
-            fontSize = 20,
+            text = "Evolução - ${activity.label()}",
+            fontSize = if (compact) 18 else 20,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(bottom = 6.dp)
         )
         if (points.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 ChalkText(
-                    text = "Sem sessoes registradas.",
-                    fontSize = 18,
+                    text = "Sem sessões registradas.",
+                    fontSize = if (compact) 16 else 18,
                     color = ChalkWhite.copy(alpha = 0.78f)
                 )
             }
@@ -1735,7 +1944,13 @@ private fun ClinicalTrendSection(
 }
 
 @Composable
-private fun ClinicalBarView(summary: ClinicalBar, modifier: Modifier = Modifier) {
+private fun ClinicalBarView(
+    summary: ClinicalBar,
+    compact: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    val barHeight = if (compact) 40.dp else 54.dp
+
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1743,28 +1958,28 @@ private fun ClinicalBarView(summary: ClinicalBar, modifier: Modifier = Modifier)
     ) {
         ChalkText(
             text = "${summary.percent}%",
-            fontSize = 18,
+            fontSize = if (compact) 16 else 18,
             fontWeight = FontWeight.Black,
             textAlign = TextAlign.Center
         )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(54.dp)
-                .padding(horizontal = 6.dp),
+                .height(barHeight)
+                .padding(horizontal = if (compact) 3.dp else 6.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(((summary.percent.coerceIn(0, 100) / 100f) * 54).dp)
+                    .height(barHeight * (summary.percent.coerceIn(0, 100) / 100f))
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color(0xFFFFC107))
             )
         }
         ChalkText(
             text = "${summary.label} (${summary.total})",
-            fontSize = 13,
+            fontSize = if (compact) 11 else 13,
             color = ChalkWhite.copy(alpha = 0.82f),
             textAlign = TextAlign.Center,
             maxLines = 1,
@@ -2402,34 +2617,38 @@ private fun NavButton(
 }
 
 @Composable
-private fun TopBar(title: String, onBack: () -> Unit) {
+private fun TopBar(title: String, onBack: () -> Unit, compact: Boolean = false) {
+    val barHeight = if (compact) 50.dp else 58.dp
+    val backButtonSize = if (compact) 46.dp else 52.dp
+    val iconSize = if (compact) 27.dp else 30.dp
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .height(58.dp)
+            .height(barHeight)
     ) {
         IconButton(
             onClick = onBack,
             modifier = Modifier
-                .size(52.dp)
+                .size(backButtonSize)
                 .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Voltar",
                 tint = ChalkWhite,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(iconSize)
             )
         }
         ChalkText(
             text = title,
-            fontSize = 28,
+            fontSize = if (compact) 24 else 28,
             fontWeight = FontWeight.Black,
             maxLines = 1,
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 18.dp)
+                .padding(start = if (compact) 12.dp else 18.dp)
         )
     }
 }
@@ -2579,10 +2798,10 @@ private fun parseColor(hex: String): Color {
 
 private fun updateMessage(state: UpdateState): String {
     return when (state) {
-        UpdateState.Idle -> "Toque no botao para verificar se existe uma nova versao publicada."
-        UpdateState.Checking -> "Verificando nova versao..."
-        is UpdateState.Available -> "Canal oficial disponivel.\n${state.manifest.notes}"
-        is UpdateState.UpToDate -> "Este tablet ja esta com a versao ${state.currentVersionName}."
+        UpdateState.Idle -> "Toque no botão para verificar se existe uma nova versão publicada."
+        UpdateState.Checking -> "Verificando nova versão..."
+        is UpdateState.Available -> "Canal oficial disponível.\n${state.manifest.notes}"
+        is UpdateState.UpToDate -> "Este aparelho já está com a versão ${state.currentVersionName}."
         is UpdateState.RemoteBehind -> "Canal remoto desatualizado: publicado ${state.remoteVersionName}, app instalado ${state.currentVersionName}."
         is UpdateState.NotConfigured -> state.message
         is UpdateState.Error -> "Falha ao verificar: ${state.message}"
@@ -2609,9 +2828,9 @@ private fun String.label(): String {
         "unfavorite" -> "removeu"
         "clinical_correct" -> "acertou"
         "clinical_error" -> "errou"
-        "nomeacao" -> "Nomeacao"
-        "repeticao" -> "Repeticao"
-        "discriminacao" -> "Discriminacao"
+        "nomeacao" -> "Nomeação"
+        "repeticao" -> "Repetição"
+        "discriminacao" -> "Discriminação"
         "leitura" -> "Leitura"
         else -> this
     }
@@ -2620,7 +2839,7 @@ private fun String.label(): String {
 private fun String.trialLabel(currentTrial: Int, totalTrials: Int): String {
     return when (this) {
         "nomeacao" -> "Figura $currentTrial/$totalTrials"
-        "repeticao" -> "Audio $currentTrial/$totalTrials"
+        "repeticao" -> "Áudio $currentTrial/$totalTrials"
         "discriminacao" -> "Par $currentTrial/$totalTrials"
         "leitura" -> "Leitura $currentTrial/$totalTrials"
         else -> "Tentativa $currentTrial/$totalTrials"
@@ -2629,7 +2848,11 @@ private fun String.trialLabel(currentTrial: Int, totalTrials: Int): String {
 
 private suspend fun installUpdate(context: Context, apkUrl: String): String {
     return try {
+        if (!isTrustedUpdateUrl(apkUrl)) {
+            return "Falha ao instalar: link de atualização fora do canal oficial."
+        }
         val apkFile = downloadUpdateApk(context, apkUrl)
+        validateDownloadedUpdateApk(context, apkFile)
         val apkUri = FileProvider.getUriForFile(
             context,
             "${context.packageName}.fileprovider",
@@ -2641,29 +2864,58 @@ private suspend fun installUpdate(context: Context, apkUrl: String): String {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
-        "Instalador aberto. Confirme a atualizacao para concluir."
+        "Instalador aberto. Confirme a atualização para concluir."
     } catch (error: Exception) {
-        "Falha ao instalar: ${error.message ?: "nao foi possivel baixar o APK."}"
+        "Falha ao instalar: ${error.message ?: "não foi possível baixar o APK."}"
     }
 }
 
 private suspend fun downloadUpdateApk(context: Context, apkUrl: String): File = withContext(Dispatchers.IO) {
+    require(isTrustedUpdateUrl(apkUrl)) { "Link de atualização fora do canal oficial." }
     val updateDir = File(context.cacheDir, "updates").apply { mkdirs() }
     val apkFile = File(updateDir, "FonoLousa-update.apk")
+    val tempFile = File(updateDir, "FonoLousa-update.apk.tmp")
     var connection: HttpURLConnection? = null
     try {
+        if (tempFile.exists()) tempFile.delete()
         connection = (URL(apkUrl).openConnection() as HttpURLConnection).apply {
             connectTimeout = 15000
             readTimeout = 30000
             requestMethod = "GET"
+            instanceFollowRedirects = true
         }
         if (connection.responseCode !in 200..299) {
-            throw IllegalStateException("APK indisponivel: HTTP ${connection.responseCode}")
+            throw IllegalStateException("APK indisponível: HTTP ${connection.responseCode}")
         }
+        val expectedLength = connection.contentLengthLong
+        if (expectedLength > MAX_UPDATE_APK_BYTES) {
+            throw IllegalStateException("APK maior que o limite permitido.")
+        }
+        if (expectedLength in 1 until MIN_UPDATE_APK_BYTES) {
+            throw IllegalStateException("Arquivo recebido não parece ser um APK válido.")
+        }
+        var copiedBytes = 0L
         connection.inputStream.use { input ->
-            apkFile.outputStream().use { output ->
-                input.copyTo(output)
+            tempFile.outputStream().use { output ->
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                while (true) {
+                    val read = input.read(buffer)
+                    if (read < 0) break
+                    copiedBytes += read
+                    if (copiedBytes > MAX_UPDATE_APK_BYTES) {
+                        throw IllegalStateException("APK maior que o limite permitido.")
+                    }
+                    output.write(buffer, 0, read)
+                }
             }
+        }
+        if (copiedBytes < MIN_UPDATE_APK_BYTES) {
+            throw IllegalStateException("Arquivo recebido não parece ser um APK válido.")
+        }
+        if (apkFile.exists()) apkFile.delete()
+        if (!tempFile.renameTo(apkFile)) {
+            tempFile.copyTo(apkFile, overwrite = true)
+            tempFile.delete()
         }
     } finally {
         connection?.disconnect()
@@ -2671,12 +2923,70 @@ private suspend fun downloadUpdateApk(context: Context, apkUrl: String): File = 
     apkFile
 }
 
+private fun validateDownloadedUpdateApk(context: Context, apkFile: File) {
+    if (!apkFile.isFile || apkFile.length() < MIN_UPDATE_APK_BYTES) {
+        throw IllegalStateException("Arquivo recebido não parece ser um APK válido.")
+    }
+
+    val packageManager = context.packageManager
+    val downloadedInfo = packageManager.getPackageArchiveInfo(
+        apkFile.absolutePath,
+        packageInfoSignatureFlags()
+    ) ?: throw IllegalStateException("Não foi possível validar o APK baixado.")
+
+    if (downloadedInfo.packageName != context.packageName) {
+        throw IllegalStateException("APK baixado pertence a outro aplicativo.")
+    }
+
+    val installedInfo = packageManager.getPackageInfo(
+        context.packageName,
+        packageInfoSignatureFlags()
+    )
+    val downloadedSigners = downloadedInfo.signingCertificateSha256Digests()
+    val installedSigners = installedInfo.signingCertificateSha256Digests()
+    if (downloadedSigners.isEmpty() || installedSigners.isEmpty()) {
+        throw IllegalStateException("Assinatura do APK não pode ser validada.")
+    }
+    if (downloadedSigners.intersect(installedSigners).isEmpty()) {
+        throw IllegalStateException("Assinatura do APK não confere com a versão instalada.")
+    }
+}
+
+@Suppress("DEPRECATION")
+private fun packageInfoSignatureFlags(): Int {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        PackageManager.GET_SIGNING_CERTIFICATES
+    } else {
+        PackageManager.GET_SIGNATURES
+    }
+}
+
+@Suppress("DEPRECATION")
+private fun PackageInfo.signingCertificateSha256Digests(): Set<String> {
+    val appSigners = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        signingInfo?.apkContentsSigners?.toList().orEmpty()
+    } else {
+        signatures?.toList().orEmpty()
+    }
+    return appSigners
+        .map { signature -> signature.toByteArray().sha256Hex() }
+        .toSet()
+}
+
+private fun ByteArray.sha256Hex(): String {
+    val digest = MessageDigest.getInstance("SHA-256").digest(this)
+    return digest.joinToString(separator = "") { byte -> "%02X".format(byte) }
+}
+
+private const val MIN_UPDATE_APK_BYTES = 1_000_000L
+private const val MAX_UPDATE_APK_BYTES = 100_000_000L
+
 private fun String.prompt(): String {
     return when (this) {
-        "nomeacao" -> "Mostre a figura e marque a resposta da crianca."
-        "repeticao" -> "Toque o som e marque se a crianca repetiu corretamente."
-        "discriminacao" -> "Toque os sons e marque se a crianca discriminou corretamente."
-        "leitura" -> "Mostre o texto; apos a resposta, revele a figura."
-        else -> "Marque o desempenho da crianca."
+        "nomeacao" -> "Mostre a figura e marque a resposta da criança."
+        "repeticao" -> "Toque o som e marque se a criança repetiu corretamente."
+        "discriminacao" -> "Toque os sons e marque se a criança discriminou corretamente."
+        "leitura" -> "Mostre o texto; após a resposta, revele a figura."
+        else -> "Marque o desempenho da criança."
     }
 }

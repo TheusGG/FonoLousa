@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 
 data class UpdateManifest(
@@ -33,7 +34,12 @@ class UpdateChecker(
     suspend fun check(): UpdateState {
         if (manifestUrl.isBlank()) {
             return UpdateState.NotConfigured(
-                "Canal de atualizacao ainda nao configurado neste APK."
+                "Canal de atualização ainda não configurado neste APK."
+            )
+        }
+        if (!isTrustedUpdateUrl(manifestUrl)) {
+            return UpdateState.NotConfigured(
+                "Canal de atualização precisa usar HTTPS oficial do GitHub."
             )
         }
 
@@ -45,12 +51,13 @@ class UpdateChecker(
                 connection.readTimeout = REQUEST_TIMEOUT_MS
                 connection.requestMethod = "GET"
                 if (connection.responseCode !in 200..299) {
-                    return@withContext UpdateState.Error("Manifesto indisponivel: HTTP ${connection.responseCode}.")
+                    return@withContext UpdateState.Error("Manifesto indisponível: HTTP ${connection.responseCode}.")
                 }
                 connection.inputStream.bufferedReader(Charsets.UTF_8).use { reader ->
                     val manifest = parseManifest(reader.readText())
                     when {
                         manifest.app != APP_NAME -> UpdateState.Error("Manifesto de outro app: ${manifest.app}.")
+                        !isTrustedUpdateUrl(manifest.apkUrl) -> UpdateState.Error("Link de APK fora do canal oficial.")
                         manifest.versionCode > BuildConfig.VERSION_CODE -> UpdateState.Available(manifest)
                         manifest.versionCode < BuildConfig.VERSION_CODE -> {
                             UpdateState.RemoteBehind(BuildConfig.VERSION_NAME, manifest.versionName)
@@ -59,7 +66,7 @@ class UpdateChecker(
                     }
                 }
             } catch (error: Exception) {
-                UpdateState.Error(error.message ?: "Nao foi possivel ler o manifesto de atualizacao.")
+                UpdateState.Error(error.message ?: "Não foi possível ler o manifesto de atualização.")
             } finally {
                 connection?.disconnect()
             }
@@ -71,6 +78,24 @@ class UpdateChecker(
         private const val REQUEST_TIMEOUT_MS = 8000
         private const val DEFAULT_MANIFEST_URL =
             "https://raw.githubusercontent.com/TheusGG/FonoLousa/main/docs/fonolousa-update.json"
+    }
+}
+
+internal fun isTrustedUpdateUrl(rawUrl: String): Boolean {
+    return try {
+        val uri = URI(rawUrl.trim())
+        val scheme = uri.scheme?.lowercase()
+        val host = uri.host?.lowercase()
+        val path = uri.path.orEmpty().lowercase()
+
+        scheme == "https" && when (host) {
+            "raw.githubusercontent.com" -> path.startsWith("/theusgg/fonolousa/")
+            "github.com" -> path.startsWith("/theusgg/fonolousa/")
+            "theusgg.github.io" -> path.startsWith("/fonolousa/")
+            else -> false
+        }
+    } catch (_: Exception) {
+        false
     }
 }
 
