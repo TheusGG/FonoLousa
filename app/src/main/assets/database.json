@@ -1008,200 +1008,168 @@
                            "cor":  "#00BCD4",
                            "niveis":  [
                                           {
-                                              "nivel":  1,
-                                              "descricao":  "Frases simples",
+                                              "nivel":  4,
+                                              "descricao":  "Ações",
                                               "itens":  [
                                                             {
                                                                 "id":  "menino-jogando-bola",
-                                                                "palavra":  "Menino jogando bola",
+                                                                "palavra":  "Menino jogando bola.",
                                                                 "arquivoImagem":  "assets/imagens/frases/menino-jogando-bola.png",
                                                                 "arquivoSom":  "assets/sons/frases/menino-jogando-bola.mp3",
-                                                                "frase":  "Menino jogando bola",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "frase":  "Menino jogando bola.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Menino jogando bola."
                                                             },
                                                             {
-                                                                "id":  "menina-lendo-livro",
-                                                                "palavra":  "Menina lendo livro",
-                                                                "arquivoImagem":  "assets/imagens/frases/menina-lendo-livro.png",
-                                                                "arquivoSom":  "assets/sons/frases/menina-lendo-livro.mp3",
-                                                                "frase":  "Menina lendo livro",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "crianca-escovando-os-dentes",
-                                                                "palavra":  "Criança escovando os dentes",
-                                                                "arquivoImagem":  "assets/imagens/frases/crianca-escovando-os-dentes.png",
-                                                                "arquivoSom":  "assets/sons/frases/crianca-escovando-os-dentes.mp3",
-                                                                "frase":  "Criança escovando os dentes",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "menina-comendo-maca",
+                                                                "palavra":  "Menina comendo maçã.",
+                                                                "arquivoImagem":  "assets/imagens/frases/menina-comendo-maca.png",
+                                                                "arquivoSom":  "assets/sons/frases/menina-comendo-maca.mp3",
+                                                                "frase":  "Menina comendo maçã.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Menina comendo maçã."
                                                             },
                                                             {
                                                                 "id":  "cachorro-correndo-no-parque",
-                                                                "palavra":  "Cachorro correndo no parque",
+                                                                "palavra":  "Cachorro correndo no parque.",
                                                                 "arquivoImagem":  "assets/imagens/frases/cachorro-correndo-no-parque.png",
                                                                 "arquivoSom":  "assets/sons/frases/cachorro-correndo-no-parque.mp3",
-                                                                "frase":  "Cachorro correndo no parque",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "frase":  "Cachorro correndo no parque.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Cachorro correndo no parque."
                                                             },
                                                             {
                                                                 "id":  "gato-dormindo-no-sofa",
-                                                                "palavra":  "Gato dormindo no sofá",
+                                                                "palavra":  "Gato dormindo no sofá.",
                                                                 "arquivoImagem":  "assets/imagens/frases/gato-dormindo-no-sofa.png",
                                                                 "arquivoSom":  "assets/sons/frases/gato-dormindo-no-sofa.mp3",
-                                                                "frase":  "Gato dormindo no sofá",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "frase":  "Gato dormindo no sofá.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Gato dormindo no sofá."
                                                             },
                                                             {
-                                                                "id":  "bebe-tomando-leite",
-                                                                "palavra":  "Bebê tomando leite",
-                                                                "arquivoImagem":  "assets/imagens/frases/bebe-tomando-leite.png",
-                                                                "arquivoSom":  "assets/sons/frases/bebe-tomando-leite.mp3",
-                                                                "frase":  "Bebê tomando leite",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "crianca-lendo-um-livro",
+                                                                "palavra":  "Criança lendo um livro.",
+                                                                "arquivoImagem":  "assets/imagens/frases/crianca-lendo-um-livro.png",
+                                                                "arquivoSom":  "assets/sons/frases/crianca-lendo-um-livro.mp3",
+                                                                "frase":  "Criança lendo um livro.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Criança lendo um livro."
                                                             },
                                                             {
-                                                                "id":  "mae-preparando-sopa",
-                                                                "palavra":  "Mãe preparando sopa",
-                                                                "arquivoImagem":  "assets/imagens/frases/mae-preparando-sopa.png",
-                                                                "arquivoSom":  "assets/sons/frases/mae-preparando-sopa.mp3",
-                                                                "frase":  "Mãe preparando sopa",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "papai-lavando-o-carro",
+                                                                "palavra":  "Papai lavando o carro.",
+                                                                "arquivoImagem":  "assets/imagens/frases/papai-lavando-o-carro.png",
+                                                                "arquivoSom":  "assets/sons/frases/papai-lavando-o-carro.mp3",
+                                                                "frase":  "Papai lavando o carro.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Papai lavando o carro."
                                                             },
                                                             {
-                                                                "id":  "pai-dirigindo-o-carro",
-                                                                "palavra":  "Pai dirigindo o carro",
-                                                                "arquivoImagem":  "assets/imagens/frases/pai-dirigindo-o-carro.png",
-                                                                "arquivoSom":  "assets/sons/frases/pai-dirigindo-o-carro.mp3",
-                                                                "frase":  "Pai dirigindo o carro",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "mamae-fazendo-um-bolo",
+                                                                "palavra":  "Mamãe fazendo um bolo.",
+                                                                "arquivoImagem":  "assets/imagens/frases/mamae-fazendo-um-bolo.png",
+                                                                "arquivoSom":  "assets/sons/frases/mamae-fazendo-um-bolo.mp3",
+                                                                "frase":  "Mamãe fazendo um bolo.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Mamãe fazendo um bolo."
+                                                            },
+                                                            {
+                                                                "id":  "vovo-andando-de-bicicleta",
+                                                                "palavra":  "Vovô andando de bicicleta.",
+                                                                "arquivoImagem":  "assets/imagens/frases/vovo-andando-de-bicicleta.png",
+                                                                "arquivoSom":  "assets/sons/frases/vovo-andando-de-bicicleta.mp3",
+                                                                "frase":  "Vovô andando de bicicleta.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Vovô andando de bicicleta."
+                                                            },
+                                                            {
+                                                                "id":  "bebe-brincando-com-blocos",
+                                                                "palavra":  "Bebê brincando com blocos.",
+                                                                "arquivoImagem":  "assets/imagens/frases/bebe-brincando-com-blocos.png",
+                                                                "arquivoSom":  "assets/sons/frases/bebe-brincando-com-blocos.mp3",
+                                                                "frase":  "Bebê brincando com blocos.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Bebê brincando com blocos."
+                                                            },
+                                                            {
+                                                                "id":  "menino-tomando-banho",
+                                                                "palavra":  "Menino tomando banho.",
+                                                                "arquivoImagem":  "assets/imagens/frases/menino-tomando-banho.png",
+                                                                "arquivoSom":  "assets/sons/frases/menino-tomando-banho.mp3",
+                                                                "frase":  "Menino tomando banho.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Menino tomando banho."
+                                                            },
+                                                            {
+                                                                "id":  "menina-escovando-os-dentes",
+                                                                "palavra":  "Menina escovando os dentes.",
+                                                                "arquivoImagem":  "assets/imagens/frases/menina-escovando-os-dentes.png",
+                                                                "arquivoSom":  "assets/sons/frases/menina-escovando-os-dentes.mp3",
+                                                                "frase":  "Menina escovando os dentes.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Menina escovando os dentes."
+                                                            },
+                                                            {
+                                                                "id":  "familia-jantando-na-mesa",
+                                                                "palavra":  "Família jantando na mesa.",
+                                                                "arquivoImagem":  "assets/imagens/frases/familia-jantando-na-mesa.png",
+                                                                "arquivoSom":  "assets/sons/frases/familia-jantando-na-mesa.mp3",
+                                                                "frase":  "Família jantando na mesa.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Família jantando na mesa."
                                                             },
                                                             {
                                                                 "id":  "passaro-voando-no-ceu",
-                                                                "palavra":  "Pássaro voando no céu",
+                                                                "palavra":  "Pássaro voando no céu.",
                                                                 "arquivoImagem":  "assets/imagens/frases/passaro-voando-no-ceu.png",
                                                                 "arquivoSom":  "assets/sons/frases/passaro-voando-no-ceu.mp3",
-                                                                "frase":  "Pássaro voando no céu",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "frase":  "Pássaro voando no céu.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Pássaro voando no céu."
                                                             },
                                                             {
-                                                                "id":  "menino-lavando-as-maos",
-                                                                "palavra":  "Menino lavando as mãos",
-                                                                "arquivoImagem":  "assets/imagens/frases/menino-lavando-as-maos.png",
-                                                                "arquivoSom":  "assets/sons/frases/menino-lavando-as-maos.mp3",
-                                                                "frase":  "Menino lavando as mãos",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "peixe-nadando-no-aquario",
+                                                                "palavra":  "Peixe nadando no aquário.",
+                                                                "arquivoImagem":  "assets/imagens/frases/peixe-nadando-no-aquario.png",
+                                                                "arquivoSom":  "assets/sons/frases/peixe-nadando-no-aquario.mp3",
+                                                                "frase":  "Peixe nadando no aquário.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Peixe nadando no aquário."
                                                             },
                                                             {
-                                                                "id":  "menina-comendo-bolo",
-                                                                "palavra":  "Menina comendo bolo",
-                                                                "arquivoImagem":  "assets/imagens/frases/menina-comendo-bolo.png",
-                                                                "arquivoSom":  "assets/sons/frases/menina-comendo-bolo.mp3",
-                                                                "frase":  "Menina comendo bolo",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "sol-brilhando-muito-forte",
+                                                                "palavra":  "Sol brilhando muito forte.",
+                                                                "arquivoImagem":  "assets/imagens/frases/sol-brilhando-muito-forte.png",
+                                                                "arquivoSom":  "assets/sons/frases/sol-brilhando-muito-forte.mp3",
+                                                                "frase":  "Sol brilhando muito forte.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Sol brilhando muito forte."
                                                             },
                                                             {
-                                                                "id":  "menino-bebendo-suco",
-                                                                "palavra":  "Menino bebendo suco",
-                                                                "arquivoImagem":  "assets/imagens/frases/menino-bebendo-suco.png",
-                                                                "arquivoSom":  "assets/sons/frases/menino-bebendo-suco.mp3",
-                                                                "frase":  "Menino bebendo suco",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "crianca-pulando-corda",
+                                                                "palavra":  "Criança pulando corda.",
+                                                                "arquivoImagem":  "assets/imagens/frases/crianca-pulando-corda.png",
+                                                                "arquivoSom":  "assets/sons/frases/crianca-pulando-corda.mp3",
+                                                                "frase":  "Criança pulando corda.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Criança pulando corda."
                                                             },
                                                             {
-                                                                "id":  "menina-chutando-bola",
-                                                                "palavra":  "Menina chutando bola",
-                                                                "arquivoImagem":  "assets/imagens/frases/menina-chutando-bola.png",
-                                                                "arquivoSom":  "assets/sons/frases/menina-chutando-bola.mp3",
-                                                                "frase":  "Menina chutando bola",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "menino-vestindo-a-camiseta",
+                                                                "palavra":  "Menino vestindo a camiseta.",
+                                                                "arquivoImagem":  "assets/imagens/frases/menino-vestindo-a-camiseta.png",
+                                                                "arquivoSom":  "assets/sons/frases/menino-vestindo-a-camiseta.mp3",
+                                                                "frase":  "Menino vestindo a camiseta.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Menino vestindo a camiseta."
                                                             },
                                                             {
-                                                                "id":  "menina-soltando-pipa",
-                                                                "palavra":  "Menina soltando pipa",
-                                                                "arquivoImagem":  "assets/imagens/frases/menina-soltando-pipa.png",
-                                                                "arquivoSom":  "assets/sons/frases/menina-soltando-pipa.mp3",
-                                                                "frase":  "Menina soltando pipa",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "menina-bebendo-agua-gelada",
+                                                                "palavra":  "Menina bebendo água gelada.",
+                                                                "arquivoImagem":  "assets/imagens/frases/menina-bebendo-agua-gelada.png",
+                                                                "arquivoSom":  "assets/sons/frases/menina-bebendo-agua-gelada.mp3",
+                                                                "frase":  "Menina bebendo água gelada.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Menina bebendo água gelada."
                                                             },
                                                             {
-                                                                "id":  "menino-tocando-tambor",
-                                                                "palavra":  "Menino tocando tambor",
-                                                                "arquivoImagem":  "assets/imagens/frases/menino-tocando-tambor.png",
-                                                                "arquivoSom":  "assets/sons/frases/menino-tocando-tambor.mp3",
-                                                                "frase":  "Menino tocando tambor",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "cachorro-latindo-para-o-gato",
+                                                                "palavra":  "Cachorro latindo para o gato.",
+                                                                "arquivoImagem":  "assets/imagens/frases/cachorro-latindo-para-o-gato.png",
+                                                                "arquivoSom":  "assets/sons/frases/cachorro-latindo-para-o-gato.mp3",
+                                                                "frase":  "Cachorro latindo para o gato.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Cachorro latindo para o gato."
                                                             },
                                                             {
-                                                                "id":  "crianca-brincando-com-carrinho",
-                                                                "palavra":  "Criança brincando com carrinho",
-                                                                "arquivoImagem":  "assets/imagens/frases/crianca-brincando-com-carrinho.png",
-                                                                "arquivoSom":  "assets/sons/frases/crianca-brincando-com-carrinho.mp3",
-                                                                "frase":  "Criança brincando com carrinho",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "bebe-dormindo-na-cama",
-                                                                "palavra":  "Bebê dormindo na cama",
-                                                                "arquivoImagem":  "assets/imagens/frases/bebe-dormindo-na-cama.png",
-                                                                "arquivoSom":  "assets/sons/frases/bebe-dormindo-na-cama.mp3",
-                                                                "frase":  "Bebê dormindo na cama",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "menina-segurando-balao",
-                                                                "palavra":  "Menina segurando balão",
-                                                                "arquivoImagem":  "assets/imagens/frases/menina-segurando-balao.png",
-                                                                "arquivoSom":  "assets/sons/frases/menina-segurando-balao.mp3",
-                                                                "frase":  "Menina segurando balão",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "menino-andando-de-bicicleta",
-                                                                "palavra":  "Menino andando de bicicleta",
-                                                                "arquivoImagem":  "assets/imagens/frases/menino-andando-de-bicicleta.png",
-                                                                "arquivoSom":  "assets/sons/frases/menino-andando-de-bicicleta.mp3",
-                                                                "frase":  "Menino andando de bicicleta",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "mae-lendo-livro",
-                                                                "palavra":  "Mãe lendo livro",
-                                                                "arquivoImagem":  "assets/imagens/frases/mae-lendo-livro.png",
-                                                                "arquivoSom":  "assets/sons/frases/mae-lendo-livro.mp3",
-                                                                "frase":  "Mãe lendo livro",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "pai-falando-no-telefone",
-                                                                "palavra":  "Pai falando no telefone",
-                                                                "arquivoImagem":  "assets/imagens/frases/pai-falando-no-telefone.png",
-                                                                "arquivoSom":  "assets/sons/frases/pai-falando-no-telefone.mp3",
-                                                                "frase":  "Pai falando no telefone",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "cachorro-perto-da-porta",
-                                                                "palavra":  "Cachorro perto da porta",
-                                                                "arquivoImagem":  "assets/imagens/frases/cachorro-perto-da-porta.png",
-                                                                "arquivoSom":  "assets/sons/frases/cachorro-perto-da-porta.mp3",
-                                                                "frase":  "Cachorro perto da porta",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "gato-olhando-a-lua",
-                                                                "palavra":  "Gato olhando a lua",
-                                                                "arquivoImagem":  "assets/imagens/frases/gato-olhando-a-lua.png",
-                                                                "arquivoSom":  "assets/sons/frases/gato-olhando-a-lua.mp3",
-                                                                "frase":  "Gato olhando a lua",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
-                                                            },
-                                                            {
-                                                                "id":  "menina-vendo-a-flor",
-                                                                "palavra":  "Menina vendo a flor",
-                                                                "arquivoImagem":  "assets/imagens/frases/menina-vendo-a-flor.png",
-                                                                "arquivoSom":  "assets/sons/frases/menina-vendo-a-flor.mp3",
-                                                                "frase":  "Menina vendo a flor",
-                                                                "promptImagem":  "Composição offline usando os mesmos ícones curados das categorias do FonoLousa."
+                                                                "id":  "papai-lendo-o-jornal",
+                                                                "palavra":  "Papai lendo o jornal.",
+                                                                "arquivoImagem":  "assets/imagens/frases/papai-lendo-o-jornal.png",
+                                                                "arquivoSom":  "assets/sons/frases/papai-lendo-o-jornal.mp3",
+                                                                "frase":  "Papai lendo o jornal.",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing: Papai lendo o jornal."
                                                             }
                                                         ]
                                           }

@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  40,
-    "versionName":  "1.0.39",
+    "versionCode":  41,
+    "versionName":  "1.0.40",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Remove bloqueio manual de assinatura no atualizador e deixa o instalador Android validar a atualizacao."
+    "notes":  "Adiciona categoria Frases no Nivel 4 - Acoes com 20 estimulos, imagens e audios."
 }
