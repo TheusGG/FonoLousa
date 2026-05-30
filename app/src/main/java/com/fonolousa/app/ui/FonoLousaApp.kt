@@ -3,8 +3,6 @@ package com.fonolousa.app.ui
 import android.graphics.BitmapFactory
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
@@ -123,7 +121,6 @@ import kotlin.math.roundToInt
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
-import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -3127,55 +3124,13 @@ private fun validateDownloadedUpdateApk(context: Context, apkFile: File) {
         throw IllegalStateException("Arquivo recebido não parece ser um APK válido.")
     }
 
-    val packageManager = context.packageManager
-    val downloadedInfo = packageManager.getPackageArchiveInfo(
-        apkFile.absolutePath,
-        packageInfoSignatureFlags()
-    ) ?: throw IllegalStateException("Não foi possível validar o APK baixado.")
+    @Suppress("DEPRECATION")
+    val downloadedInfo = context.packageManager.getPackageArchiveInfo(apkFile.absolutePath, 0)
+        ?: throw IllegalStateException("Não foi possível ler o APK baixado.")
 
     if (downloadedInfo.packageName != context.packageName) {
         throw IllegalStateException("APK baixado pertence a outro aplicativo.")
     }
-
-    val installedInfo = packageManager.getPackageInfo(
-        context.packageName,
-        packageInfoSignatureFlags()
-    )
-    val downloadedSigners = downloadedInfo.signingCertificateSha256Digests()
-    val installedSigners = installedInfo.signingCertificateSha256Digests()
-    if (
-        downloadedSigners.isNotEmpty() &&
-        installedSigners.isNotEmpty() &&
-        downloadedSigners.intersect(installedSigners).isEmpty()
-    ) {
-        throw IllegalStateException("Assinatura do APK não confere com a versão instalada.")
-    }
-}
-
-@Suppress("DEPRECATION")
-private fun packageInfoSignatureFlags(): Int {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        PackageManager.GET_SIGNING_CERTIFICATES
-    } else {
-        PackageManager.GET_SIGNATURES
-    }
-}
-
-@Suppress("DEPRECATION")
-private fun PackageInfo.signingCertificateSha256Digests(): Set<String> {
-    val appSigners = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        signingInfo?.apkContentsSigners?.toList().orEmpty()
-    } else {
-        signatures?.toList().orEmpty()
-    }
-    return appSigners
-        .map { signature -> signature.toByteArray().sha256Hex() }
-        .toSet()
-}
-
-private fun ByteArray.sha256Hex(): String {
-    val digest = MessageDigest.getInstance("SHA-256").digest(this)
-    return digest.joinToString(separator = "") { byte -> "%02X".format(byte) }
 }
 
 private const val MIN_UPDATE_APK_BYTES = 1_000_000L

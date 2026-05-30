@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  39,
-    "versionName":  "1.0.38",
+    "versionCode":  40,
+    "versionName":  "1.0.39",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Corrige validacao e instalacao da atualizacao interna com APK assinado em esquemas v1, v2 e v3."
+    "notes":  "Remove bloqueio manual de assinatura no atualizador e deixa o instalador Android validar a atualizacao."
 }
