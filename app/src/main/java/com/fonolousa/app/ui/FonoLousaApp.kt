@@ -1,4 +1,4 @@
-﻿package com.fonolousa.app.ui
+package com.fonolousa.app.ui
 
 import android.graphics.BitmapFactory
 import android.content.Context
@@ -48,13 +48,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.SystemUpdate
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -1490,6 +1490,7 @@ private fun ClinicalAssessmentScreen(
                 }
             } else {
                 val isReading = activity == "leitura"
+                val isPhraseStimulus = stimulus.categoria.id == "frases"
                 val showImage = !isReading || readingAnswered
                 val stimulusText = item.displayText(stimulus.level)
                 Column(
@@ -1547,6 +1548,12 @@ private fun ClinicalAssessmentScreen(
                                 .background(Color.White)
                         )
                     }
+                    if (isPhraseStimulus && !isReading) {
+                        ReadingStimulusText(
+                            text = stimulusText,
+                            modifier = Modifier.padding(top = 10.dp)
+                        )
+                    }
                     if (showFeedback != null) {
                         ChalkText(
                             text = showFeedback.orEmpty(),
@@ -1596,7 +1603,7 @@ private fun ClinicalAssessmentScreen(
                                 .weight(1f)
                                 .height(58.dp)
                         ) {
-                            Icon(Icons.Filled.VolumeUp, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null)
                             Spacer(Modifier.width(6.dp))
                             Text(
                                 text = if (activity == "discriminacao") "Som 1" else "Som",
@@ -1623,7 +1630,7 @@ private fun ClinicalAssessmentScreen(
                                     .weight(1f)
                                     .height(56.dp)
                             ) {
-                                Icon(Icons.Filled.VolumeUp, contentDescription = null)
+                                Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null)
                                 Spacer(Modifier.width(6.dp))
                                 Text("Tocar par", fontSize = 19.sp, fontWeight = FontWeight.Bold)
                             }
@@ -1668,7 +1675,7 @@ private fun ClinicalAssessmentScreen(
 private fun ReadingStimulusText(text: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .fillMaxWidth(0.62f)
+            .fillMaxWidth(0.78f)
             .clip(RoundedCornerShape(8.dp))
             .border(3.dp, Color(0xFFFFC107), RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.94f))
@@ -1678,10 +1685,10 @@ private fun ReadingStimulusText(text: String, modifier: Modifier = Modifier) {
         Text(
             text = text.uppercase(Locale.forLanguageTag("pt-BR")),
             color = ChalkGreen,
-            fontSize = 34.sp,
+            fontSize = 30.sp,
             fontWeight = FontWeight.Black,
             textAlign = TextAlign.Center,
-            maxLines = 2,
+            maxLines = 3,
             overflow = TextOverflow.Ellipsis
         )
     }
@@ -2412,7 +2419,7 @@ private fun ItemCell(
                     .background(borderColor)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.VolumeUp,
+                    imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                     contentDescription = "Tocar som",
                     tint = ChalkWhite,
                     modifier = Modifier.size(28.dp)
@@ -2466,6 +2473,38 @@ private fun ItemViewerScreen(
         if (showConfetti) audioPlayer.playVictory()
     }
 
+    if (categoria.id == "frases") {
+        PhraseViewerScreenContent(
+            repository = repository,
+            sessionRepository = sessionRepository,
+            audioPlayer = audioPlayer,
+            categoria = categoria,
+            nivel = nivel,
+            item = item,
+            currentIndex = currentIndex,
+            currentProgress = currentProgress,
+            imageScale = imageScale,
+            onBack = onBack,
+            onReplay = {
+                audioPlayer.play(item.arquivoSom, item.audioText(nivel.nivel))
+                scope.launch { sessionRepository.recordPlay(categoria.id, nivel.nivel, item) }
+                pulse = true
+            },
+            onToggleFavorite = {
+                scope.launch {
+                    sessionRepository.setFavorite(
+                        categoria.id,
+                        nivel.nivel,
+                        item,
+                        currentProgress?.isFavorite != true
+                    )
+                }
+            },
+            onPrevious = { currentIndex = (currentIndex - 1).coerceAtLeast(0) },
+            onNext = { currentIndex = (currentIndex + 1).coerceAtMost(nivel.itens.lastIndex) },
+            showConfetti = showConfetti
+        )
+    } else {
     BlackboardScreen {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -2522,7 +2561,7 @@ private fun ItemViewerScreen(
                                 .border(2.dp, ChalkWhite, CircleShape)
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.VolumeUp,
+                                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                                 contentDescription = "Repetir som",
                                 tint = ChalkWhite,
                                 modifier = Modifier.size(42.dp)
@@ -2582,6 +2621,160 @@ private fun ItemViewerScreen(
             if (showConfetti) ConfettiBurst()
         }
     }
+    }
+}
+
+@Composable
+private fun PhraseViewerScreenContent(
+    repository: DataRepository,
+    sessionRepository: SessionRepository,
+    audioPlayer: AudioPlayer,
+    categoria: Categoria,
+    nivel: Nivel,
+    item: ItemFono,
+    currentIndex: Int,
+    currentProgress: ItemProgressEntity?,
+    imageScale: Float,
+    onBack: () -> Unit,
+    onReplay: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    showConfetti: Boolean
+) {
+    BlackboardScreen {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val compact = maxWidth < 700.dp || maxHeight < 760.dp
+            val pagePadding = if (compact) 14.dp else 22.dp
+            val imageMaxWidth = if (compact) 0.78f else 0.54f
+            val phraseFont = if (compact) 26 else 34
+            val playHeight = if (compact) 58.dp else 66.dp
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(pagePadding),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    TopBar(
+                        title = "Frases",
+                        onBack = onBack,
+                        compact = compact
+                    )
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        AssetImage(
+                            repository = repository,
+                            path = item.arquivoImagem,
+                            contentDescription = item.displayText(nivel.nivel),
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxWidth(imageMaxWidth)
+                                .aspectRatio(1f)
+                                .graphicsLayer(scaleX = imageScale, scaleY = imageScale)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(4.dp, parseColor(categoria.cor), RoundedCornerShape(8.dp))
+                                .background(Color.White)
+                                .padding(if (compact) 8.dp else 12.dp)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(if (compact) 0.96f else 0.72f)
+                                .padding(top = if (compact) 12.dp else 18.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White.copy(alpha = 0.95f))
+                                .border(3.dp, parseColor(categoria.cor), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 16.dp, vertical = if (compact) 12.dp else 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = item.displayText(nivel.nivel),
+                                color = ChalkGreen,
+                                fontSize = phraseFont.sp,
+                                fontWeight = FontWeight.Black,
+                                textAlign = TextAlign.Center,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Button(
+                            onClick = onReplay,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFFFC107),
+                                contentColor = ChalkGreen
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth(if (compact) 0.96f else 0.72f)
+                                .height(playHeight)
+                                .padding(top = if (compact) 10.dp else 14.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                                contentDescription = null,
+                                modifier = Modifier.size(if (compact) 26.dp else 32.dp)
+                            )
+                            Spacer(Modifier.width(10.dp))
+                            Text(
+                                text = "Tocar frase",
+                                fontSize = if (compact) 20.sp else 24.sp,
+                                fontWeight = FontWeight.Black,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        IconButton(
+                            onClick = onToggleFavorite,
+                            modifier = Modifier
+                                .padding(top = if (compact) 8.dp else 12.dp)
+                                .size(if (compact) 52.dp else 64.dp)
+                                .border(2.dp, ChalkWhite, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = if (currentProgress?.isFavorite == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = "Favorito",
+                                tint = if (currentProgress?.isFavorite == true) Color(0xFFFFC107) else ChalkWhite,
+                                modifier = Modifier.size(if (compact) 30.dp else 38.dp)
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        NavButton(
+                            text = "Anterior",
+                            enabled = currentIndex > 0,
+                            iconLeft = true,
+                            onClick = onPrevious,
+                            modifier = Modifier.weight(1f)
+                        )
+                        ChalkText(
+                            text = "${currentIndex + 1}/${nivel.itens.size}",
+                            fontSize = if (compact) 18 else 22,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.width(if (compact) 72.dp else 90.dp)
+                        )
+                        NavButton(
+                            text = "Próximo",
+                            enabled = currentIndex < nivel.itens.lastIndex,
+                            iconLeft = false,
+                            onClick = onNext,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                if (showConfetti) ConfettiBurst()
+            }
+        }
+    }
 }
 
 @Composable
@@ -2605,13 +2798,13 @@ private fun NavButton(
         modifier = modifier.height(64.dp)
     ) {
         if (iconLeft) {
-            Icon(Icons.Filled.KeyboardArrowLeft, contentDescription = null)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null)
             Spacer(Modifier.width(4.dp))
         }
         Text(text = text, fontSize = 21.sp, fontWeight = FontWeight.Bold, maxLines = 1)
         if (!iconLeft) {
             Spacer(Modifier.width(4.dp))
-            Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null)
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
         }
     }
 }

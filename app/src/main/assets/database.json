@@ -1001,6 +1001,99 @@
                                                         ]
                                           }
                                       ]
+                       },
+                       {
+                           "id":  "frases",
+                           "nome":  "Frases",
+                           "cor":  "#00BCD4",
+                           "niveis":  [
+                                          {
+                                              "nivel":  1,
+                                              "descricao":  "Frases simples",
+                                              "itens":  [
+                                                            {
+                                                                "id":  "menino-jogando-bola",
+                                                                "palavra":  "Menino jogando bola",
+                                                                "arquivoImagem":  "assets/imagens/frases/menino-jogando-bola.png",
+                                                                "arquivoSom":  "assets/sons/frases/menino-jogando-bola.mp3",
+                                                                "frase":  "Menino jogando bola",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Menino jogando bola"
+                                                            },
+                                                            {
+                                                                "id":  "menina-lendo-livro",
+                                                                "palavra":  "Menina lendo livro",
+                                                                "arquivoImagem":  "assets/imagens/frases/menina-lendo-livro.png",
+                                                                "arquivoSom":  "assets/sons/frases/menina-lendo-livro.mp3",
+                                                                "frase":  "Menina lendo livro",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Menina lendo livro"
+                                                            },
+                                                            {
+                                                                "id":  "crianca-escovando-os-dentes",
+                                                                "palavra":  "Criança escovando os dentes",
+                                                                "arquivoImagem":  "assets/imagens/frases/crianca-escovando-os-dentes.png",
+                                                                "arquivoSom":  "assets/sons/frases/crianca-escovando-os-dentes.mp3",
+                                                                "frase":  "Criança escovando os dentes",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Criança escovando os dentes"
+                                                            },
+                                                            {
+                                                                "id":  "cachorro-correndo-no-parque",
+                                                                "palavra":  "Cachorro correndo no parque",
+                                                                "arquivoImagem":  "assets/imagens/frases/cachorro-correndo-no-parque.png",
+                                                                "arquivoSom":  "assets/sons/frases/cachorro-correndo-no-parque.mp3",
+                                                                "frase":  "Cachorro correndo no parque",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Cachorro correndo no parque"
+                                                            },
+                                                            {
+                                                                "id":  "gato-dormindo-no-sofa",
+                                                                "palavra":  "Gato dormindo no sofá",
+                                                                "arquivoImagem":  "assets/imagens/frases/gato-dormindo-no-sofa.png",
+                                                                "arquivoSom":  "assets/sons/frases/gato-dormindo-no-sofa.mp3",
+                                                                "frase":  "Gato dormindo no sofá",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Gato dormindo no sofá"
+                                                            },
+                                                            {
+                                                                "id":  "bebe-tomando-leite",
+                                                                "palavra":  "Bebê tomando leite",
+                                                                "arquivoImagem":  "assets/imagens/frases/bebe-tomando-leite.png",
+                                                                "arquivoSom":  "assets/sons/frases/bebe-tomando-leite.mp3",
+                                                                "frase":  "Bebê tomando leite",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Bebê tomando leite"
+                                                            },
+                                                            {
+                                                                "id":  "mae-cozinhando-sopa",
+                                                                "palavra":  "Mãe cozinhando sopa",
+                                                                "arquivoImagem":  "assets/imagens/frases/mae-cozinhando-sopa.png",
+                                                                "arquivoSom":  "assets/sons/frases/mae-cozinhando-sopa.mp3",
+                                                                "frase":  "Mãe cozinhando sopa",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Mãe cozinhando sopa"
+                                                            },
+                                                            {
+                                                                "id":  "pai-dirigindo-o-carro",
+                                                                "palavra":  "Pai dirigindo o carro",
+                                                                "arquivoImagem":  "assets/imagens/frases/pai-dirigindo-o-carro.png",
+                                                                "arquivoSom":  "assets/sons/frases/pai-dirigindo-o-carro.mp3",
+                                                                "frase":  "Pai dirigindo o carro",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Pai dirigindo o carro"
+                                                            },
+                                                            {
+                                                                "id":  "passaro-voando-no-ceu",
+                                                                "palavra":  "Pássaro voando no céu",
+                                                                "arquivoImagem":  "assets/imagens/frases/passaro-voando-no-ceu.png",
+                                                                "arquivoSom":  "assets/sons/frases/passaro-voando-no-ceu.mp3",
+                                                                "frase":  "Pássaro voando no céu",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Pássaro voando no céu"
+                                                            },
+                                                            {
+                                                                "id":  "menino-lavando-as-maos",
+                                                                "palavra":  "Menino lavando as mãos",
+                                                                "arquivoImagem":  "assets/imagens/frases/menino-lavando-as-maos.png",
+                                                                "arquivoSom":  "assets/sons/frases/menino-lavando-as-maos.mp3",
+                                                                "frase":  "Menino lavando as mãos",
+                                                                "promptImagem":  "High-quality 2D flat vector sticker, white background, thick outlines, vibrant colors, child-friendly, representing Menino lavando as mãos"
+                                                            }
+                                                        ]
+                                          }
+                                      ]
                        }
                    ]
 }
