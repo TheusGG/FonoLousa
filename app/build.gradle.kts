@@ -26,8 +26,8 @@ android {
         applicationId = "com.fonolousa.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 38
-        versionName = "1.0.37"
+        versionCode = 39
+        versionName = "1.0.38"
         buildConfigField(
             "String",
             "UPDATE_MANIFEST_URL",
@@ -48,6 +48,9 @@ android {
                 keyAlias = localProperty("FONOLOUSA_RELEASE_KEY_ALIAS")
                 keyPassword = localProperty("FONOLOUSA_RELEASE_KEY_PASSWORD")
             }
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
         }
     }
 

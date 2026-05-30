@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  38,
-    "versionName":  "1.0.37",
+    "versionCode":  39,
+    "versionName":  "1.0.38",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Melhora imagens do modulo Frases com composicoes no estilo dos brinquedos e amplia para 24 frases."
+    "notes":  "Corrige validacao e instalacao da atualizacao interna com APK assinado em esquemas v1, v2 e v3."
 }

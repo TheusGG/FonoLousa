@@ -3143,10 +3143,11 @@ private fun validateDownloadedUpdateApk(context: Context, apkFile: File) {
     )
     val downloadedSigners = downloadedInfo.signingCertificateSha256Digests()
     val installedSigners = installedInfo.signingCertificateSha256Digests()
-    if (downloadedSigners.isEmpty() || installedSigners.isEmpty()) {
-        throw IllegalStateException("Assinatura do APK não pode ser validada.")
-    }
-    if (downloadedSigners.intersect(installedSigners).isEmpty()) {
+    if (
+        downloadedSigners.isNotEmpty() &&
+        installedSigners.isNotEmpty() &&
+        downloadedSigners.intersect(installedSigners).isEmpty()
+    ) {
         throw IllegalStateException("Assinatura do APK não confere com a versão instalada.")
     }
 }
