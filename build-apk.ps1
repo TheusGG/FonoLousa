@@ -96,7 +96,7 @@ try {
 <body>
   <main>
     <h1>FonoLousa</h1>
-    <p>Versao $versionName ($versionCode) para instalacao em tablet Android.</p>
+    <p>Versao $versionName ($versionCode) para instalacao em celular ou tablet Android.</p>
     <a href="$outputApkName">Baixar APK</a>
     <p>Manifesto de atualizacao: <code>fonolousa-update.json</code></p>
   </main>

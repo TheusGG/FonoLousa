@@ -22,6 +22,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -286,149 +288,311 @@ private fun HomeScreen(
     val canStartNewAssessment = typedChildName.isNotEmpty() && !duplicateChildName
 
     BlackboardScreen {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 32.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(
-                    onClick = onReportClick,
-                    modifier = Modifier
-                        .size(56.dp)
-                        .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Assessment,
-                        contentDescription = "Relatorio da sessao",
-                        tint = Color(0xFFFFC107),
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
-                Spacer(Modifier.width(10.dp))
-                IconButton(
-                    onClick = onUpdateClick,
-                    modifier = Modifier
-                        .size(56.dp)
-                        .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.SystemUpdate,
-                        contentDescription = "Atualizar app",
-                        tint = ChalkWhite,
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val compactWidth = maxWidth < 720.dp
+            val shortScreen = maxHeight < 620.dp
+            val pagePadding = if (compactWidth) 18.dp else 32.dp
+            val verticalPadding = if (compactWidth || shortScreen) 14.dp else 24.dp
+            val topIconSize = if (compactWidth || shortScreen) 48.dp else 56.dp
+            val topIconInnerSize = if (compactWidth || shortScreen) 26.dp else 30.dp
+            val titleSize = when {
+                compactWidth -> 40
+                shortScreen -> 44
+                else -> 52
             }
-            ChalkText(
-                text = "FonoLousa",
-                fontSize = 52,
-                fontWeight = FontWeight.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            ChalkText(
-                text = "Versao ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
-                fontSize = 18,
-                color = ChalkWhite.copy(alpha = 0.82f),
-                textAlign = TextAlign.Center,
+            val versionSize = if (compactWidth || shortScreen) 16 else 18
+            val headingSize = if (compactWidth) 22 else 24
+            val gridColumns = if (compactWidth) 1 else 2
+            val gridSpacing = if (compactWidth) 12.dp else 18.dp
+
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 2.dp)
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = if (duplicateChildName) 8.dp else 16.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .border(2.dp, ChalkWhite.copy(alpha = 0.42f), RoundedCornerShape(8.dp))
-                    .background(Color.White.copy(alpha = 0.10f))
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .imePadding()
+                    .padding(horizontal = pagePadding, vertical = verticalPadding),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TextField(
-                    value = childName,
-                    onValueChange = { childName = it.replace("\n", " ").take(40) },
-                    placeholder = { Text("Nome da nova crianca") },
-                    isError = duplicateChildName,
-                    singleLine = true,
-                    shape = RoundedCornerShape(8.dp),
-                    textStyle = TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFF113D18),
-                        unfocusedTextColor = Color(0xFF113D18),
-                        focusedContainerColor = Color(0xFFFCFBF1),
-                        unfocusedContainerColor = Color(0xFFFCFBF1),
-                        errorContainerColor = Color(0xFFFFF6F6),
-                        cursorColor = ChalkGreen,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        errorIndicatorColor = Color(0xFFE53935)
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(62.dp)
-                )
-                Button(
-                    onClick = { onClinicalClick(typedChildName) },
-                    enabled = canStartNewAssessment,
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFC107),
-                        contentColor = Color(0xFF1A1A1A)
-                    ),
-                    modifier = Modifier
-                        .height(62.dp)
-                        .width(230.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text("Cadastrar e avaliar", fontSize = 17.sp, fontWeight = FontWeight.Black)
+                    IconButton(
+                        onClick = onReportClick,
+                        modifier = Modifier
+                            .size(topIconSize)
+                            .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Assessment,
+                            contentDescription = "Relatorio da sessao",
+                            tint = Color(0xFFFFC107),
+                            modifier = Modifier.size(topIconInnerSize)
+                        )
+                    }
+                    Spacer(Modifier.width(if (compactWidth) 8.dp else 10.dp))
+                    IconButton(
+                        onClick = onUpdateClick,
+                        modifier = Modifier
+                            .size(topIconSize)
+                            .border(2.dp, ChalkWhite.copy(alpha = 0.78f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.SystemUpdate,
+                            contentDescription = "Atualizar app",
+                            tint = ChalkWhite,
+                            modifier = Modifier.size(topIconInnerSize)
+                        )
+                    }
                 }
-                Button(
-                    onClick = onReportClick,
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .height(62.dp)
-                        .width(170.dp)
-                ) {
-                    Text("Ver Relatorios", fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-            if (duplicateChildName) {
                 ChalkText(
-                    text = "Crianca ja cadastrada. Use outro nome para novo cadastro.",
-                    fontSize = 16,
-                    color = Color(0xFFFFB3B3),
+                    text = "FonoLousa",
+                    fontSize = titleSize,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                ChalkText(
+                    text = "Versao ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                    fontSize = versionSize,
+                    color = ChalkWhite.copy(alpha = 0.82f),
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 8.dp)
+                        .padding(top = 2.dp)
                 )
-            }
-            ChalkText(
-                text = "Toque em uma categoria",
-                fontSize = 24,
-                modifier = Modifier.padding(top = 6.dp, bottom = 22.dp)
-            )
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(22.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(categorias, key = { it.id }) { categoria ->
-                    CategoryButton(categoria = categoria, onClick = { onCategoryClick(categoria) })
+                HomeRegistrationPanel(
+                    childName = childName,
+                    onChildNameChange = { childName = it.replace("\n", " ").take(40) },
+                    duplicateChildName = duplicateChildName,
+                    canStartNewAssessment = canStartNewAssessment,
+                    compact = compactWidth,
+                    onStartAssessment = { onClinicalClick(typedChildName) },
+                    onReportClick = onReportClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            top = if (compactWidth || shortScreen) 12.dp else 16.dp,
+                            bottom = if (duplicateChildName) 6.dp else if (compactWidth) 12.dp else 16.dp
+                        )
+                )
+                if (duplicateChildName) {
+                    ChalkText(
+                        text = "Crianca ja cadastrada. Use outro nome para novo cadastro.",
+                        fontSize = if (compactWidth) 14 else 16,
+                        color = Color(0xFFFFB3B3),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = if (compactWidth) 6.dp else 8.dp)
+                    )
+                }
+                ChalkText(
+                    text = "Toque em uma categoria",
+                    fontSize = headingSize,
+                    modifier = Modifier.padding(
+                        top = if (compactWidth) 2.dp else 6.dp,
+                        bottom = if (compactWidth) 12.dp else 22.dp
+                    )
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(gridColumns),
+                    contentPadding = PaddingValues(
+                        start = if (compactWidth) 2.dp else 8.dp,
+                        top = 2.dp,
+                        end = if (compactWidth) 2.dp else 8.dp,
+                        bottom = 16.dp
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(if (compactWidth) 0.dp else 22.dp),
+                    verticalArrangement = Arrangement.spacedBy(gridSpacing),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    items(categorias, key = { it.id }) { categoria ->
+                        CategoryButton(categoria = categoria, onClick = { onCategoryClick(categoria) })
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HomeRegistrationPanel(
+    childName: String,
+    onChildNameChange: (String) -> Unit,
+    duplicateChildName: Boolean,
+    canStartNewAssessment: Boolean,
+    compact: Boolean,
+    onStartAssessment: () -> Unit,
+    onReportClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val panelModifier = modifier
+        .clip(RoundedCornerShape(8.dp))
+        .border(2.dp, ChalkWhite.copy(alpha = 0.42f), RoundedCornerShape(8.dp))
+        .background(Color.White.copy(alpha = 0.10f))
+        .padding(if (compact) 10.dp else 12.dp)
+
+    if (compact) {
+        Column(
+            modifier = panelModifier,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HomeNameTextField(
+                childName = childName,
+                onChildNameChange = onChildNameChange,
+                duplicateChildName = duplicateChildName,
+                compact = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp)
+            )
+            HomePrimaryButton(
+                text = "Cadastrar e avaliar",
+                enabled = canStartNewAssessment,
+                compact = true,
+                onClick = onStartAssessment,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            )
+            HomeSecondaryButton(
+                text = "Ver Relatorios",
+                compact = true,
+                onClick = onReportClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+            )
+        }
+    } else {
+        Row(
+            modifier = panelModifier,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HomeNameTextField(
+                childName = childName,
+                onChildNameChange = onChildNameChange,
+                duplicateChildName = duplicateChildName,
+                compact = false,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(62.dp)
+            )
+            HomePrimaryButton(
+                text = "Cadastrar e avaliar",
+                enabled = canStartNewAssessment,
+                compact = false,
+                onClick = onStartAssessment,
+                modifier = Modifier
+                    .height(62.dp)
+                    .width(230.dp)
+            )
+            HomeSecondaryButton(
+                text = "Ver Relatorios",
+                compact = false,
+                onClick = onReportClick,
+                modifier = Modifier
+                    .height(62.dp)
+                    .width(170.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomeNameTextField(
+    childName: String,
+    onChildNameChange: (String) -> Unit,
+    duplicateChildName: Boolean,
+    compact: Boolean,
+    modifier: Modifier = Modifier
+) {
+    TextField(
+        value = childName,
+        onValueChange = onChildNameChange,
+        placeholder = {
+            Text(
+                text = "Nome da nova crianca",
+                fontSize = if (compact) 16.sp else 18.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        isError = duplicateChildName,
+        singleLine = true,
+        shape = RoundedCornerShape(8.dp),
+        textStyle = TextStyle(
+            fontSize = if (compact) 17.sp else 18.sp,
+            fontWeight = FontWeight.Bold
+        ),
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = Color(0xFF113D18),
+            unfocusedTextColor = Color(0xFF113D18),
+            focusedContainerColor = Color(0xFFFCFBF1),
+            unfocusedContainerColor = Color(0xFFFCFBF1),
+            errorContainerColor = Color(0xFFFFF6F6),
+            cursorColor = ChalkGreen,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color(0xFFE53935)
+        ),
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun HomePrimaryButton(
+    text: String,
+    enabled: Boolean,
+    compact: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFFFC107),
+            contentColor = Color(0xFF1A1A1A)
+        ),
+        modifier = modifier
+    ) {
+        Text(
+            text = text,
+            fontSize = if (compact) 16.sp else 17.sp,
+            fontWeight = FontWeight.Black,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun HomeSecondaryButton(
+    text: String,
+    compact: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+    ) {
+        Text(
+            text = text,
+            fontSize = if (compact) 16.sp else 17.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
     }
 }
 

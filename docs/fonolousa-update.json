@@ -1,7 +1,7 @@
 {
     "app":  "FonoLousa",
-    "versionCode":  34,
-    "versionName":  "1.0.33",
+    "versionCode":  35,
+    "versionName":  "1.0.34",
     "apkUrl":  "https://github.com/TheusGG/FonoLousa/raw/main/docs/FonoLousa-release.apk",
-    "notes":  "Auditoria tecnica, melhorias no relatorio clinico, banco local e canal de atualizacao."
+    "notes":  "Ajusta tela inicial para celular Android, com cadastro responsivo e teclado visivel."
 }
